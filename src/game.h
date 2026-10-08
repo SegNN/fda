@@ -2,6 +2,7 @@
 #include "common.h"
 #include "mem.h"
 #include "offsets.h"
+#include "buff_reader.h"
 #include <mutex>
 #include <vector>
 
@@ -14,6 +15,8 @@ enum class UnitKind : uint8_t {
     Building,
     Courier,
     Boss,
+    Rune,
+    RuneSpawner,
 };
 
 inline const char* KindTag(UnitKind k) {
@@ -37,7 +40,21 @@ struct StaticUnit {
     char         nick[32] = {};
 };
 
+struct ItemInfo {
+    int slot = -1, charges = -1;
+    uintptr_t addr = 0;
+    uint32_t instanceHandle = 0;
+    float cd = -1.f, cdLen = 0.f, expiresAt = -1.f;
+    bool cooldownRead = false;
+    char icon[80] = {};
+};
+
 struct AbilityInfo {
+    char        icon[80] = {};
+    int         slot = -1;
+    int         maxLevel = 0;
+    bool        automationReady = false;
+    bool        cooldownRead = false;
     int         level   = 0;
     int         mana    = 0;
     float       cd      = 0.f;
@@ -70,6 +87,24 @@ struct FrameUnit {
     float dist = 0.f;
     int   respawn = -1;
 
+    uint32_t entityHandle = 0;
+    int runeType = -1, nextRuneType = -1;
+    float runeTime = -1.f, runeLastSpawn = -1.f, runeNextSpawn = -1.f;
+    bool runeRead = false;
+
+    bool buffsRead=false;
+    std::vector<buffreader::Buff> buffs;
+
+    int playerId = -1;
+    bool inventoryRead = false;
+    int inventoryCount = -1, inventoryResolved = 0, inventoryUnmapped = 0;
+    bool aegisVisible = false, aegisEstimated = false;
+    float aegisSeconds = 0.f;
+    uint32_t teamVisibilityMask = 0;
+    bool teamVisibilityRead = false;
+    int bountyMin = -1, bountyMax = -1;
+    ItemInfo items[27];
+    int itemN = 0;
     AbilityInfo abil[16];
     int         abilN = 0;
 
@@ -90,8 +125,13 @@ struct Frame {
     int   hp = 0, maxHp = 0, mana = 0, maxMana = 0, level = 0;
     float dmgAvg = 0.f;
     int   atkRange = 0;
+    int damageMin = 0, damageMax = 0, damageBonus = 0;
+    bool damageRead = false;
     bool  localAlive = false;
 
+    uintptr_t localHero = 0;
+    uint32_t localHandle=0;
+    uintptr_t queryUnit = 0;
     uintptr_t rules = 0;
     float     gameStart = -1.f;
     int       gameState = -1;
@@ -124,6 +164,19 @@ struct Sys {
 };
 
 extern Sys g_sys;
+
+// Atomic read-only telemetry for the failing initialization path.
+struct EntityProbe {
+    std::atomic<int> stage{0};
+    std::atomic<unsigned> attempts{0};
+    std::atomic<uintptr_t> slot{0}, pointer{0}, vtable{0}, expectedVtable{0};
+    std::atomic<uintptr_t> word08{0}, word10{0}, word18{0};
+    std::atomic<int> pages{0}, hits{0};
+    std::atomic<unsigned> scannedSlots{0}, matchedObjects{0};
+    std::atomic<int> lastScanStage{0};
+};
+extern EntityProbe g_probe;
+
 
 extern uintptr_t g_rules;
 extern uintptr_t g_rulesProxy;

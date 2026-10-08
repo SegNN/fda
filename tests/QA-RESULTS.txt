@@ -1,0 +1,28 @@
+FDA 0.5.5 — CURRENT CONSOLIDATED QA (SOURCE / MOCK ONLY)
+PASS ASan/UBSan suite (12 jobs): buff_reader, kill_stealer_core, auto_accept_core,
+map_event_tracker, damage_estimate, kill_helper_core, armlet_core,
+helper_hero_catalog, armlet adapter, helper adapter, automation adapter, game reads.
+PASS final exact armlet.cpp adapter re-run after pause/current-Armlet-ability guards:
+Huskar/full handle, selected single unit, inventory slot, item serial, raw toggle,
+confirmed native setup, focus/menu/pause/mute/channel/recognized DoT/unknown guards;
+OFF observation before ON; no late input after refocus; reset on new match;
+no mouse actions. Mock SendInput counters, not real keys or game toggles.
+PASS Armlet core: threshold, observed states, timeout, recovery, spacing/hysteresis,
+cancellation, identity/time changes and conservative recognized DoT list.
+PASS 127 unique enabled source hero names/IDs; exactly one Huskar entry.
+PASS deterministic hero generator and source hash list; all build inputs present.
+REVIEWED input-lane interlock: while Armlet master ON, cancel farm/dodge pending
+input and do not run KS/farm/dodge. Armlet binding background/menu gating reviewed.
+Those two draw.cpp paths are source-reviewed, not separately live-input tested.
+PASS cosmetic core regression (6000 malformed cases) and mock adapter.
+PASS native ImGui mock menu build with original modules and new category/module.
+VISUALLY INSPECTED individually: Huskar desktop; 800x600 font 1.3 top/bottom;
+desktop placeholder and compact list bottom. Search, list scroll and save footer
+fit; threshold <= rendered with available glyphs; no active-status ambiguity.
+All previews are MOCK UI over a historical user screenshot, not live Huskar/Armlet.
+NOT TESTED: MSVC/Windows ABI, Dota current offsets/vector layouts, live selection,
+modifier discovery, Armlet cooldown/toggle/readiness/HP mechanics, physical input,
+projectiles/attack timings, chat focus, Steam/Armory, anti-cheat consequences.
+Armlet module is HP-THRESHOLD experimental automation, not a safe incoming-hit
+predictor or universally complete abuse. It may kill the hero or leave Armlet OFF.
+Inherited modules retain limitations in README-0.5.4 and README-0.5.3.

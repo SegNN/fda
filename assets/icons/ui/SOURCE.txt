@@ -1,0 +1,1 @@
+Unmodified SVG source files from user-provided lotus-client.zip, images/UmbrellaIcons. Paths rendered by src/ui_icons.h; no external icon/font download.

@@ -1,0 +1,5 @@
+Provided by the user in lotus-client.zip:
+fonts/MuseoSansEx 500.ttf -> ui-regular.ttf
+fonts/sfprosemibold.otf -> ui-semibold.otf
+No external font download. No font modification. Original files retain their
+embedded naming/license information. User must have rights to use/distribute them.

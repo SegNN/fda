@@ -1,0 +1,30 @@
+{
+  "source": "lotus-client.zip v2026.10.07.1",
+  "archive_sha256": "38ef1618aeac81cc6e11814f9221831024bb94a12a3e492cccd43fbd475c5559",
+  "mapping_count": 1365,
+  "hero_images": 135,
+  "note": "Game PNGs only; no Lotus executable code, fonts or brand art.",
+  "ui_fonts_0_4_2": {
+    "source": "user-provided lotus-client.zip",
+    "files": [
+      "assets/fonts/ui-regular.ttf",
+      "assets/fonts/ui-semibold.otf"
+    ]
+  },
+  "ui_icons_0_4_5": {
+    "source": "user-provided lotus-client.zip / images/UmbrellaIcons",
+    "files": [
+      "assets/icons/ui/check.svg",
+      "assets/icons/ui/combat.svg",
+      "assets/icons/ui/configs.svg",
+      "assets/icons/ui/grid.svg",
+      "assets/icons/ui/keyboard.svg",
+      "assets/icons/ui/nav-code.svg",
+      "assets/icons/ui/nav-globe.svg",
+      "assets/icons/ui/nav-image.svg",
+      "assets/icons/ui/settings.svg",
+      "assets/icons/ui/sliders.svg"
+    ],
+    "renderer": "src/ui_icons.h (paths flattened for ImGui)"
+  }
+}

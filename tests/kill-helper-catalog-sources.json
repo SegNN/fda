@@ -1,0 +1,384 @@
+{
+  "commit": "5c3ea270b75b892ea607d0c236222a3f0ee34ad1",
+  "models": [
+    {
+      "hero": "lina",
+      "ability": "lina_dragon_slave",
+      "label": "Dragon Slave",
+      "damage_path": "AbilityValues.dragon_slave_damage",
+      "range_path": "AbilityCastRange",
+      "damage": [
+        65.0,
+        125.0,
+        185.0,
+        245.0
+      ],
+      "range": [
+        1075.0,
+        1075.0,
+        1075.0,
+        1075.0
+      ],
+      "type": 0,
+      "sha256": "1e6c6a82808f6f2f4fac84013750c408ecbb3932de8ae690019de9aa2cba9909",
+      "source": "https://github.com/SteamDatabase/GameTracking-Dota2/blob/5c3ea270b75b892ea607d0c236222a3f0ee34ad1/game/dota/pak01_dir/scripts/npc/heroes/npc_dota_hero_lina.txt"
+    },
+    {
+      "hero": "lina",
+      "ability": "lina_light_strike_array",
+      "label": "Light Strike Array",
+      "damage_path": "AbilityValues.light_strike_array_damage",
+      "range_path": "AbilityCastRange",
+      "damage": [
+        80.0,
+        125.0,
+        170.0,
+        215.0
+      ],
+      "range": [
+        700.0,
+        700.0,
+        700.0,
+        700.0
+      ],
+      "type": 0,
+      "sha256": "1e6c6a82808f6f2f4fac84013750c408ecbb3932de8ae690019de9aa2cba9909",
+      "source": "https://github.com/SteamDatabase/GameTracking-Dota2/blob/5c3ea270b75b892ea607d0c236222a3f0ee34ad1/game/dota/pak01_dir/scripts/npc/heroes/npc_dota_hero_lina.txt"
+    },
+    {
+      "hero": "lina",
+      "ability": "lina_laguna_blade",
+      "label": "Laguna Blade",
+      "damage_path": "AbilityValues.damage",
+      "range_path": "AbilityCastRange",
+      "damage": [
+        400.0,
+        580.0,
+        760.0
+      ],
+      "range": [
+        750.0,
+        750.0,
+        750.0
+      ],
+      "type": 0,
+      "sha256": "1e6c6a82808f6f2f4fac84013750c408ecbb3932de8ae690019de9aa2cba9909",
+      "source": "https://github.com/SteamDatabase/GameTracking-Dota2/blob/5c3ea270b75b892ea607d0c236222a3f0ee34ad1/game/dota/pak01_dir/scripts/npc/heroes/npc_dota_hero_lina.txt"
+    },
+    {
+      "hero": "lion",
+      "ability": "lion_impale",
+      "label": "Earth Spike",
+      "damage_path": "AbilityValues.damage",
+      "range_path": "AbilityValues.AbilityCastRange",
+      "damage": [
+        105.0,
+        170.0,
+        235.0,
+        300.0
+      ],
+      "range": [
+        650.0,
+        650.0,
+        650.0,
+        650.0
+      ],
+      "type": 0,
+      "sha256": "69b06d8ab7024961b97a005cab0948f9eac45485b71e205e039cb9291f6ff7c9",
+      "source": "https://github.com/SteamDatabase/GameTracking-Dota2/blob/5c3ea270b75b892ea607d0c236222a3f0ee34ad1/game/dota/pak01_dir/scripts/npc/heroes/npc_dota_hero_lion.txt"
+    },
+    {
+      "hero": "lion",
+      "ability": "lion_finger_of_death",
+      "label": "Finger of Death",
+      "damage_path": "AbilityValues.damage",
+      "range_path": "AbilityCastRange",
+      "damage": [
+        600.0,
+        725.0,
+        850.0
+      ],
+      "range": [
+        900.0,
+        900.0,
+        900.0
+      ],
+      "type": 0,
+      "sha256": "69b06d8ab7024961b97a005cab0948f9eac45485b71e205e039cb9291f6ff7c9",
+      "source": "https://github.com/SteamDatabase/GameTracking-Dota2/blob/5c3ea270b75b892ea607d0c236222a3f0ee34ad1/game/dota/pak01_dir/scripts/npc/heroes/npc_dota_hero_lion.txt"
+    },
+    {
+      "hero": "zuus",
+      "ability": "zuus_arc_lightning",
+      "label": "Arc Lightning",
+      "damage_path": "AbilityValues.arc_damage",
+      "range_path": "AbilityCastRange",
+      "damage": [
+        105.0,
+        130.0,
+        155.0,
+        180.0
+      ],
+      "range": [
+        800.0,
+        800.0,
+        800.0,
+        800.0
+      ],
+      "type": 0,
+      "sha256": "a8ae5395a4bbee275e9a13e45d83d201237c9c674aa4f4dc23f08f39f47b4f29",
+      "source": "https://github.com/SteamDatabase/GameTracking-Dota2/blob/5c3ea270b75b892ea607d0c236222a3f0ee34ad1/game/dota/pak01_dir/scripts/npc/heroes/npc_dota_hero_zuus.txt"
+    },
+    {
+      "hero": "zuus",
+      "ability": "zuus_lightning_bolt",
+      "label": "Lightning Bolt",
+      "damage_path": "AbilityValues.damage",
+      "range_path": "AbilityCastRange",
+      "damage": [
+        140.0,
+        220.0,
+        300.0,
+        380.0
+      ],
+      "range": [
+        700.0,
+        750.0,
+        800.0,
+        850.0
+      ],
+      "type": 0,
+      "sha256": "a8ae5395a4bbee275e9a13e45d83d201237c9c674aa4f4dc23f08f39f47b4f29",
+      "source": "https://github.com/SteamDatabase/GameTracking-Dota2/blob/5c3ea270b75b892ea607d0c236222a3f0ee34ad1/game/dota/pak01_dir/scripts/npc/heroes/npc_dota_hero_zuus.txt"
+    },
+    {
+      "hero": "luna",
+      "ability": "luna_lucent_beam",
+      "label": "Lucent Beam",
+      "damage_path": "AbilityValues.beam_damage",
+      "range_path": "AbilityCastRange",
+      "damage": [
+        75.0,
+        150.0,
+        225.0,
+        300.0
+      ],
+      "range": [
+        800.0,
+        800.0,
+        800.0,
+        800.0
+      ],
+      "type": 0,
+      "sha256": "a80b4e56bf92ccb452aa2f8a46cd758c8ab7c21cb9421f9e67997a5513af211c",
+      "source": "https://github.com/SteamDatabase/GameTracking-Dota2/blob/5c3ea270b75b892ea607d0c236222a3f0ee34ad1/game/dota/pak01_dir/scripts/npc/heroes/npc_dota_hero_luna.txt"
+    },
+    {
+      "hero": "sven",
+      "ability": "sven_storm_bolt",
+      "label": "Storm Hammer",
+      "damage_path": "AbilityDamage",
+      "range_path": "AbilityValues.AbilityCastRange",
+      "damage": [
+        80.0,
+        160.0,
+        240.0,
+        320.0
+      ],
+      "range": [
+        600.0,
+        600.0,
+        600.0,
+        600.0
+      ],
+      "type": 0,
+      "sha256": "d99da37c6acbf28bb8430faf2dd36c2a24903cb617254125e0c6d42dc6453277",
+      "source": "https://github.com/SteamDatabase/GameTracking-Dota2/blob/5c3ea270b75b892ea607d0c236222a3f0ee34ad1/game/dota/pak01_dir/scripts/npc/heroes/npc_dota_hero_sven.txt"
+    },
+    {
+      "hero": "ogre_magi",
+      "ability": "ogre_magi_fireblast",
+      "label": "Fireblast",
+      "damage_path": "AbilityValues.fireblast_damage",
+      "range_path": "AbilityCastRange",
+      "damage": [
+        70.0,
+        130.0,
+        190.0,
+        250.0
+      ],
+      "range": [
+        525.0,
+        525.0,
+        525.0,
+        525.0
+      ],
+      "type": 0,
+      "sha256": "b80a3cb8a41ab2f3748abf38392a9a6ed7a6354ae3354f1ad8715973f061f2fb",
+      "source": "https://github.com/SteamDatabase/GameTracking-Dota2/blob/5c3ea270b75b892ea607d0c236222a3f0ee34ad1/game/dota/pak01_dir/scripts/npc/heroes/npc_dota_hero_ogre_magi.txt"
+    },
+    {
+      "hero": "pudge",
+      "ability": "pudge_meat_hook",
+      "label": "Meat Hook",
+      "damage_path": "AbilityValues.damage",
+      "range_path": "AbilityValues.AbilityCastRange",
+      "damage": [
+        150.0,
+        220.0,
+        290.0,
+        360.0
+      ],
+      "range": [
+        1300.0,
+        1300.0,
+        1300.0,
+        1300.0
+      ],
+      "type": 2,
+      "sha256": "af1d959517882c34fea56f91b610713082dfbe786be9b706704b50f5fddf796a",
+      "source": "https://github.com/SteamDatabase/GameTracking-Dota2/blob/5c3ea270b75b892ea607d0c236222a3f0ee34ad1/game/dota/pak01_dir/scripts/npc/heroes/npc_dota_hero_pudge.txt"
+    },
+    {
+      "hero": "queenofpain",
+      "ability": "queenofpain_shadow_strike",
+      "label": "Shadow Strike (impact)",
+      "damage_path": "AbilityValues.strike_damage",
+      "range_path": "AbilityCastRange",
+      "damage": [
+        50.0,
+        80.0,
+        110.0,
+        140.0
+      ],
+      "range": [
+        450.0,
+        500.0,
+        550.0,
+        600.0
+      ],
+      "type": 0,
+      "sha256": "565c4624ce15ec900f575bc1e7c1aea742069553dbee3b150331b798af5efbf2",
+      "source": "https://github.com/SteamDatabase/GameTracking-Dota2/blob/5c3ea270b75b892ea607d0c236222a3f0ee34ad1/game/dota/pak01_dir/scripts/npc/heroes/npc_dota_hero_queenofpain.txt"
+    },
+    {
+      "hero": "queenofpain",
+      "ability": "queenofpain_scream_of_pain",
+      "label": "Scream of Pain",
+      "damage_path": "AbilityValues.damage",
+      "range_path": "AbilityValues.area_of_effect",
+      "damage": [
+        90.0,
+        175.0,
+        260.0,
+        345.0
+      ],
+      "range": [
+        600.0,
+        600.0,
+        600.0,
+        600.0
+      ],
+      "type": 0,
+      "sha256": "565c4624ce15ec900f575bc1e7c1aea742069553dbee3b150331b798af5efbf2",
+      "source": "https://github.com/SteamDatabase/GameTracking-Dota2/blob/5c3ea270b75b892ea607d0c236222a3f0ee34ad1/game/dota/pak01_dir/scripts/npc/heroes/npc_dota_hero_queenofpain.txt"
+    },
+    {
+      "hero": "queenofpain",
+      "ability": "queenofpain_sonic_wave",
+      "label": "Sonic Wave",
+      "damage_path": "AbilityValues.damage",
+      "range_path": "AbilityCastRange",
+      "damage": [
+        325.0,
+        475.0,
+        625.0
+      ],
+      "range": [
+        700.0,
+        700.0,
+        700.0
+      ],
+      "type": 2,
+      "sha256": "565c4624ce15ec900f575bc1e7c1aea742069553dbee3b150331b798af5efbf2",
+      "source": "https://github.com/SteamDatabase/GameTracking-Dota2/blob/5c3ea270b75b892ea607d0c236222a3f0ee34ad1/game/dota/pak01_dir/scripts/npc/heroes/npc_dota_hero_queenofpain.txt"
+    },
+    {
+      "hero": "vengefulspirit",
+      "ability": "vengefulspirit_magic_missile",
+      "label": "Magic Missile",
+      "damage_path": "AbilityValues.magic_missile_damage",
+      "range_path": "AbilityValues.AbilityCastRange",
+      "damage": [
+        100.0,
+        180.0,
+        260.0,
+        340.0
+      ],
+      "range": [
+        650.0,
+        650.0,
+        650.0,
+        650.0
+      ],
+      "type": 0,
+      "sha256": "9d4e6598cde3d0638488bde48a14857e3375c77bc138aa08baae3bda9025a783",
+      "source": "https://github.com/SteamDatabase/GameTracking-Dota2/blob/5c3ea270b75b892ea607d0c236222a3f0ee34ad1/game/dota/pak01_dir/scripts/npc/heroes/npc_dota_hero_vengefulspirit.txt"
+    },
+    {
+      "hero": "vengefulspirit",
+      "ability": "vengefulspirit_wave_of_terror",
+      "label": "Wave of Terror",
+      "damage_path": "AbilityValues.damage",
+      "range_path": "AbilityCastRange",
+      "damage": [
+        60.0,
+        80.0,
+        100.0,
+        120.0
+      ],
+      "range": [
+        1400.0,
+        1400.0,
+        1400.0,
+        1400.0
+      ],
+      "type": 0,
+      "sha256": "9d4e6598cde3d0638488bde48a14857e3375c77bc138aa08baae3bda9025a783",
+      "source": "https://github.com/SteamDatabase/GameTracking-Dota2/blob/5c3ea270b75b892ea607d0c236222a3f0ee34ad1/game/dota/pak01_dir/scripts/npc/heroes/npc_dota_hero_vengefulspirit.txt"
+    },
+    {
+      "hero": "vengefulspirit",
+      "ability": "vengefulspirit_nether_swap",
+      "label": "Nether Swap",
+      "damage_path": "AbilityValues.damage",
+      "range_path": "AbilityCastRange",
+      "damage": [
+        150.0,
+        300.0,
+        450.0
+      ],
+      "range": [
+        850.0,
+        975.0,
+        1100.0
+      ],
+      "type": 0,
+      "sha256": "9d4e6598cde3d0638488bde48a14857e3375c77bc138aa08baae3bda9025a783",
+      "source": "https://github.com/SteamDatabase/GameTracking-Dota2/blob/5c3ea270b75b892ea607d0c236222a3f0ee34ad1/game/dota/pak01_dir/scripts/npc/heroes/npc_dota_hero_vengefulspirit.txt"
+    }
+  ],
+  "exclusions": [
+    "facets",
+    "talents",
+    "scepter",
+    "shard",
+    "spell amplification",
+    "damage barriers",
+    "damage over time",
+    "multicast",
+    "kill stacks",
+    "flight/aim",
+    "regen"
+  ]
+}

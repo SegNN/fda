@@ -1,0 +1,24 @@
+{
+  "reference": {
+    "url": "https://github.com/Eroica-cpp/dota2scripts/blob/master/Armlet.lua",
+    "author": "EroicaCpp",
+    "script_version": "3.1",
+    "release_in_loaded_script": "2017-06-17",
+    "used_as": "Historical behavioral reference: threshold, OFF/ON sequence, attack-event idea. Not executed, not a direct port or copied Lua implementation."
+  },
+  "mirror": "https://github.com/Kostya12rus/scripts/blob/master/Armlet.lua",
+  "limitations": "Utility/NPC/Ability/OnProjectile/OnUnitAnimation APIs from that environment do not exist in this project. Current implementation does NOT predict incoming hits.",
+  "schema": {
+    "repository": "https://github.com/SegNN/dota2bud",
+    "commit": "5a0549bf00b414f716a760ff00e462e715dccfdb",
+    "file": "dota2_dump/client.dll.hpp",
+    "fields": {
+      "C_DOTABaseAbility.m_bToggleState": "0x62D",
+      "C_DOTAPlayerController.m_nSelectedUnits": "0x9C8",
+      "C_DOTABaseAbility.m_bActivated": "0x619",
+      "C_DOTABaseAbility.m_fCooldown": "0x638",
+      "C_GameRules.m_bGamePaused": "0x38"
+    },
+    "note": "Exact field offsets from pinned schema; vector count/data placement, offsets and semantics not verified in live Dota."
+  }
+}

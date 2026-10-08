@@ -1,0 +1,19 @@
+{
+  "schema": {
+    "url": "https://github.com/dotabuff/d2vpkr/blob/0b609994f2476f27e8e0429b2170a04e1320d12f/dota/scripts/items/items_game.txt",
+    "commit": "0b609994f2476f27e8e0429b2170a04e1320d12f",
+    "date": "2026-10-07T23:20:21Z"
+  },
+  "hero_slots": {
+    "url": "https://github.com/SteamDatabase/GameTracking-Dota2",
+    "commit": "5c3ea270b75b892ea607d0c236222a3f0ee34ad1",
+    "date": "2026-10-07T23:10:34Z"
+  },
+  "protocol": "https://github.com/SteamDatabase/Protobufs/tree/master/dota2",
+  "sdk": "https://github.com/rlabrecque/SteamworksSDK",
+  "definition_count": 13862,
+  "row_count": 13870,
+  "excluded_unmapped": "Included as display-only; equip is rejected until an exact class/slot mapping exists.",
+  "missing_hero_slots": [],
+  "display_only_unmapped_cosmetics": 283
+}

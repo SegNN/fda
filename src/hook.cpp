@@ -1,7 +1,16 @@
 #include "hook.h"
 #include "theme.h"
 #include "offsets.h"
+#include "hud.h"
+#include "top_anchor.h"
+#include "skin_changer.h"
+#include "map_events.h"
+#include "effects_ui.h"
+#include "kill_stealer.h"
+#include "kill_helper.h"
+#include "auto_accept.h"
 
+#include <string>
 #include <d3d11.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
@@ -52,23 +61,47 @@ static ImFont* g_fontBig = nullptr;
 ImFont* theme::FontSmall() { return g_fontSmall; }
 ImFont* theme::FontBig()   { return g_fontBig; }
 
+// Read bundled fonts with Unicode-safe Win32 paths, including Cyrillic folders.
+static ImFont* BundledFont(const wchar_t* name,float pixels,const ImWchar* ranges) {
+    wchar_t path[MAX_PATH]={};HMODULE module=nullptr;
+    if(!GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS|GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                         reinterpret_cast<LPCWSTR>(&BundledFont),&module))return nullptr;
+    DWORD n=GetModuleFileNameW(module,path,MAX_PATH);if(!n||n>=MAX_PATH)return nullptr;
+    std::wstring dir(path);size_t slash=dir.find_last_of(L"\\/");if(slash==std::wstring::npos)return nullptr;
+    dir.resize(slash+1);std::wstring file=dir+L"assets\\fonts\\"+name;
+    if(GetFileAttributesW(file.c_str())==INVALID_FILE_ATTRIBUTES)file=dir+L"..\\assets\\fonts\\"+name;
+    HANDLE handle=CreateFileW(file.c_str(),GENERIC_READ,FILE_SHARE_READ,nullptr,OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,nullptr);
+    if(handle==INVALID_HANDLE_VALUE)return nullptr;
+    LARGE_INTEGER bytes{};
+    if(!GetFileSizeEx(handle,&bytes)||bytes.QuadPart<1024||bytes.QuadPart>4*1024*1024){CloseHandle(handle);return nullptr;}
+    void* memory=ImGui::MemAlloc((size_t)bytes.QuadPart);DWORD read=0;
+    bool good=memory&&ReadFile(handle,memory,(DWORD)bytes.QuadPart,&read,nullptr)&&read==(DWORD)bytes.QuadPart;
+    CloseHandle(handle);if(!good){if(memory)ImGui::MemFree(memory);return nullptr;}
+    ImFontConfig config;config.OversampleH=2;config.OversampleV=2;config.FontDataOwnedByAtlas=true;
+    return ImGui::GetIO().Fonts->AddFontFromMemoryTTF(memory,(int)bytes.QuadPart,pixels,&config,ranges);
+}
+
 void theme::LoadFonts() {
     ImGuiIO& io = ImGui::GetIO();
     io.IniFilename = nullptr;
     io.LogFilename = nullptr;
 
-    static const ImWchar ranges[] = { 0x0020, 0x00FF, 0x0400, 0x04FF, 0 };
+    static const ImWchar ranges[] = { 0x0020, 0x00FF, 0x0400, 0x04FF, 0x2000, 0x206F, 0x2190, 0x21FF, 0 };
     ImFontConfig cfg{};
     cfg.OversampleH = 2;
     cfg.OversampleV = 2;
 
+    g_fontSmall=BundledFont(L"ui-semibold.otf",15.f,ranges);
+    g_fontBig=BundledFont(L"ui-semibold.otf",19.f,ranges);
     static const char* kSmall[] = {
-        "C:\\Windows\\Fonts\\segoeuib.ttf",
-        "C:\\Windows\\Fonts\\arialbd.ttf",
         "C:\\Windows\\Fonts\\segoeui.ttf",
+        "C:\\Windows\\Fonts\\arial.ttf",
+        "C:\\Windows\\Fonts\\segoeuib.ttf",
     };
     for (const char* p : kSmall) {
-        g_fontSmall = io.Fonts->AddFontFromFileTTF(p, 15.5f, &cfg, ranges);
+        if(g_fontSmall)break;
+        if(GetFileAttributesA(p)==INVALID_FILE_ATTRIBUTES)continue;
+        g_fontSmall = io.Fonts->AddFontFromFileTTF(p, 17.f, &cfg, ranges);
         if (g_fontSmall) break;
     }
     static const char* kBig[] = {
@@ -76,11 +109,14 @@ void theme::LoadFonts() {
         "C:\\Windows\\Fonts\\arialbd.ttf",
     };
     for (const char* p : kBig) {
+        if(g_fontBig)break;
+        if(GetFileAttributesA(p)==INVALID_FILE_ATTRIBUTES)continue;
         g_fontBig = io.Fonts->AddFontFromFileTTF(p, 22.0f, &cfg, ranges);
         if (g_fontBig) break;
     }
     if (!g_fontSmall) g_fontSmall = io.Fonts->AddFontDefault();
     if (!g_fontBig)   g_fontBig = g_fontSmall;
+    io.FontDefault=g_fontSmall;
 }
 
 namespace input {
@@ -121,27 +157,32 @@ static void Click(bool right) {
 static DWORD g_moveAt = 0;
 static bool  g_pendingClick = false;
 static bool  g_pendingRight = false;
+static bool  g_pendingLastHit = false;
 static int   g_pendingX = 0, g_pendingY = 0;
 static HWND  g_pendingHwnd = nullptr;
 
-void ClickAt(HWND hwnd, int cx, int cy, bool right) {
+void ClickAt(HWND hwnd, int cx, int cy, bool right, bool requireLastHitHold) {
     int sx = 0, sy = 0;
     if (!ToScreen(hwnd, cx, cy, sx, sy)) return;
     g_pendingX = sx;
     g_pendingY = sy;
     g_pendingRight = right;
+    g_pendingLastHit = requireLastHitHold;
     g_pendingHwnd = hwnd;
     MoveTo(sx, sy);
     g_moveAt = GetTickCount();
     g_pendingClick = true;
 }
 
+void CancelPending(){g_pendingClick=false;}
+
 void Tick() {
     if (!g_pendingClick) return;
     DWORD dt = GetTickCount() - g_moveAt;
     if (dt < 40) return;
     g_pendingClick = false;
-    if (cfg::menuOpen) return;
+    if (cfg::menuOpen || !g_frame.ok || !g_frame.localAlive) return;
+    if (g_pendingLastHit && (!cfg::lastHitEnabled || !binds::items[0].holding || !binds::Down[binds::items[0].vk])) return;
     if (dt > 800) return;
     if (g_pendingHwnd && GetForegroundWindow() != g_pendingHwnd) return;
     SetCursorPos(g_pendingX, g_pendingY);
@@ -278,6 +319,7 @@ static void InitImGui(IDXGISwapChain* sc) {
 
     ImGui_ImplWin32_Init(g_hwnd);
     ImGui_ImplDX11_Init(g_device, g_ctx);
+    hud::Initialize(g_device);
 
     g_origWndProc = (WNDPROC)SetWindowLongPtrA(g_hwnd, GWLP_WNDPROC, (LONG_PTR)hkWndProc);
 
@@ -308,7 +350,7 @@ static LRESULT CALLBACK hkWndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp) {
     return CallWindowProcA(g_origWndProc, hWnd, msg, wp, lp);
 }
 
-static void DoFrame() {
+static void DoFrame(IDXGISwapChain* chain) {
     ImGui_ImplDX11_NewFrame();    ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
@@ -324,6 +366,7 @@ static void DoFrame() {
     if (GetAsyncKeyState(cfg::unloadKey) & 1)
         RequestUnload();
 
+    skins::Poll(); // official Steam interface; no guessed client offsets
     binds::ProcessBinds();
 
     if (cfg::menuOpen && g_hwnd)
@@ -332,14 +375,26 @@ static void DoFrame() {
     uintptr_t ctrl = game::g_sys.localCtrl;
     if (mem::ValidPtr(ctrl))
         game::BuildFrame(g_frame, ctrl);
+    else {
+        g_frame.ok = false;
+        g_frame.units.clear();
+    }
 
+    killstealer::Observe(g_frame);
+    hud::UpdateAegis(g_frame); // shared lifecycle before world and top drawing
     view::Update();
+    diagnostics::Update(g_frame);
+    topanchor::Update(chain,g_frame);
 
-    if (cfg::menuOpen) DrawMenuWindow();
+    DrawMenuWindow(); // latest reference uses an opaque background, no blur passes
     DrawOverlay(g_frame);
+    hud::Draw(g_frame);
+    mapevents::UpdateAndDraw(g_frame);
+    effectsui::Draw(g_frame);
+    killhelper::Draw(g_frame);
     DrawKeybinds();
     RunAutomation(g_frame);
-    RunAutoAccept();
+    autoaccept::Tick(g_frame.ok);
 
     ImGui::Render();
     if (g_rtv && g_ctx) {
@@ -359,7 +414,7 @@ static HRESULT __stdcall hkPresent(IDXGISwapChain* sc, UINT sync, UINT flags) {
                 InitImGui(sc);
                 if (!g_init) g_initFailed = true;
             }
-            if (g_init) DoFrame();
+            if (g_init) DoFrame(sc);
         }
         __except (EXCEPTION_EXECUTE_HANDLER) {
             g_initFailed = true;
@@ -379,7 +434,7 @@ static HRESULT __stdcall hkPresent1(IDXGISwapChain1* sc, UINT sync, UINT flags, 
                 InitImGui(sc);
                 if (!g_init) g_initFailed = true;
             }
-            if (g_init) DoFrame();
+            if (g_init) DoFrame(sc);
         }
         __except (EXCEPTION_EXECUTE_HANDLER) {
             g_initFailed = true;
@@ -400,6 +455,7 @@ static HRESULT __stdcall hkResize(IDXGISwapChain* sc, UINT bc, UINT w, UINT h, D
 }
 
 static DWORD WINAPI UnloadThread(LPVOID mod) {
+    skins::Shutdown();
     cfg::running.store(false);
     Sleep(1200);
 
@@ -429,6 +485,7 @@ static DWORD WINAPI UnloadThread(LPVOID mod) {
 
     Sleep(400);
     if (g_init) {
+            hud::Shutdown();
         ImGui_ImplDX11_Shutdown();
         ImGui_ImplWin32_Shutdown();
         ImGui::DestroyContext();
@@ -444,6 +501,8 @@ static DWORD WINAPI UnloadThread(LPVOID mod) {
 }
 
 void RequestUnload() {
+    // Never detach while synthetic inventory still needs its local filter/restoration.
+    if(!skins::CanUnload()){skins::NotifyUnloadBlocked();cfg::menuOpen=true;return;}
     if (!cfg::running.load()) return;
     HMODULE mod = nullptr;
     GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,

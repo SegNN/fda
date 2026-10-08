@@ -16,6 +16,46 @@
 
 namespace cfg {
     inline bool menuOpen  = true;
+    inline bool armletAuto=false, armletConfirmed=false;
+    inline int armletKey=0, armletSlot=0;
+    inline float armletThreshold=350.f;
+    inline bool hudWorld = false; // default: keep native health bar, no duplicate custom bar
+    inline bool hudTop = true;
+    inline bool hudItems = true;
+    inline bool hudAbilities = true;
+    inline bool hudRoshan = true;
+    inline bool showEffects=true, effectsTimedOnly=true;
+    inline bool showKillHelper=true, helperModeledOnly=true;
+    inline float helperMargin=30.f;
+    inline bool ksHoldActive=false;
+    inline bool killStealer=false, ksQuickcastConfirmed=false;
+    inline float ksDamage=0.f, ksRange=0.f, ksMargin=30.f;
+    inline char ksHeroName[64]={};
+    inline int ksAbilitySlot=3, ksSpellKey=0, ksDamageType=0;
+    inline bool lastHitConservative = true;
+    inline bool notifyRunes = true, notifyRuneSoon = true;
+    inline bool notifyWards = false, notifyRoshan = true;
+    inline float notifyLead = 10.f;
+    inline bool hudWatermark = true;
+    inline bool hudBounty = true;
+    inline bool hudPortraits = true;
+    inline bool hudHpNumber = true;
+    inline bool hudManaNumber = true;
+    inline bool hudIllusions = true;
+    inline float hudIconScale = 1.f;
+    inline float hudSkillPixels = 35.f;
+    inline bool hudTopAbilities = true;
+    inline bool hudStatusBadges = true;
+    inline bool hudVisibleByEnemy = false; // experimental read-only client visibility mask
+    inline bool farmHarass = false;
+    inline bool lastHitEnabled = true;
+    inline float hudTopY = 76.f;
+    inline float hudTopSlot = 72.f;
+    inline float hudTopGap = 184.f;
+    inline float hudWatermarkX = -1.f, hudWatermarkY = 12.f;
+    inline float hudRoshanX = -1.f, hudRoshanY = 220.f;
+    inline char hudNickname[48] = "player"; // user-entered, not inferred Steam name
+
 
     inline bool espHeroes = true;
     inline bool espBoxes  = true;
@@ -63,16 +103,18 @@ struct KeyBind {
 namespace binds {
 
 inline KeyBind items[] = {
-    { "Auto-hit",    &cfg::farmBot },
+    { "Last-Hit",    &cfg::farmBot, 'V', true },
     { "Auto-attack", &cfg::farmAuto },
     { "Auto-accept", &cfg::autoAccept },
     { "Last hit",    &cfg::lastHit },
     { "ESP heroes",  &cfg::espHeroes },
     { "Wards",       &cfg::espWards },
-    { "Fog off",     &cfg::vbe },
+    { "Visible flag", &cfg::hudVisibleByEnemy },
     { "Purple glow", &cfg::glow },
     { "Auto dodge",  &cfg::autoDodge },
     { "Dota Plus",   &cfg::dotaPlus },
+    { "Kill Stealer", &cfg::ksHoldActive, 0, true },
+    { "Huskar Armlet", &cfg::armletAuto },
 };
 
 inline constexpr int kCount = (int)(sizeof(items) / sizeof(items[0]));

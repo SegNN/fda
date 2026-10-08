@@ -2,12 +2,16 @@
 #include "theme.h"
 #include "offsets.h"
 #include "imgui.h"
+#include "hud.h"
+#include "kill_stealer.h"
+#include "armlet.h"
 
 #include <cfloat>
 
 namespace input {
-void ClickAt(HWND hwnd, int cx, int cy, bool right);
+void ClickAt(HWND hwnd, int cx, int cy, bool right, bool requireLastHitHold = false);
 void Tick();
+void CancelPending();
 }
 
 static float g_mat[16] = {};
@@ -44,6 +48,8 @@ bool W2SRaw(const Vec3& world, ImVec2& out) {
 }
 
 void Update() {
+    // Do not keep a stale camera matrix after a failed read.
+    g_matOk = false;
     ImGuiIO& io = ImGui::GetIO();
     W = (int)io.DisplaySize.x;
     H = (int)io.DisplaySize.y;
@@ -791,10 +797,12 @@ void DrawOverlay(const Frame& f) {
             float dz = u.pos.z - f.localPos.z;
             bool self = (u.team == f.localTeam) &&
                         (dx * dx + dy * dy + dz * dz) < 1.0f;
-            if (self) break;
+            // Local hero also receives the ability strip; native HP remains untouched.
             if (cfg::skillPreview && u.team != f.localTeam)
                 DrawSkillPreview(f, u, dl);
-            if (cfg::espHeroes) DrawHero(f, u, u.team != f.localTeam, dl);
+            if (cfg::espHeroes) {
+                hud::DrawWorldHero(f, u);
+            }
             break;
         }
         case UnitKind::Creep:
@@ -822,7 +830,7 @@ void DrawOverlay(const Frame& f) {
     }
 
     DrawRoshanMarker(f, dl);
-    DrawDotaPlus(f, dl);
+    if (!cfg::hudRoshan) DrawDotaPlus(f, dl);
     DrawAlerts(dl);
 }
 
@@ -849,14 +857,20 @@ static HWND GameHwnd() {
 }
 
 void RunAutomation(const Frame& f) {
+    // Armlet owns the automation lane while enabled; no queued farm/dodge/KS input.
+    if(cfg::armletAuto||armlet::Pending()){input::CancelPending();armlet::Tick(f);return;}
+    armlet::Tick(f); // cancel a disabled unfinished cycle; never send late recovery input
+    if(cfg::killStealer&&binds::items[10].holding)input::CancelPending();
     input::Tick();
+    if(killstealer::Run(f))return; // do not schedule another automation action in this frame
 
     static DWORD s_clickAt = 0;
     static DWORD s_dodgeAt = 0;
     g_dodgeWarn = false;
 
-    if (!f.ok) return;
-    if (!cfg::farmBot && !cfg::farmAuto && !cfg::dodger && !cfg::autoDodge) return;
+    if (!f.ok || !f.localAlive) return;
+    const bool doLastHit = cfg::lastHitEnabled && cfg::farmBot && binds::items[0].holding;
+    if (!doLastHit && !cfg::farmAuto && !cfg::dodger && !cfg::autoDodge) return;
 
     HWND hwnd = GameHwnd();
     if (!hwnd || GetForegroundWindow() != hwnd) return;
@@ -917,18 +931,31 @@ void RunAutomation(const Frame& f) {
         }
     }
 
-    if (!cfg::farmBot && !cfg::farmAuto) return;
+    if (!doLastHit && !cfg::farmAuto) return;
     if (now - s_clickAt < 450) return;
 
     const FrameUnit* target = nullptr;
 
-    if (cfg::farmBot) {
+    if (doLastHit) {
         for (const auto& u : f.units) {
-            if (!u.canLastHit || !u.alive) continue;
+            if (u.kind != UnitKind::Creep || !u.canLastHit || !u.alive || u.team == f.localTeam) continue;
             if (!target || u.dist < target->dist) target = &u;
         }
     }
 
+    if (!target && doLastHit && cfg::deny) {
+        for(const auto& u:f.units) {
+            if(u.kind!=UnitKind::Creep||u.team!=f.localTeam||!u.alive||!u.canDeny)continue;
+            if(!target||u.dist<target->dist)target=&u;
+        }
+    }
+    if (!target && doLastHit && cfg::farmHarass) {
+        for(const auto& u:f.units) {
+            if(u.kind!=UnitKind::Hero||!u.alive||u.illusion||u.invis>.4f||u.team==f.localTeam||u.dist>(float)f.atkRange)continue;
+            if(!u.teamVisibilityRead||!(u.teamVisibilityMask&(1u<<f.localTeam)))continue;
+            if(!target||u.dist<target->dist)target=&u;
+        }
+    }
     if (!target && cfg::farmAuto) {
         for (const auto& u : f.units) {
             if (u.kind != UnitKind::Creep && u.kind != UnitKind::Building) continue;
@@ -945,7 +972,7 @@ void RunAutomation(const Frame& f) {
     if (!view::W2S(tgt, sp)) return;
     if (sp.x < 0.f || sp.y < 0.f || sp.x >= view::W || sp.y >= view::H) return;
 
-    input::ClickAt(hwnd, (int)sp.x, (int)sp.y, true);
+    input::ClickAt(hwnd, (int)sp.x, (int)sp.y, true, doLastHit);
     s_clickAt = now;
 }
 
@@ -963,6 +990,9 @@ void binds::ProcessBinds() {
     for (int i = 0; i < kCount; ++i) {
         KeyBind& b = items[i];
         if (!b.vk || !b.target) continue;
+        if(i==11){DWORD pid=0;HWND fg=GetForegroundWindow();if(cfg::menuOpen||!fg||!GetWindowThreadProcessId(fg,&pid)||pid!=GetCurrentProcessId()){
+            if(b.holding){*b.target=b.holdSaved;b.holding=false;}continue;
+        }}
         bool down = Down[b.vk];
         if (b.hold) {
             if (down && !b.holding) {
@@ -1063,40 +1093,22 @@ void DrawKeybinds() {
     }
 }
 
-static void AutoAcceptTick() {
-    uintptr_t base = game::g_sys.clientBase;
-    if (!base) return;
 
-    static DWORD s_sentAt = 0;
-    DWORD now = GetTickCount();
-
-    typedef void* (*GetMatchFn)(void*);
-    typedef bool  (*SendReadyFn)(void*, int);
-    typedef void* (*GetGlobalFn)();
-
-    GetMatchFn getMatch = (GetMatchFn)(base + 0x1D60590);
-    void* mm = getMatch((void*)(base + 0x63688B8));
-    void* st = mm ? *(void**)((char*)mm + 0x18) : nullptr;
-    if (!st) return;
-
-    int phase = *(int*)((char*)st + 0x1A8);
-    if (phase != 15) return;
-    if (s_sentAt && now - s_sentAt < 2000) return;
-
-    GetGlobalFn getGlobal = (GetGlobalFn)(base + 0x2271510);
-    void* g = getGlobal();
-    if (!g) return;
-
-    SendReadyFn sendReady = (SendReadyFn)(base + 0x227D320);
-    sendReady(g, 1);
-    s_sentAt = now;
-}
-
-void RunAutoAccept() {
-    if (!cfg::autoAccept) return;
-    __try {
-        AutoAcceptTick();
-    } __except (EXCEPTION_EXECUTE_HANDLER) {
-        cfg::autoAccept = false;
+namespace diagnostics {
+Snapshot snapshot;
+void Update(const Frame& frame) {
+    snapshot = Snapshot{};
+    snapshot.frameOk = frame.ok;
+    snapshot.matrixOk = g_matOk;
+    if (!frame.ok) return;
+    ResolveMode(frame);
+    snapshot.unitCount = (int)frame.units.size();
+    ImVec2 screen;
+    snapshot.projectedLocal = view::W2SRaw(frame.localPos, screen);
+    for (const auto& unit : frame.units) {
+        if (unit.kind != UnitKind::Hero) continue;
+        ++snapshot.heroCount;
+        if (view::W2S(unit.pos, screen)) snapshot.projectedHero = true;
     }
+}
 }

@@ -1,0 +1,4 @@
+Real ImGui rendering under Linux MOCK Windows/Steam/GDI/memory. Game background is an older user screenshot.
+Not live Dota evidence. Buff values are synthetic fixtures; no actual queue/match was accepted.
+The new effects/kill-stealer/auto-accept previews represent 0.5.3. Other previews are historical.
+Compact Kill Stealer has a scrollable settings card; top and bottom states were inspected.
