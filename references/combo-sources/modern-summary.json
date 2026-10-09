@@ -1,0 +1,83 @@
+[
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "updated": "2026-04-03T02:43:36Z",
+    "license": "MIT",
+    "code_files": 312,
+    "samples": [
+      "bots/--mode_item_generic.lua",
+      "bots/BotLib/hero_abaddon.lua",
+      "bots/BotLib/hero_abyssal_underlord.lua",
+      "bots/BotLib/hero_alchemist.lua",
+      "bots/BotLib/hero_ancient_apparition.lua",
+      "bots/BotLib/hero_antimage.lua",
+      "bots/BotLib/hero_arc_warden.lua",
+      "bots/BotLib/hero_axe.lua",
+      "bots/BotLib/hero_bane.lua",
+      "bots/BotLib/hero_batrider.lua",
+      "bots/BotLib/hero_beastmaster.lua",
+      "bots/BotLib/hero_bloodseeker.lua",
+      "bots/BotLib/hero_bounty_hunter.lua",
+      "bots/BotLib/hero_brewmaster.lua",
+      "bots/BotLib/hero_bristleback.lua",
+      "bots/BotLib/hero_broodmother.lua",
+      "bots/BotLib/hero_centaur.lua",
+      "bots/BotLib/hero_chaos_knight.lua"
+    ]
+  },
+  {
+    "repo": "zfael/dota2-scripts",
+    "commit": "0c35ea8620c8f5979336bd278f2f95b0e776a70b",
+    "updated": "2026-09-17T19:44:08Z",
+    "license": "MIT",
+    "code_files": 34,
+    "samples": [
+      "src-ui/eslint.config.js",
+      "src-ui/src/components/common/index.ts",
+      "src-ui/src/components/heroes/configs/index.ts",
+      "src-ui/src/components/layout/index.ts",
+      "src-ui/src/hooks/index.ts",
+      "src-ui/src/hooks/useTauriCommand.ts",
+      "src-ui/src/hooks/useTauriEvent.ts",
+      "src-ui/src/lib/overlay.test.ts",
+      "src-ui/src/lib/overlay.ts",
+      "src-ui/src/lib/tauri.ts",
+      "src-ui/src/stores/activityStore.ts",
+      "src-ui/src/stores/alertStore.ts",
+      "src-ui/src/stores/configStore.test.ts",
+      "src-ui/src/stores/configStore.ts",
+      "src-ui/src/stores/gameStore.ts",
+      "src-ui/src/stores/index.ts",
+      "src-ui/src/stores/minimapStore.ts",
+      "src-ui/src/stores/mockData.ts"
+    ]
+  },
+  {
+    "repo": "ellysh/dota2-combo-bots",
+    "commit": "60f5c6f8c4650d7b882dad537f88d25a5f73daa8",
+    "updated": "2018-08-16T18:47:22Z",
+    "license": "GPL-3.0",
+    "code_files": 91,
+    "samples": [
+      "bots/ability_item_usage_generic.lua",
+      "bots/bot_chaos_knight.lua",
+      "bots/bot_phantom_lancer.lua",
+      "bots/bot_shadow_shaman.lua",
+      "bots/database/attack_target.lua",
+      "bots/database/heroes.lua",
+      "bots/database/item_builds.lua",
+      "bots/database/item_sell.lua",
+      "bots/database/item_sets.lua",
+      "bots/database/player_desires.lua",
+      "bots/database/skill_builds.lua",
+      "bots/database/skill_groups.lua",
+      "bots/database/skill_usage.lua",
+      "bots/database/team_desires.lua",
+      "bots/hero_selection.lua",
+      "bots/item_purchase_generic.lua",
+      "bots/mode_assemble_generic.lua",
+      "bots/mode_attack_generic.lua"
+    ]
+  }
+]

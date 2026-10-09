@@ -1,0 +1,26 @@
+{
+  "sources": [
+    {
+      "url": "https://github.com/Eroica-cpp/dota2scripts/blob/master/Armlet.lua",
+      "observed": "external projectile/animation callbacks + toggle queue",
+      "native_adapter_present_in_FDA": false
+    },
+    {
+      "url": "https://github.com/pless42/armlet-abuse-script/blob/master/index.ts",
+      "observed": "assumed GameTime/API adaptation comments; unverified DoT tick phase",
+      "executed_or_copied": false
+    },
+    {
+      "url": "https://github.com/pless42/armlet-abuse-script1/blob/main/src/index.lua",
+      "observed": "external event runtime and hardcoded tick timings; duplicate final returns",
+      "executed_or_copied": false
+    },
+    {
+      "url": "https://github.com/zfael/dota2-scripts",
+      "local_snapshot": "references/combo-sources/snapshots/zfael--dota2-scripts/src/actions/armlet.rs",
+      "observed": "different GSI/input runtime; cooldown and health trigger evaluation"
+    }
+  ],
+  "implemented": "original C++ observed-state cycle corrections + diagnostics; NOT a full upstream port",
+  "windows_live_validation": false
+}

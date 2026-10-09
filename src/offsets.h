@@ -5,6 +5,9 @@
 namespace off {
 
 inline constexpr uintptr_t dwViewMatrix            = 0x621EB30;
+// SegNN/dota2bud engine_offsets.hpp, build 987800-1dd56833b5086ae.
+// This is only a candidate global: runtime type/ownership checks are mandatory.
+inline constexpr uintptr_t dwLocalPlayerController = 0x6215E88;
 
 inline constexpr uintptr_t esysRva[2] = { 0x5ED7F70, 0x662CD68 }; // first slot observed in user v3 screenshot; all candidates validated
 inline constexpr uintptr_t esysVtableRva  = 0x48AA168;
@@ -36,8 +39,11 @@ namespace BaseEntity {
     inline constexpr uintptr_t m_hOwnerEntity    = 0x514;
 }
 
+namespace TeamVisibilityData {inline constexpr uintptr_t m_bNPCVisibleState=0xE58;}
+
 namespace SceneNode {
     inline constexpr uintptr_t m_pOwner      = 0x30;
+    inline constexpr uintptr_t m_bDormant    = 0x113;
     inline constexpr uintptr_t m_vecAbsOrigin= 0xD8;
 }
 
@@ -60,6 +66,8 @@ namespace Glow {
 }
 
 namespace NPC {
+    inline constexpr uintptr_t m_nUnitState64 = 0x12B8;
+    inline constexpr uintptr_t m_ModifierManager = 0xE30;
     inline constexpr uintptr_t m_iCurrentLevel      = 0xC9C;
     inline constexpr uintptr_t m_bIsAncient         = 0xCA0;
     inline constexpr uintptr_t m_bIsBossCreature    = 0xCA1;
@@ -164,6 +172,7 @@ namespace NPC {
 }
 namespace Inventory {
     inline constexpr uintptr_t m_iParity = 0xA4;
+    inline constexpr uintptr_t m_hInventoryParent = 0xA8;
     inline constexpr uintptr_t m_hItems = 0x20;
 }
 namespace Item {

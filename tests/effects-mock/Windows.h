@@ -105,7 +105,7 @@ struct BITMAPINFOHEADER{DWORD biSize=0;LONG biWidth=0,biHeight=0;WORD biPlanes=0
 struct BITMAPINFO{BITMAPINFOHEADER bmiHeader;};
 namespace winmock{
  inline uint64_t now=1000;inline HWND foreground=(HWND)1;inline int width=800,height=600;inline POINT cursor{400,300};
- inline std::map<int,int> keys;inline int clicks=0,keyInputs=0;inline std::vector<uint8_t> scene(160*40*4);inline bool captureWorks=true;
+ inline std::map<int,int> keys;inline int clicks=0,keyInputs=0;inline std::vector<uint8_t> scene(160*40*4);inline bool captureWorks=true;inline bool cursorWorks=true;inline int nextInputResult=-1;
  struct Dib{std::vector<uint8_t> pixels=std::vector<uint8_t>(160*40*4);};struct Dc{Dib* bitmap=nullptr;};
 }
 inline int GetAsyncKeyState(int key){int v=winmock::keys[key];winmock::keys[key]=v&~1;return v;}
@@ -113,9 +113,9 @@ inline uint64_t GetTickCount64(){return winmock::now;}inline DWORD GetTickCount(
 inline HWND GetForegroundWindow(){return winmock::foreground;}inline bool IsWindowVisible(HWND h){return h!=nullptr;}
 inline DWORD GetWindowThreadProcessId(HWND h,DWORD* p){if(!h)return 0;*p=123;return 1;}inline DWORD GetCurrentProcessId(){return 123;}
 inline bool GetClientRect(HWND h,RECT* r){if(!h)return false;r->right=winmock::width;r->bottom=winmock::height;return true;}
-inline bool GetCursorPos(POINT* p){*p=winmock::cursor;return true;}inline bool SetCursorPos(int x,int y){winmock::cursor={(LONG)x,(LONG)y};return true;}
+inline bool GetCursorPos(POINT* p){*p=winmock::cursor;return true;}inline bool SetCursorPos(int x,int y){if(!winmock::cursorWorks)return false;winmock::cursor={(LONG)x,(LONG)y};return true;}
 inline bool ClientToScreen(HWND,POINT*){return true;}inline bool ScreenToClient(HWND,POINT*){return true;}
-inline UINT SendInput(UINT n,INPUT* in,int){for(UINT i=0;i<n;++i){if(in[i].type==INPUT_MOUSE&&in[i].mi.dwFlags==MOUSEEVENTF_LEFTDOWN)++winmock::clicks;if(in[i].type==INPUT_KEYBOARD)++winmock::keyInputs;}return n;}
+inline UINT SendInput(UINT n,INPUT* in,int){if(winmock::nextInputResult>=0){n=std::min(n,UINT(winmock::nextInputResult));winmock::nextInputResult=-1;}for(UINT i=0;i<n;++i){if(in[i].type==INPUT_MOUSE&&in[i].mi.dwFlags==MOUSEEVENTF_LEFTDOWN)++winmock::clicks;if(in[i].type==INPUT_KEYBOARD)++winmock::keyInputs;}return n;}
 inline HDC GetDC(HWND){return (HDC)1;}inline int ReleaseDC(HWND,HDC){return 1;}
 inline HDC CreateCompatibleDC(HDC){return (HDC)new winmock::Dc;}
 inline HBITMAP CreateDIBSection(HDC,const BITMAPINFO*,int,void** data,void*,int){auto* bmp=new winmock::Dib;*data=bmp->pixels.data();return bmp;}

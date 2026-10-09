@@ -7,7 +7,7 @@ if errorlevel 1 (
     exit /b 1
 )
 if not exist test-build mkdir test-build
-for %%T in (buff_reader kill_stealer_core auto_accept_core map_event_tracker damage_estimate kill_helper_core armlet_core helper_hero_catalog) do (
+for %%T in (buff_reader kill_stealer_core auto_accept_core map_event_tracker damage_estimate kill_helper_core armlet_core combo_core npc_visibility helper_hero_catalog) do (
     cl /nologo /std:c++17 /EHsc /O2 /utf-8 /Fetest-build\%%T.exe /Fotest-build\%%T.obj tests\%%T_test.cpp
     if errorlevel 1 exit /b 1
     test-build\%%T.exe

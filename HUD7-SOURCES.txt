@@ -1,0 +1,9 @@
+Named Huskar ability maximum levels from official Valve public hero data:
+https://www.dota2.com/datafeed/herodata?language=english&hero_id=59
+Snapshot: reference/valve-huskar-herodata.json
+inner_fire=4; burning_spear=4; berserkers_blood=4; life_break=3; blood_magic=1.
+Snapshot SHA256: d0c50cb07883278be9a248204bd2c60da6b4bf6b378b7212a872375e9748ea90
+Runtime override takes priority. No generic 4/3 fallback for unknown abilities.
+Previous public schema references remain in HUD5-SOURCES.txt and DUMP-SOURCES-ESP3.txt.
+No installed game files were read. Public attempted game-tracking URL returned 404 and
+was not used; complete hero catalog endpoint returned no data and was not used.

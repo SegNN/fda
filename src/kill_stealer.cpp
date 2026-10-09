@@ -1,4 +1,5 @@
 #include "kill_stealer.h"
+#include "local_visibility.h"
 #include "kill_stealer_core.h"
 #include "hook.h"
 #include "imgui.h"
@@ -10,7 +11,7 @@ bool BindCurrentHero(){if(!current[0])return false;std::strncpy(cfg::ksHeroName,
 bool Run(const Frame& f){
  static ULONGLONG last=0;
  int hold=binds::items[10].vk;
- if(!cfg::killStealer||!cfg::ksQuickcastConfirmed||!f.ok||!f.localAlive||cfg::menuOpen||hold<=0||hold>=256||
+ if(!cfg::killStealer||!cfg::ksQuickcastConfirmed||!f.ok||f.observedOnly||!f.localAlive||cfg::menuOpen||hold<=0||hold>=256||
     !binds::items[10].holding||!(GetAsyncKeyState(hold)&0x8000))return false;
  int key=cfg::ksSpellKey;
  if(!((key>='A'&&key<='Z')||(key>='0'&&key<='9'))||key==hold)return false;
@@ -28,7 +29,7 @@ bool Run(const Frame& f){
   if(u.kind!=UnitKind::Hero||u.team==f.localTeam||!u.buffsRead)continue;
   uint64_t state=0;float resistance=0;bool stateRead=mem::Read(u.addr+0x12B8,state);
   bool resistanceRead=cfg::ksDamageType==2 || mem::Read(u.addr+(cfg::ksDamageType==0?0x1630:0x162C),resistance);
-  bool visible=u.teamVisibilityRead&&f.localTeam>=2&&f.localTeam<=3&&(u.teamVisibilityMask&(1u<<f.localTeam))&&u.invis<.01f;
+  bool visible=localvisibility::Get(f,u).visible&&u.invis<.01f;
   killcore::Input in{visible,u.alive,u.illusion,u.buffsRead,stateRead,resistanceRead,spell->automationReady,u.hp,f.mana,spell->mana,cfg::ksDamageType,
    u.dist,cfg::ksRange,cfg::ksDamage,resistance,cfg::ksMargin,ownState,state,killcore::Protected(u.buffs)};
   if(killcore::Lethal(in)&&(!target||u.hp<target->hp))target=&u;

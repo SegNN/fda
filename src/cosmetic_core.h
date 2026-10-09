@@ -48,6 +48,8 @@ class Core {
  std::map<Slot,Choice> choices_;
  std::map<uint64_t,uint32_t> itemStyles_;
  std::set<uint32_t> projected_;
+ std::map<uint32_t,Bytes> publishedFake_;
+ std::map<uint64_t,Bytes> publishedReal_;
  std::deque<Packet> queue_;
  std::map<uint32_t,const Definition*> unique_;
  Bytes Owner()const{return pb::Encode({pb::V(1,1),pb::V(2,owner_)});}
@@ -60,24 +62,54 @@ class Core {
  Bytes Item(const Definition& d)const{auto m=pb::Message{pb::V(1,FakeId(d.id)),pb::V(2,uint32_t(owner_)),pb::V(3,0),pb::V(4,d.id),pb::V(5,1),pb::V(6,1),pb::V(7,d.quality),pb::V(8,0),pb::V(9,0),pb::V(15,CurrentStyle(FakeId(d.id)))};for(const auto& e:choices_)if(e.second.id==FakeId(d.id)){m.push_back(pb::V(15,e.second.style));m.push_back(pb::B(18,pb::Encode({pb::V(1,e.first.first),pb::V(2,e.first.second)})));}return pb::Encode(m);}
  Bytes Project(const Bytes& raw)const{auto m=pb::Decode(raw);uint64_t id=pb::Get(m,1);if(IsFake(id))return raw;if(itemStyles_.count(id))pb::Set(m,15,itemStyles_.at(id));std::vector<pb::Field> keep;for(const auto& f:m){if(f.n==18&&f.wire==2){auto e=pb::Decode(f.bytes);Slot slot{uint32_t(pb::Get(e,1)),uint32_t(pb::Get(e,2))};auto c=choices_.find(slot);if(c!=choices_.end())continue;}keep.push_back(f);}for(const auto& e:choices_)if(e.second.id==id){pb::Remove(keep,15);keep.push_back(pb::V(15,e.second.style));keep.push_back(pb::B(18,pb::Encode({pb::V(1,e.first.first),pb::V(2,e.first.second)})));}return pb::Encode(keep);}
  void Push(Packet p){
- if((p.type&~ProtoFlag)==26&&!queue_.empty()&&(queue_.back().type&~ProtoFlag)==26){
-  auto a=pb::Decode(Unpack(p.type,p.data).body),b=pb::Decode(Unpack(queue_.back().type,queue_.back().data).body);
-  auto ordinary=[](const pb::Message& m){return std::none_of(m.begin(),m.end(),[](const pb::Field& f){return f.n==4||f.n==5;});};
-  if(ordinary(a)&&ordinary(b)){queue_.back()=std::move(p);return;}
+  if(queue_.size()>=32)throw std::runtime_error("local queue full");
+  queue_.push_back(std::move(p));
  }
- if(queue_.size()>=32)throw std::runtime_error("local queue full");queue_.push_back(std::move(p));}
  pb::Field Object(uint32_t field,const Bytes& b)const{return pb::B(field,pb::Encode({pb::V(1,1),pb::B(2,b)}));}
  void Delta(bool added,bool removed){
-  (void)added;if(!ready_)return;auto missing=removed?std::set<uint32_t>{}:Missing();
-  pb::Message msg{pb::F64(3,version_),pb::B(6,Owner())};if(service_)msg.push_back(pb::V(7,service_));
-  for(uint32_t def:projected_)if(!missing.count(def))msg.push_back(Object(5,pb::Encode({pb::V(1,FakeId(def))})));
-  for(uint32_t def:missing)msg.push_back(Object(projected_.count(def)?2:4,Item(*unique_.at(def))));
-  for(const auto& kv:real_)msg.push_back(Object(2,enabled_?Project(kv.second):kv.second));
-  Push(Pack(26,pb::Encode(msg)));projected_=std::move(missing);
+  (void)added;
+  if(!ready_)return;
+  auto missing=removed?std::set<uint32_t>{}:Missing();
+  std::map<uint32_t,Bytes> nextFake;
+  std::map<uint64_t,Bytes> nextReal;
+  std::vector<pb::Field> changes;
+  for(uint32_t def:projected_)if(!missing.count(def))
+   changes.push_back(Object(5,pb::Encode({pb::V(1,FakeId(def))})));
+  for(uint32_t def:missing){
+   Bytes item=Item(*unique_.at(def));
+   auto old=publishedFake_.find(def);
+   if(!projected_.count(def))changes.push_back(Object(4,item));
+   else if(old==publishedFake_.end()||old->second!=item)changes.push_back(Object(2,item));
+   nextFake.emplace(def,std::move(item));
+  }
+  for(const auto& kv:real_){
+   Bytes item=enabled_?Project(kv.second):kv.second;
+   auto old=publishedReal_.find(kv.first);
+   if(old==publishedReal_.end()||old->second!=item)changes.push_back(Object(2,item));
+   nextReal.emplace(kv.first,std::move(item));
+  }
+  // Limit each multiple-object event below the protocol's 1024-object hard limit.
+  // Do not drop previous queued deltas: each contains only its own changes.
+  constexpr size_t batch=512;
+  size_t packets=(changes.size()+batch-1)/batch;
+  if(packets>32-queue_.size())throw std::runtime_error("local queue full; wait for client polling");
+  auto nextQueue=queue_; // Commit queue + published state together, or not at all.
+  for(size_t i=0;i<changes.size();i+=batch){
+   pb::Message msg{pb::F64(3,version_),pb::B(6,Owner())};
+   if(service_)msg.push_back(pb::V(7,service_));
+   size_t end=std::min(changes.size(),i+batch);
+   msg.insert(msg.end(),changes.begin()+i,changes.begin()+end);
+   nextQueue.push_back(Pack(26,pb::Encode(msg)));
+  }
+  queue_.swap(nextQueue);
+  publishedFake_.swap(nextFake);publishedReal_.swap(nextReal);
+  projected_=std::move(missing);
  }
  bool Cache(pb::Message& cache){if(!Own(cache,4))return false;bool found=false;std::map<uint64_t,Bytes> items;for(const auto& f:cache)if(f.n==2&&f.wire==2){auto type=pb::Decode(f.bytes);if(pb::Get(type,1)!=1)continue;found=true;for(const auto& obj:type)if(obj.n==2&&obj.wire==2){auto item=pb::Decode(obj.bytes);uint64_t id=pb::Get(item,1);if(id&&!IsFake(id)){if(pb::Get(item,2,uint32_t(owner_))!=uint32_t(owner_))throw std::runtime_error("wrong account");items[id]=obj.bytes;}}}
- if(!found)return false;real_=std::move(items);version_=pb::Get(cache,3);service_=uint32_t(pb::Get(cache,5));ready_=true;if(!enabled_)return false;
- for(auto& f:cache)if(f.n==2&&f.wire==2){auto type=pb::Decode(f.bytes);if(pb::Get(type,1)!=1)continue;pb::Remove(type,2);for(const auto& kv:real_)type.push_back(pb::B(2,Project(kv.second)));auto missing=Missing();for(uint32_t def:missing)type.push_back(pb::B(2,Item(*unique_.at(def))));
+ if(!found)return false;real_=std::move(items);version_=pb::Get(cache,3);service_=uint32_t(pb::Get(cache,5));ready_=true;if(!enabled_){publishedReal_=real_;return false;}
+ for(auto& f:cache)if(f.n==2&&f.wire==2){auto type=pb::Decode(f.bytes);if(pb::Get(type,1)!=1)continue;pb::Remove(type,2);publishedReal_.clear();publishedFake_.clear();
+ for(const auto& kv:real_){auto item=Project(kv.second);type.push_back(pb::B(2,item));publishedReal_[kv.first]=std::move(item);}
+ auto missing=Missing();for(uint32_t def:missing){auto item=Item(*unique_.at(def));type.push_back(pb::B(2,item));publishedFake_[def]=std::move(item);}
  pb::Message removed{pb::F64(3,version_),pb::B(6,Owner())};if(service_)removed.push_back(pb::V(7,service_));bool any=false;
  for(uint32_t def:projected_)if(!missing.count(def)){removed.push_back(Object(5,pb::Encode({pb::V(1,FakeId(def))})));any=true;}
  f.bytes=pb::Encode(type);if(any)Push(Pack(26,pb::Encode(removed)));projected_=std::move(missing);return true;}return false;}
@@ -85,7 +117,7 @@ class Core {
  bool ValidateChoice(uint64_t id,uint32_t cls,uint32_t slot,uint32_t style)const{if(cls>1000||slot>31)return false;if(!id)return true;if(IsFake(id)){const auto* d=Find(uint32_t(id),cls,slot);return projected_.count(uint32_t(id))&&d&&StyleAllowed(*d,style);}auto it=real_.find(id);if(it==real_.end())return false;auto m=pb::Decode(it->second);const auto* d=Find(uint32_t(pb::Get(m,4)),cls,slot);return d&&StyleAllowed(*d,style);}
  public:
  Core(const Definition* d,size_t n):defs_(d),count_(n){for(size_t i=0;i<n;++i)unique_.emplace(d[i].id,&d[i]);}
- void SetOwner(uint64_t owner){if(owner_==owner)return;owner_=owner;enabled_=false;ready_=false;real_.clear();choices_.clear();itemStyles_.clear();projected_.clear();queue_.clear();version_=0;service_=0;}
+ void SetOwner(uint64_t owner){if(owner_==owner)return;owner_=owner;enabled_=false;ready_=false;real_.clear();choices_.clear();itemStyles_.clear();projected_.clear();publishedFake_.clear();publishedReal_.clear();queue_.clear();version_=0;service_=0;}
  uint64_t OwnerId()const{return owner_;}bool Ready()const{return ready_;}bool Enabled()const{return enabled_;}size_t Count()const{return unique_.size();}size_t Selected()const{return choices_.size();}const std::map<Slot,Choice>& Choices()const{return choices_;}
  void RestoreSelections(const std::map<Slot,std::pair<uint32_t,uint32_t>>& values){auto old=choices_;for(const auto& e:values){uint64_t id=ChoiceId(e.second.first);if(ValidateChoice(id,e.first.first,e.first.second,e.second.second))choices_[e.first]={id,e.second.second};}try{if(enabled_&&ready_)Delta(false,false);}catch(...){choices_=std::move(old);throw;}}
  std::map<Slot,std::pair<uint32_t,uint32_t>> SelectedDefinitions()const{std::map<Slot,std::pair<uint32_t,uint32_t>> out;for(const auto& e:choices_){uint32_t def=IsFake(e.second.id)?uint32_t(e.second.id):0;if(!def){auto real=real_.find(e.second.id);if(real!=real_.end())def=uint32_t(pb::Get(pb::Decode(real->second),4));}if(def)out[e.first]={def,e.second.style};}return out;}
@@ -115,10 +147,11 @@ class Core {
  Packet Incoming(uint32_t type,const Bytes& raw){Packet original{type,raw};if(!owner_)return original;try{auto e=Unpack(type,raw);auto m=pb::Decode(e.body);uint32_t t=type&~ProtoFlag;bool changed=false;
  if(t==24)changed=Cache(m);
  else if(t==4004){for(auto& f:m)if(f.n==3&&f.wire==2){auto cache=pb::Decode(f.bytes);if(Cache(cache)){f.bytes=pb::Encode(cache);changed=true;}}}
- else if((t==21||t==22||t==23)&&Own(m,5)&&pb::Get(m,2)==1){const auto* b=pb::GetBytes(m,3);if(b){auto item=pb::Decode(*b);uint64_t id=pb::Get(item,1);if(id&&!IsFake(id)){if(t==23){real_.erase(id);for(auto it=choices_.begin();it!=choices_.end();)if(it->second.id==id)it=choices_.erase(it);else ++it;}else{real_[id]=*b;if(enabled_){for(auto& f:m)if(f.n==3&&f.wire==2)f.bytes=Project(f.bytes);changed=true;}}version_=pb::Get(m,4,version_);}}}
- else if(t==26&&Own(m,6)){version_=pb::Get(m,3,version_);for(auto& f:m)if((f.n==2||f.n==4||f.n==5)&&f.wire==2){auto o=pb::Decode(f.bytes);if(pb::Get(o,1)!=1)continue;const auto* b=pb::GetBytes(o,2);if(!b)continue;auto item=pb::Decode(*b);uint64_t id=pb::Get(item,1);if(!id||IsFake(id))continue;if(f.n==5){real_.erase(id);for(auto it=choices_.begin();it!=choices_.end();)if(it->second.id==id)it=choices_.erase(it);else ++it;}else{real_[id]=*b;if(enabled_){for(auto& v:o)if(v.n==2&&v.wire==2)v.bytes=Project(v.bytes);f.bytes=pb::Encode(o);changed=true;}}}}
- if(enabled_&&ready_&&t!=24&&t!=4004&&Missing()!=projected_)Delta(false,false);
+ else if((t==21||t==22||t==23)&&Own(m,5)&&pb::Get(m,2)==1){const auto* b=pb::GetBytes(m,3);if(b){auto item=pb::Decode(*b);uint64_t id=pb::Get(item,1);if(id&&!IsFake(id)){if(t==23){real_.erase(id);for(auto it=choices_.begin();it!=choices_.end();)if(it->second.id==id)it=choices_.erase(it);else ++it;}else{real_[id]=*b;if(enabled_){for(auto& f:m)if(f.n==3&&f.wire==2)f.bytes=Project(f.bytes);publishedReal_[id]=Project(*b);changed=true;}}version_=pb::Get(m,4,version_);}}}
+ else if(t==26&&Own(m,6)){version_=pb::Get(m,3,version_);for(auto& f:m)if((f.n==2||f.n==4||f.n==5)&&f.wire==2){auto o=pb::Decode(f.bytes);if(pb::Get(o,1)!=1)continue;const auto* b=pb::GetBytes(o,2);if(!b)continue;auto item=pb::Decode(*b);uint64_t id=pb::Get(item,1);if(!id||IsFake(id))continue;if(f.n==5){real_.erase(id);for(auto it=choices_.begin();it!=choices_.end();)if(it->second.id==id)it=choices_.erase(it);else ++it;}else{real_[id]=*b;if(enabled_){for(auto& v:o)if(v.n==2&&v.wire==2)v.bytes=Project(v.bytes);publishedReal_[id]=Project(*b);f.bytes=pb::Encode(o);changed=true;}}}}
+ if(enabled_&&ready_&&(t==21||t==22||t==23||t==26)&&Missing()!=projected_)Delta(false,false);
  if(changed)return Pack(t,pb::Encode(m),e.header);return original;}catch(...){return original;}}
+ size_t QueuedCount()const{return queue_.size();}
  bool HasQueued()const{return !queue_.empty();}uint32_t QueuedSize()const{return queue_.empty()?0:uint32_t(queue_.front().data.size());}
  bool Pop(Packet& out){if(queue_.empty())return false;out=std::move(queue_.front());queue_.pop_front();return true;}
  Packet Refresh()const{return Pack(28,pb::Encode({pb::B(2,Owner())}));}

@@ -4,9 +4,20 @@
 #include "hook.h"
 
 static DWORD WINAPI ScanThread(LPVOID) {
-    __try {
-        game::ScanLoop();
-    } __except (EXCEPTION_EXECUTE_HANDLER) {
+    unsigned faults = 0;
+    while (cfg::running.load()) {
+        __try { game::ScanLoop(); }
+        __except (EXCEPTION_EXECUTE_HANDLER) {
+            game::g_controllerProbe.exceptionCode.store(GetExceptionCode());
+            game::g_controllerProbe.scanFaults.fetch_add(1);
+            game::g_sys.localCtrl = 0;
+            game::g_sys.ready = false;
+            ++faults;
+        }
+        if (!cfg::running.load()) break;
+        // Bounded recovery; repeated faults remain visible, not a silent dead thread.
+        if (faults >= 3) break;
+        Sleep(500);
     }
     return 0;
 }

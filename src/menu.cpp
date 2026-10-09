@@ -9,6 +9,8 @@
 #include "auto_accept.h"
 #include "kill_stealer.h"
 #include "armlet.h"
+#include "combos.h"
+#include "draft_advisor_ui.h"
 #include <cctype>
 #include <string>
 #include <unordered_map>
@@ -109,11 +111,11 @@ static BoolSetting booleans[] = {
     {L"notifyWards", &cfg::notifyWards}, {L"notifyRoshan", &cfg::notifyRoshan},
     {L"visibleByEnemy", &cfg::hudVisibleByEnemy}, {L"farmHarass", &cfg::farmHarass}, {L"lastHitEnabled", &cfg::lastHitEnabled},
     {L"hudTopAbilities", &cfg::hudTopAbilities}, {L"hudStatusBadges", &cfg::hudStatusBadges},
-    {L"hudWorld", &cfg::hudWorld}, {L"hudTop", &cfg::hudTop}, {L"hudItems", &cfg::hudItems},
+    {L"hudTop", &cfg::hudTop}, {L"hudItems", &cfg::hudItems},
     {L"hudAbilities", &cfg::hudAbilities}, {L"hudRoshan", &cfg::hudRoshan}, {L"hudWatermark", &cfg::hudWatermark},
     {L"hudBounty", &cfg::hudBounty}, {L"hudPortraits", &cfg::hudPortraits}, {L"hudHpNumber", &cfg::hudHpNumber},
     {L"hudManaNumber", &cfg::hudManaNumber}, {L"hudIllusions", &cfg::hudIllusions},
-    {L"espHeroes", &cfg::espHeroes}, {L"espBoxes", &cfg::espBoxes},
+    {L"espHeroes", &cfg::espHeroes},
     {L"espCds", &cfg::espCds}, {L"espDist", &cfg::espDist},
     {L"skillPreview", &cfg::skillPreview}, {L"espWards", &cfg::espWards},
     {L"espRoshan", &cfg::espRoshan}, {L"lastHit", &cfg::lastHit},
@@ -131,6 +133,8 @@ static FloatSetting floats[] = {
     {L"armletThreshold", &cfg::armletThreshold,50.f,550.f}, {L"helperMargin", &cfg::helperMargin,0.f,1000.f}, {L"ksDamage", &cfg::ksDamage,0.f,100000.f}, {L"ksRange", &cfg::ksRange,0.f,2500.f}, {L"ksMargin", &cfg::ksMargin,0.f,1000.f},
     {L"notifyLead", &cfg::notifyLead,3.f,30.f},
     {L"hudSkillPixels", &cfg::hudSkillPixels,28.f,60.f},
+    {L"nativeHpOffsetX", &cfg::nativeHpOffsetX,-100.f,100.f}, {L"nativeHpOffsetY", &cfg::nativeHpOffsetY,-100.f,100.f},
+    {L"nativeHpRedOffsetY", &cfg::nativeHpRedOffsetY,-100.f,100.f},
     {L"hudIconScale", &cfg::hudIconScale, .6f,1.6f}, {L"hudTopY", &cfg::hudTopY,0.f,260.f},
     {L"hudTopSlot", &cfg::hudTopSlot,40.f,100.f}, {L"hudTopGap", &cfg::hudTopGap,100.f,320.f},
     {L"wmX", &cfg::hudWatermarkX,-1.f,16000.f},{L"wmY", &cfg::hudWatermarkY,0.f,16000.f},
@@ -138,7 +142,7 @@ static FloatSetting floats[] = {
 };
 static bool Save() {
     if (!ConfigPath()[0]) return false;
-    bool ok = WriteNumber(L"uiVersion",10);
+    bool ok = WriteNumber(L"uiVersion",12);
     for(const auto& setting: {std::pair<const wchar_t*,int>{L"armletKey",cfg::armletKey},{L"armletSlot",cfg::armletSlot},{L"ksSlot",cfg::ksAbilitySlot},{L"ksSpellKey",cfg::ksSpellKey},{L"ksType",cfg::ksDamageType}})if(!WriteNumber(setting.first,setting.second))ok=false;
     for (const auto& b : booleans) if (!WriteNumber(b.key, *b.target ? 1 : 0)) ok = false;
     if (!WriteNumber(L"language", language)) ok = false;
@@ -155,6 +159,13 @@ static bool Save() {
     wchar_t nickname[64]={};
     if (MultiByteToWideChar(CP_UTF8,0,cfg::hudNickname,-1,nickname,64)>0)
         if (!WritePrivateProfileStringW(profileNames[profile],L"nickname",nickname,ConfigPath())) ok=false;
+    combos::InitializeSettings();
+    for(int i=0;i<combos::count;++i){
+        wchar_t key[64];const auto& c=combos::settings[i];
+        swprintf_s(key,L"combo%dEnabled",i);if(!WriteNumber(key,c.enabled?1:0))ok=false;
+        swprintf_s(key,L"combo%dHold",i);if(!WriteNumber(key,c.holdKey))ok=false;
+        for(int j=0;j<combos::profiles[i].count;++j){swprintf_s(key,L"combo%dKey%d",i,j);if(!WriteNumber(key,c.keys[j]))ok=false;}
+    }
     if (ok) {
         wchar_t n[8]; swprintf_s(n, L"%d", profile);
         ok = WritePrivateProfileStringW(L"client", L"active", n, ConfigPath()) != FALSE;
@@ -191,9 +202,17 @@ static bool Load() {
     if (!WideCharToMultiByte(CP_UTF8,0,nickname,-1,cfg::hudNickname,(int)sizeof(cfg::hudNickname),nullptr,nullptr))
         strcpy_s(cfg::hudNickname,"player");
     if(GetPrivateProfileIntW(profileNames[profile],L"uiVersion",2,path)<4) {
-        cfg::hudWorld=false;
         cfg::hudTopAbilities=true;
         cfg::hudSkillPixels=35.f;
+    }
+    if(GetPrivateProfileIntW(profileNames[profile],L"uiVersion",2,path)<11){
+        cfg::hudHpNumber=true;cfg::hudItems=true;cfg::hudAbilities=true;cfg::hudStatusBadges=true;
+        cfg::hudIllusions=true;cfg::showEffects=true;cfg::hudSkillPixels=30.f;
+    }
+    // User-requested ESP19 default: migrate old profiles once, then preserve future edits.
+    if(GetPrivateProfileIntW(profileNames[profile],L"uiVersion",2,path)<12){
+        cfg::nativeHpOffsetY=-9.f;
+        WriteNumber(L"uiVersion",12);WriteNumber(L"nativeHpOffsetY",-900);
     }
     if(GetPrivateProfileIntW(profileNames[profile],L"uiVersion",2,path)<7){accent=0;fontScale=1.f;}
     wchar_t heroName[64]={};GetPrivateProfileStringW(profileNames[profile],L"ksHeroName",L"",heroName,64,path);
@@ -205,6 +224,13 @@ static bool Load() {
     cfg::armletKey=std::clamp((int)GetPrivateProfileIntW(profileNames[profile],L"armletKey",0,path),0,255);
     cfg::armletSlot=std::clamp((int)GetPrivateProfileIntW(profileNames[profile],L"armletSlot",0,path),0,5);
     cfg::armletConfirmed=false;armlet::Reset(); // never persist a verified-input claim across startup/profile changes
+    combos::InitializeSettings();combos::Reset();
+    for(int i=0;i<combos::count;++i){
+        wchar_t key[64];auto& c=combos::settings[i];c.confirmed=false;
+        swprintf_s(key,L"combo%dEnabled",i);c.enabled=GetPrivateProfileIntW(profileNames[profile],key,0,path)!=0;
+        swprintf_s(key,L"combo%dHold",i);c.holdKey=std::clamp((int)GetPrivateProfileIntW(profileNames[profile],key,0,path),0,255);
+        for(int j=0;j<combos::profiles[i].count;++j){swprintf_s(key,L"combo%dKey%d",i,j);c.keys[j]=std::clamp((int)GetPrivateProfileIntW(profileNames[profile],key,combos::profiles[i].steps[j].defaultKey,path),0,255);}
+    }
     cfg::vbe = false; // legacy fog writes are never enabled by a visibility-information profile
     if(!binds::items[0].vk)binds::items[0].vk='V';
     binds::items[0].hold=true;
@@ -314,21 +340,61 @@ static void Diagnostics() {
         const char* cls = rtti::ClassOf(game::g_sys.clientBase, p.vtable.load());
         ImGui::TextWrapped("RTTI lookup: %s", cls ? cls : "not found");
         ImGui::Text("Object +08/+10/+18: 0x%llX / 0x%llX / 0x%llX", (unsigned long long)p.word08.load(), (unsigned long long)p.word10.load(), (unsigned long long)p.word18.load());
-        ImGui::Text("Valid pages: %d  Entity hits: %d", p.pages.load(), p.hits.load());
+        ImGui::Text("Valid pages: %d  Validation hits (max 8): %d", p.pages.load(), p.hits.load());
         ImGui::Text("Slots scanned: %u  Vtable matches: %u", p.scannedSlots.load(), p.matchedObjects.load());
         ImGui::Text("Last scan code: %d", p.lastScanStage.load());
         ImGui::Separator();
         ImGui::Text("System: %s  Controller: %s", game::g_sys.ready ? "ready" : "not ready",
                     mem::ValidPtr(game::g_sys.localCtrl) ? "found" : "missing");
-        ImGui::Text("Frame: %s  Units: %d  Heroes: %d", d.frameOk ? "valid" : "invalid", d.unitCount, d.heroCount);
+        ImGui::Text("Local frame: %s | World view: %s",d.frameOk?"valid":"unavailable",d.observedOnly?"observed-only":d.frameOk?"full":"unavailable");
+        ImGui::Text("Units: %d | Heroes: %d | Projected units: %d",d.unitCount,d.heroCount,d.projectedUnits);
         ImGui::Text("Matrix: %s  ESP: %s", d.matrixOk ? "plausible" : "invalid", cfg::espHeroes ? "on" : "off");
+        const auto& cp = game::g_controllerProbe;
+        ImGui::TextUnformatted("ESP patch: ESP19 / base 40a11e81");
+        ImGui::Text("Scanner passes: %u | faults: %u | exception: 0x%X",cp.scanPasses.load(),cp.scanFaults.load(),cp.exceptionCode.load());
+        auto heartbeat = cp.scanHeartbeat.load();
+        auto currentTick = GetTickCount64();
+        ImGui::Text("Scanner age: %llu ms",(unsigned long long)(heartbeat && currentTick>=heartbeat ? currentTick-heartbeat : 0));
+        ImGui::Text("Entities scanned: %d | controllers: %d | local flags: %d | source: %d",cp.scannedEntities.load(),cp.candidates.load(),cp.localFlags.load(),cp.source.load());
+        ImGui::TextWrapped("Dump local-player global disabled: it pointed to C_DOTAGamerules in CTRL1.");
+        ImGui::Text("Classified: %d units / %d heroes",cp.classifiedUnits.load(),cp.classifiedHeroes.load());
+        ImGui::Text("Controller refs: stage=%d slots=%u hits=%d",cp.controllerRefStage.load(),cp.controllerRefSlots.load(),cp.controllerRefHits.load());
+        if(d.observedOnly)ImGui::TextWrapped("Basic world ESP only. Local identity/team is unknown; automation remains blocked.");
+        ImGui::Text("Frame gate: %d | hero handle 0x%X | hero 0x%llX",cp.frameStage.load(),cp.heroHandle.load(),(unsigned long long)cp.heroAddress.load());
+        ImGui::Text("Projection mode: %d | sample hero position: %.1f %.1f %.1f",d.projectionMode,d.sampleWorld.x,d.sampleWorld.y,d.sampleWorld.z);
+        for(int row=0;row<4;++row)ImGui::Text("M%d: %.5g %.5g %.5g %.5g",row,d.matrix[row*4],d.matrix[row*4+1],d.matrix[row*4+2],d.matrix[row*4+3]);
+        ImGui::Text("Y votes: upright=%d flipped=%d | zero-origin heroes=%d",d.uprightVotes,d.flippedVotes,d.zeroOriginHeroes);
+        if(ImGui::Button("Copy ESP diagnostics")) {
+            char report[32768];snprintf(report,sizeof(report),
+                "ESP19\nentities=%d classified=%d classifiedHeroes=%d controllers=%d localFlags=%d source=%d\nscannerPasses=%u faults=%u exception=0x%X frameGate=%d\nlocalFrame=%d observedOnly=%d units=%d heroes=%d projectedUnits=%d matrixPlausible=%d mode=%d\nsampleHero=%g,%g,%g\nM0=%g,%g,%g,%g\nM1=%g,%g,%g,%g\nM2=%g,%g,%g,%g\nM3=%g,%g,%g,%g\n",
+                cp.scannedEntities.load(),cp.classifiedUnits.load(),cp.classifiedHeroes.load(),cp.candidates.load(),cp.localFlags.load(),cp.source.load(),
+                cp.scanPasses.load(),cp.scanFaults.load(),cp.exceptionCode.load(),cp.frameStage.load(),d.frameOk,d.observedOnly,d.unitCount,d.heroCount,d.projectedUnits,d.matrixOk,d.projectionMode,
+                d.sampleWorld.x,d.sampleWorld.y,d.sampleWorld.z,
+                d.matrix[0],d.matrix[1],d.matrix[2],d.matrix[3],d.matrix[4],d.matrix[5],d.matrix[6],d.matrix[7],d.matrix[8],d.matrix[9],d.matrix[10],d.matrix[11],d.matrix[12],d.matrix[13],d.matrix[14],d.matrix[15]);
+            size_t used=strlen(report);
+            int added=snprintf(report+used,sizeof(report)-used,"Yvotes=%d,%d zeroOriginHeroes=%d screen=%d,%d refsStage=%d refsSlots=%u refsHits=%d\n",d.uprightVotes,d.flippedVotes,d.zeroOriginHeroes,view::W,view::H,cp.controllerRefStage.load(),cp.controllerRefSlots.load(),cp.controllerRefHits.load());
+            if(added>0)used+=std::min(size_t(added),sizeof(report)-used-1);
+            if(used<sizeof(report)-1){added=snprintf(report+used,sizeof(report)-used,"teamDataCandidates: Radiant=0x%llX Dire=0x%llX\n",(unsigned long long)game::g_teamVisibilityData[0].load(),(unsigned long long)game::g_teamVisibilityData[1].load());if(added>0)used+=std::min(size_t(added),sizeof(report)-used-1);}
+            for(int i=0;i<d.samplesCount&&used<sizeof(report)-1;++i){const auto& p=d.samples[i];
+                added=snprintf(report+used,sizeof(report)-used,"hero[%d]=%s pos=%g,%g,%g hp=%d alive=%d nodeRead=%d ownerMatch=%d footOK=%d foot=%g,%g headOK=%d head=%g,%g h=%g\n",i,p.name,p.pos.x,p.pos.y,p.pos.z,p.hp,p.alive,p.nodeRead,p.ownerMatches,p.footProjected,p.foot.x,p.foot.y,p.headProjected,p.head.x,p.head.y,p.foot.y-p.head.y);
+                if(added>0)used+=std::min(size_t(added),sizeof(report)-used-1);
+                if(used<sizeof(report)-1){added=snprintf(report+used,sizeof(report)-used,"data[%d]: level=%d inventoryRead=%d slots=%d resolved=%d unmapped=%d items=%d abilities=%d buffsRead=%d buffVisual=%d buffs=%d illusionRead=%d illusion=%d invisRead=%d stateRead=%d state=0x%llX clockRead=%d clock=%g team=%d visionRead=%d visionMask=0x%X forcedVBE=%d\n",i,p.level,p.inventoryRead,p.inventorySlots,p.resolved,p.unmapped,p.items,p.abilities,p.buffsRead,p.buffsVisualRead,p.buffs,p.illusionRead,p.illusion,p.invisRead,p.stateRead,(unsigned long long)p.state,p.clockRead,p.clock,p.team,p.visionRead,p.visionMask,cfg::vbe);if(added>0)used+=std::min(size_t(added),sizeof(report)-used-1);}
+                if(used<sizeof(report)-1){added=snprintf(report+used,sizeof(report)-used,"npcVision[%d]: dataHandle=0x%X index=%u tableRead=%d visible=%d probeMask=%d word=0x%llX selfWord=0x%llX dormantRead=%d dormant=%d offsetsLiveVerified=0\n",i,p.npcDataHandle,p.npcIndex,p.npcVisionRead,p.npcVisible,p.npcProbeMask,(unsigned long long)p.npcWord,(unsigned long long)p.npcSelfWord,p.sceneDormantRead,p.sceneDormant);if(added>0)used+=std::min(size_t(added),sizeof(report)-used-1);}
+            }
+            for(int i=0;i<d.samplesCount&&used<sizeof(report)-1;++i){const auto& sample=d.samples[i];
+                for(int j=0;j<sample.shownAbilityCount&&used<sizeof(report)-1;++j){added=snprintf(report+used,sizeof(report)-used,"ability[%d,%d]=%s level=%d max=%d\n",i,j,sample.abilityNames[j],sample.abilityLevels[j],sample.abilityMaxima[j]);if(added>0)used+=std::min(size_t(added),sizeof(report)-used-1);}}
+            for(int i=0;i<d.samplesCount&&used<sizeof(report)-1;++i){const auto& sample=d.samples[i];
+                for(int j=0;j<sample.shownBuffCount&&used<sizeof(report)-1;++j){added=snprintf(report+used,sizeof(report)-used,"modifier[%d,%d]=%s stacks=%d duration=%g expires=%g clock=%g\n",i,j,sample.buffNames[j],sample.buffStacks[j],sample.buffDuration[j],sample.buffExpires[j],sample.clock);if(added>0)used+=std::min(size_t(added),sizeof(report)-used-1);}}
+            if(used<sizeof(report)-1)snprintf(report+used,sizeof(report)-used,"Armlet: %s\nArmlet last closed-menu status: %s\n",armlet::Status(),armlet::LastClosedStatus());
+            ImGui::SetClipboardText(report);
+        }
         ImGui::Text("HUD inventories: %d / %d heroes", hud::readProbe.inventories,hud::readProbe.heroes);
         ImGui::Text("Modifier lists: %d verified / %d unknown; %d effects",hud::readProbe.buffLists,hud::readProbe.buffUnknown,hud::readProbe.buffEffects);
         ImGui::Text("Items: %d (%d mapped)  Abilities: %d (%d mapped)", hud::readProbe.items,hud::readProbe.mappedItems,hud::readProbe.abilities,hud::readProbe.mappedAbilities);
         ImGui::Text("Aegis: %d detected, %d timed, %d estimated, %d owner fallback",hud::readProbe.aegis,hud::readProbe.aegisTimed,hud::readProbe.aegisEstimated,hud::readProbe.aegisFallback);
         ImGui::Text("Inventory slots: %d  Resolved: %d  Unmapped: %d",hud::readProbe.inventorySlots,hud::readProbe.resolved,hud::readProbe.unmapped);
-        ImGui::Text("Portrait anchors: %d / %d (best %.3f)",topanchor::stats.matched,topanchor::stats.jobs,topanchor::stats.best);
-        ImGui::Text("Portrait capture: %s",topanchor::stats.captureOk?"OK":"unavailable");
+        ImGui::TextUnformatted("ESP19 top HUD: compact horizontal rows / stable player slots.");
+        ImGui::Text("Team-data candidates: Radiant=0x%llX Dire=0x%llX",(unsigned long long)game::g_teamVisibilityData[0].load(),(unsigned long long)game::g_teamVisibilityData[1].load());
         ImGui::TextWrapped("Inventory layout and cooldown direction need runtime verification.");
 
 }
@@ -337,26 +403,22 @@ namespace clientui {
 struct Function { const char* name;bool* enabled;int details;int bind; };
 static Function renderFunctions[]={
     {"HeroInfo",&cfg::espHeroes,0,4},{"TopPanel",&cfg::hudTop,1,-1},
-    {"IllusionDetector",&cfg::hudIllusions,2,-1},{"Custom hero bars",&cfg::hudWorld,3,-1},
+    {"IllusionDetector",&cfg::hudIllusions,2,-1},
     {"Watermark",&cfg::hudWatermark,4,-1},{"Keybinds",&cfg::showKeybinds,5,-1}};
 static Function combatFunctions[]={
     {"Last-Hit",&cfg::lastHitEnabled,6,0},{"Auto-attack creeps",&cfg::farmAuto,7,1},
     {"Danger alerts",&cfg::dodger,8,-1},{"Click dodge",&cfg::autoDodge,9,8},{"Kill Stealer",&cfg::killStealer,19,10},{"Kill helper",&cfg::showKillHelper,21,-1}};
 static Function mapFunctions[]={
     {"RoshanController",&cfg::hudRoshan,10,-1},{"Wards",&cfg::espWards,11,5},{"CreepBounty",&cfg::hudBounty,12,-1},{"Map notifications",nullptr,18,-1}};
-static Function moreFunctions[]={ {"Skin Changer",nullptr,13,-1},{"Active Buffs / Debuffs",&cfg::showEffects,14,-1}};
+static Function moreFunctions[]={ {"Skin Changer",nullptr,13,-1},{"Active Buffs / Debuffs",&cfg::showEffects,14,-1},{"Draft advisor",nullptr,23,-1}};
 static Function profileFunctions[]={{"Local profiles",nullptr,15,-1}};
 static Function interfaceFunctions[]={{"Interface",nullptr,16,-1},{"Auto-accept",&cfg::autoAccept,20,2}};
 static Function diagnosticFunctions[]={{"Data diagnostics",nullptr,17,-1}};
-struct HeroEntry {const char* label;const char* engine;int id;};
-static const HeroEntry helperHeroes[]={
-#include "helper_hero_catalog.inc"
-};
-static constexpr int heroCount=IM_ARRAYSIZE(helperHeroes);
-static Function helperFunctions[heroCount];
-static void InitHelpers(){static bool done=false;if(done)return;done=true;for(int i=0;i<heroCount;++i){bool huskar=!strcmp(helperHeroes[i].engine,"npc_dota_hero_huskar");helperFunctions[i]={helperHeroes[i].label,huskar?&cfg::armletAuto:nullptr,huskar?22:1000+i,huskar?11:-1};}}
+static Function helperFunctions[combos::count+1];
+static constexpr int heroCount=combos::count+1;
+static void InitHelpers(){static bool done=false;if(done)return;done=true;combos::InitializeSettings();helperFunctions[0]={"Huskar / Armlet",&cfg::armletAuto,22,11};for(int i=0;i<combos::count;++i)helperFunctions[i+1]={combos::profiles[i].label,&combos::settings[i].enabled,2000+i,-1};}
 static Function* functions[]={renderFunctions,combatFunctions,mapFunctions,moreFunctions,profileFunctions,interfaceFunctions,diagnosticFunctions,helperFunctions};
-static const int functionCounts[]={6,6,4,2,1,2,1,heroCount};
+static const int functionCounts[]={5,6,4,3,1,2,1,heroCount};
 static int category=0,selected=0;static char search[80]={};
 static bool FunctionEntry(Function& fn,bool selected){
     ImGui::PushID(fn.details);ImVec2 p=ImGui::GetCursorScreenPos();float w=ImGui::GetContentRegionAvail().x;
@@ -434,8 +496,8 @@ void DrawMenuWindow(){
     ImGui::Dummy(ImVec2(0,15));
     if(category==7){
         ImGui::SetNextItemWidth(-1);ImGui::InputTextWithHint("##hero-search",T("Поиск героя","Find hero"),search,sizeof(search));
-        if(ImGui::Button(T("К своему герою","Go to my hero"),ImVec2(-1,28))){const char* current=killstealer::CurrentHero();for(int i=0;i<heroCount;++i)if(!strcmp(helperHeroes[i].engine,current)){selected=i;search[0]=0;break;}}
-        ImGui::TextDisabled(T("%d героев","%d heroes"),heroCount);ImGui::TextDisabled("%s",T("Модуль: Huskar","Implemented: Huskar"));
+        if(ImGui::Button(T("Показать доступные модули","Show implemented modules"),ImVec2(-1,28))){selected=0;search[0]=0;}
+        ImGui::TextDisabled(T("%d подключённых модулей","%d implemented modules"),heroCount);ImGui::TextDisabled("%s",T("Базовые прокасты: экспериментально","Basic combos: experimental"));
         ImGui::BeginChild("hero-list",ImVec2(0,std::max(80.f,ImGui::GetContentRegionAvail().y-122)),ImGuiChildFlags_None);
     }
     bool found=false;
@@ -443,7 +505,7 @@ void DrawMenuWindow(){
     if(!found)ImGui::TextDisabled("%s",T("Ничего не найдено","No results"));
     if(category==7)ImGui::EndChild();
     ImGui::SetCursorPosY(std::max(ImGui::GetCursorPosY()+24,ImGui::GetWindowHeight()-96));
-    ImGui::TextDisabled("FDA 0.5.5");ImGui::TextDisabled("%s",profileLabels[profile]);
+    ImGui::TextDisabled("FDA 0.5.5 / ESP19");ImGui::TextDisabled("%s",profileLabels[profile]);
     if(ImGui::Button(T("Сохранить","Save"),ImVec2(-1,30)))snprintf(message,sizeof(message),"%s",Save()?T("Сохранено","Saved"):T("Ошибка записи","Write error"));
     if(message[0])ImGui::TextWrapped("%s",message);
     ImGui::EndChild();ImGui::PopStyleVar();ImGui::PopStyleColor();
@@ -455,17 +517,22 @@ void DrawMenuWindow(){
     ImGui::PushStyleColor(ImGuiCol_ChildBg,ImVec4(0,0,0,0));ImGui::BeginChild("details",ImVec2(sz.x-detailX-18,sz.y-98));ImGui::SetWindowFontScale(fontScale);ImGui::PopStyleColor();
     if((fn.details<15&&fn.details!=13)||fn.details==19||fn.details==20||fn.details==21||fn.details==22){Card("main","Основное","General",-1);MainSwitch(fn);EndCard(0);}
     Card("options","Настройки","Settings",0);
-    if(fn.details>=1000){Help("Заглушка. Прокасты и помощники этого героя пока не реализованы. Пустых рабочих переключателей и автоматических действий нет.","Placeholder. This hero has no implemented combo or helper yet. No dummy active toggles or automatic actions.");}
+    if(fn.details>=2000&&fn.details<2000+combos::count)combos::DrawSettings(fn.details-2000,language!=0);
     switch(fn.details){
     case 0:
         Row("Способности и уровни","Abilities & levels",&cfg::hudAbilities);Row("Предметы и заряды","Items & charges",&cfg::hudItems);
-        Row("Число HP","HP number",&cfg::hudHpNumber);Row("Число маны","Mana number",&cfg::hudManaNumber);
-        Row("Статусы INVIS / ILLUSION","INVIS / ILLUSION",&cfg::hudStatusBadges);
+        Row("Число HP","HP number",&cfg::hudHpNumber);
+        Row("Статусы / INVIS","Statuses / INVIS",&cfg::hudStatusBadges);
+        Help("Враг вне обзора: только круг с таймером 10 секунд. Возврат в обзор убирает круг. Нужен локальный игрок и подтверждённая командная NPC-таблица; нулевая маска модели не считается туманом. VBE должен быть выключен.","Enemy out of vision: a ten-second ring only. Reappearance cancels it. Requires a verified local frame and team NPC visibility table; zero model mask is not fog. Forced VBE must be disabled.");
+        Row("Баффы и дебаффы","Buffs & debuffs",&cfg::showEffects);
+        ImGui::SetNextItemWidth(-1);LotusSlider(T("Сдвиг числа HP по X","Native HP number offset X"),&cfg::nativeHpOffsetX,-100,100,"%.0f px");
+        ImGui::SetNextItemWidth(-1);LotusSlider(T("Сдвиг числа HP по Y","Native HP number offset Y"),&cfg::nativeHpOffsetY,-100,100,"%.0f px");
+        ImGui::SetNextItemWidth(-1);LotusSlider(T("Доп. сдвиг HP красного бара (вниз +)","Red HP bar additional Y offset (+ down)"),&cfg::nativeHpRedOffsetY,-100,100,"%.0f px");
+        if(ImGui::Button(T("Сбросить сдвиги HP","Reset HP offsets"))){cfg::nativeHpOffsetX=0;cfg::nativeHpOffsetY=-9;cfg::nativeHpRedOffsetY=6;}
         Row("Visible By Enemy *","Visible By Enemy *",&cfg::hudVisibleByEnemy,6);
         ImGui::SetNextItemWidth(-1);LotusSlider(T("Размер иконок","Icon size"),&cfg::hudSkillPixels,28,60,"%.0f px");break;
-    case 1:Row("Способности сверху","Top abilities",&cfg::hudTopAbilities);Row("Портреты героев","Hero portraits",&cfg::hudPortraits);break;
-    case 2:Help("Цвет HP иллюзии меняется при включённом обнаружении.","Illusion detection applies the HP tint when enabled.");break;
-    case 3:Row("Число HP","HP number",&cfg::hudHpNumber);Row("Число маны","Mana number",&cfg::hudManaNumber);break;
+    case 1:Row("Способности сверху","Top abilities",&cfg::hudTopAbilities);Row("Портреты героев","Hero portraits",&cfg::hudPortraits);ImGui::SetNextItemWidth(-1);LotusSlider(T("Высота компактной панели","Compact panel Y"),&cfg::hudTopY,54,240,"%.0f px");Help("Горизонтальные карточки: HP/MP, ряд способностей, ряд предметов. В тумане нет текущих HP/MP/спеллов. Малое разрешение: +N означает дополнительные скрытые иконки, а не вертикальный столбец.","Horizontal cards: HP/MP, ability row, item row. No current HP/MP/spells in fog. On smaller screens, +N counts extra icons rather than growing a vertical column.");break;
+    case 2:Help("Показывает ILLUSION по прочитанному флагу или модификатору. Не угадывает по одинаковому герою.","Shows ILLUSION from verified flags/modifiers. Duplicate heroes alone are not proof.");break;
     case 4:ImGui::SetNextItemWidth(220);ImGui::InputText(T("Подпись","Label"),cfg::hudNickname,sizeof(cfg::hudNickname));break;
     case 5:Help("Показывает существующие привязки функций. Их можно менять кнопкой «Клавиша» в настройках функции.","Shows existing function bindings. Edit a binding using the Key button in the function settings.");break;
     case 6:Row("Минимальный урон вместо среднего","Minimum damage instead of average",&cfg::lastHitConservative);Row("Денай при смертельном HP","Deny at lethal HP",&cfg::deny);Row("Харрас после крипов","Harass after creeps",&cfg::farmHarass);Row("Метки добивания","Last-hit markers",&cfg::lastHit);
@@ -485,8 +552,8 @@ void DrawMenuWindow(){
         skins::DrawSettings(language!=0,fontScale);break;}
 
     case 14:Row("Только временные","Timed effects only",&cfg::effectsTimedOnly);
-        Help("Flask / Tango / Clarity и другие прочитанные модификаторы: имя, остаток времени, стаки. Под курсором — доступный герой; иначе свой.","Flask / Tango / Clarity and other readable modifiers: name, remaining time, stacks. Hover a readable hero, otherwise your own hero is shown.");
-        Help("Экспериментальный поиск списка с проверкой каждого владельца. Если список не подтверждён — данные недоступны, а не отсутствие баффов.","Experimental list discovery validates every owner. An unverified list means unavailable data, not no buffs.");break;
+        Help("Flask / Tango / Clarity и другие прочитанные модификаторы: имя, остаток времени, стаки. Эффекты отображаются возле каждого героя с прочитанными данными.","Flask / Tango / Clarity and other readable modifiers: name, remaining time, stacks. Effects are shown inline for every hero with readable data.");
+        Help("Экспериментальный поиск списка с проверкой каждого владельца. Проверенный положительный снимок можно показать; неполный список не разрешает автонажатия.","Experimental list discovery validates every owner. A validated positive snapshot can be displayed; an incomplete list never enables automation.");break;
     case 15:ImGui::SetNextItemWidth(200);ImGui::Combo(T("Профиль","Profile"),&profile,profileLabels,3);
         if(ImGui::Button(T("Сохранить","Save")))snprintf(message,sizeof(message),"%s",Save()?T("Сохранено","Saved"):T("Ошибка записи","Write error"));
         ImGui::SameLine();if(ImGui::Button(T("Загрузить","Load"))){bool ok=Load();if(ok){wchar_t n[8];swprintf_s(n,L"%d",profile);WritePrivateProfileStringW(L"client",L"active",n,ConfigPath());}snprintf(message,sizeof(message),"%s",ok?T("Загружено","Loaded"):T("Профиль отсутствует","Profile unavailable"));}
@@ -510,6 +577,7 @@ void DrawMenuWindow(){
         ImGui::SetNextItemWidth(180);ImGui::InputFloat(T("Запас HP","HP margin"),&cfg::ksMargin,5,20,"%.0f");
         Help("Ручной профиль одного спелла. Урон и дальность задай по своему текущему герою, уровню и талантам. При смене героя автоматизация блокируется до новой привязки.","Manual one-spell profile. Set damage/range for your current hero, level and talents. Hero changes block automation until rebound.");
         Help("Действует только при удержании бинда, закрытом меню и фокусе Dota. Нужны подтверждённые баффы, видимость, мана и готовый спелл. Не гарантирует убийство; каналы и снаряды не моделируются.","Requires hold binding, closed menu and Dota focus. Verified buffs, visibility, mana and ready spell are required. No kill guarantee; channels and projectiles are not modeled.");break;}
+    case 23:{static std::array<int,4> picks={-1,-1,-1,-1};draftadvisor::DrawUI(language!=0,picks);break;}
     case 22:{
         Help("Huskar — экспериментальный Armlet по порогу HP. Не универсальный прокаст и не предсказатель входящего урона.","Huskar — experimental HP-threshold Armlet. Not a combo script or incoming-hit predictor.");
         int slot=cfg::armletSlot+1;ImGui::SetNextItemWidth(180);if(ImGui::SliderInt(T("Слот Armlet (1..6)","Armlet slot (1..6)"),&slot,1,6)){cfg::armletSlot=slot-1;cfg::armletConfirmed=false;armlet::Reset();}
@@ -518,10 +586,33 @@ void DrawMenuWindow(){
         ImGui::SetNextItemWidth(180);if(ImGui::Combo(T("Клавиша предмета в Dota","Native item key"),&selectedKey,keys,IM_ARRAYSIZE(keys))){cfg::armletKey=codes[selectedKey];cfg::armletConfirmed=false;armlet::Reset();}
         ImGui::SetNextItemWidth(-1);LotusSlider(T("Переключать при HP <=","Toggle when HP <="),&cfg::armletThreshold,50,550,"%.0f HP");
         Row("Клавиша проверена в демо; риск понятен","Key tested in demo; risk understood",&cfg::armletConfirmed);
-        Help("Клавиша сверху — отдельный бинд включения помощника (toggle или hold). Клавиша предмета — настоящая привязка выбранного слота в Dota. Автоматика работает только на своём Huskar, выбранном единственным юнитом, при закрытом меню и фокусе Dota.","The top binding activates the helper (toggle or hold). Native item key must match this inventory slot in Dota. Own Huskar must be the only selected unit, with menu closed and Dota focused.");
-        Help("При низком HP: если Armlet выключен — включить; если включён — выключить, дождаться подтверждённого OFF и затем включить. Не чаще 2 секунд, с проверкой восстановления HP. Неизвестный инвентарь/баффы/состояние и распознанные DoT блокируют цикл.","Low HP: turn ON if OFF; if ON, request OFF, observe actual OFF and then request ON. Two-second minimum spacing and observed HP recovery. Unknown inventory/buffs/state or recognized DoT blocks the cycle.");
-        Help("Входящие атаки, снаряды и все DoT НЕ предсказываются. Возможна смерть. При сбое или потере фокуса цикл останавливается: Armlet может остаться выключенным — проверь вручную. Этот модуль подавляет остальные игровые автонажатия, пока включён.","Incoming attacks/projectiles and every DoT are NOT predicted. Death is possible. Failure/focus loss stops the cycle: Armlet may remain OFF; check manually. Other game automation inputs are suppressed while this module is enabled.");
-        ImGui::TextWrapped("%s",armlet::Status());if(ImGui::Button(T("Сбросить остановленный цикл","Reset stopped cycle"))){cfg::armletConfirmed=false;armlet::Reset();}break;}
+        Help("Клавиша сверху — необязательный бинд включения помощника (toggle или hold). Можно включить переключателем меню. Клавиша предмета — настоящая привязка выбранного слота в Dota. Автоматика работает только на своём Huskar, выбранном единственным юнитом, при закрытом меню и фокусе Dota.","The optional top binding activates the helper (toggle or hold); the menu switch also works. Native item key must match this inventory slot in Dota. Own Huskar must be the only selected unit, with menu closed and Dota focused.");
+        Help("Настройка: 1) свой Huskar в демо; 2) Armlet в активном слоте 1–6; 3) указать настоящую клавишу этого слота и проверить её вручную; 4) включить подтверждение и модуль; 5) выбрать только Huskar, закрыть меню, вернуть фокус Dota. Отдельный бинд модуля необязателен. Порог HP должен быть ниже текущего HP для режима ожидания.","Setup: own Huskar in demo; Armlet in active slot 1–6; correct native slot key, manually tested; confirm and enable; select only Huskar, close menu, focus Dota. Activation binding is optional. Start above the HP threshold.");
+        Help("При низком HP: если Armlet выключен — включить; если включён — выключить, дождаться подтверждённого OFF и затем включить. Не чаще 2 секунд, с подтверждением ON и активного модификатора. Неизвестные данные блокируют ввод. Распознанный риск DoT запрещает новый OFF, но не отменяет ON после уже запрошенного OFF. Урон и время тиков не рассчитываются.","Low HP: turn ON if OFF; if ON, request OFF, observe actual OFF and then request ON. Two-second minimum spacing and confirmed ON plus active modifier. Unknown data blocks input. Recognized DoT risk blocks a new OFF, but not ON completion after an OFF request. Damage and tick timing are not calculated.");
+        Help("Входящие атаки, снаряды и все DoT НЕ предсказываются. Возможна смерть. При сбое или потере фокуса цикл останавливается: Armlet может остаться выключенным — проверь вручную. Модуль владеет input lane на своём Huskar или при незавершённом цикле; на другом герое его базовый прокаст не блокируется.","Incoming attacks/projectiles and every DoT are NOT predicted. Death is possible. Failure/focus loss stops the cycle: Armlet may remain OFF; check manually. Armlet owns the input lane on own Huskar or an unfinished cycle; another hero basic combo is not blocked by enabling this module.");
+        if(!diagnostics::snapshot.frameOk)Help("БЛОК: локальный игрок не определён. Контроллер ищется отдельно; чужой Huskar не выбирается автоматически.","BLOCKED: local player unresolved. Reference search runs separately; no arbitrary Huskar selection.");
+        if(!cfg::armletConfirmed)Help("БЛОК: подтверждение проверенной клавиши выключено.","BLOCKED: native-key confirmation is OFF.");
+        if(ImGui::Button(T("Копировать диагностику Armlet","Copy Armlet diagnostics"))){
+            char report[32768];const auto& d=diagnostics::snapshot;const auto& cp=game::g_controllerProbe;
+            snprintf(report,sizeof(report),"ESP19 Armlet\ncurrent=%s\nlastClosedMenu=%s\nenabled=%d confirmed=%d nativeKey=%d slot=%d threshold=%g activationKey=%d menuOpen=%d\nlocalFrame=%d observedOnly=%d controller=%llX source=%d refsStage=%d refsSlots=%u refsHits=%d\n",armlet::Status(),armlet::LastClosedStatus(),cfg::armletAuto,cfg::armletConfirmed,cfg::armletKey,cfg::armletSlot+1,cfg::armletThreshold,binds::items[11].vk,cfg::menuOpen,d.frameOk,d.observedOnly,(unsigned long long)game::g_sys.localCtrl,cp.source.load(),cp.controllerRefStage.load(),cp.controllerRefSlots.load(),cp.controllerRefHits.load());
+            uint32_t assigned=0;int player=-1,owner=-1,heroPlayer=-1;uint8_t localFlag=2;
+            bool assignedRead=mem::Read(game::g_sys.localCtrl+off::Ctrl::m_hAssignedHero,assigned);
+            bool playerRead=mem::Read(game::g_sys.localCtrl+off::Ctrl::m_nPlayerID,player);
+            bool flagRead=mem::Read(game::g_sys.localCtrl+off::Ctrl::m_bIsLocalPlayerController,localFlag);
+            uintptr_t boundHero=assignedRead?game::EntityByHandle(assigned):0;
+            bool ownerRead=boundHero&&mem::Read(boundHero+off::NPC::m_nPlayerOwnerID,owner);
+            bool heroPlayerRead=boundHero&&mem::Read(boundHero+off::Hero::m_iPlayerID,heroPlayer);
+            size_t bindLen=strlen(report);snprintf(report+bindLen,sizeof(report)-bindLen,"bind: frameGate=%d mask=0x%X assignedRead=%d assigned=0x%X hero=0x%llX playerRead=%d player=%d localFlagRead=%d localFlag=%d ownerRead=%d owner=%d heroPlayerRead=%d heroPlayer=%d\n",cp.frameStage.load(),game::g_sys.handleMask,assignedRead,assigned,(unsigned long long)boundHero,playerRead,player,flagRead,(int)localFlag,ownerRead,owner,heroPlayerRead,heroPlayer);
+            size_t vlen=strlen(report);snprintf(report+vlen,sizeof(report)-vlen,"teamDataCandidates: Radiant=0x%llX Dire=0x%llX\n",(unsigned long long)game::g_teamVisibilityData[0].load(),(unsigned long long)game::g_teamVisibilityData[1].load());
+            size_t infoLen=strlen(report);snprintf(report+infoLen,sizeof(report)-infoLen,"RTTI runtime attempts=%u parsed=%u\n",rtti::RuntimeAttempts(),rtti::RuntimeParsed());
+            size_t used=strlen(report);for(int i=0;i<d.samplesCount&&used<sizeof(report)-1;++i){const auto& p=d.samples[i];int n=snprintf(report+used,sizeof(report)-used,"hero[%d]=%s hp=%d inventoryLayout=%d inventoryRead=%d buffsRead=%d buffVisual=%d items=%d buffs=%d clockRead=%d state=0x%llX\n",i,p.name,p.hp,p.inventoryLayout,p.inventoryRead,p.buffsRead,p.buffsVisualRead,p.items,p.buffs,p.clockRead,(unsigned long long)p.state);if(n>0)used+=std::min(size_t(n),sizeof(report)-used-1);}
+            for(int i=0;i<d.samplesCount&&used<sizeof(report)-1;++i){const auto& p=d.samples[i];int n=snprintf(report+used,sizeof(report)-used,"inventory[%d]: layout=%d probeMask=%d raw0=0x%llX raw8=0x%llX parent=0x%X\n",i,p.inventoryLayout,p.inventoryProbeMask,(unsigned long long)p.inventoryRaw0,(unsigned long long)p.inventoryRaw8,p.inventoryParent);if(n>0)used+=std::min(size_t(n),sizeof(report)-used-1);}
+            for(int i=0;i<d.samplesCount&&used<sizeof(report)-1;++i){const auto& p=d.samples[i];int n=snprintf(report+used,sizeof(report)-used,"identity[%d]: handle=0x%X ownerRead=%d owner=%d heroPlayerRead=%d heroPlayer=%d\n",i,p.entityHandle,p.ownerIDRead,p.ownerID,p.heroPlayerIDRead,p.heroPlayerID);if(n>0)used+=std::min(size_t(n),sizeof(report)-used-1);}
+            if(used<sizeof(report)-1)snprintf(report+used,sizeof(report)-used,"%s%s%s%s%s",armlet::TraceDiagnostics(),armlet::SelectionDiagnostics(),armlet::DangerDiagnostics(),armlet::CycleDiagnostics(),armlet::DamageDiagnostics());
+            ImGui::SetClipboardText(report);
+        }
+        Help("Закройте меню на 2–3 секунды, затем откройте и скопируйте диагностику. lastClosedMenu хранит последний статус при закрытом меню; иначе открытое меню само становится причиной блокировки.","Close menu for 2–3 seconds, reopen, then copy diagnostics. lastClosedMenu preserves the last status while the menu was closed.");
+        ImGui::TextWrapped("%s",T(armlet::StatusRu(),armlet::Status()));if(ImGui::Button(T("Сбросить остановленный цикл","Reset stopped cycle"))){cfg::armletConfirmed=false;armlet::Reset();}break;}
     case 21:
         Row("Только изученные с моделью","Learned modeled skills only",&cfg::helperModeledOnly);
         ImGui::SetNextItemWidth(180);ImGui::InputFloat(T("Запас HP хелпера","Helper HP margin"),&cfg::helperMargin,5,20,"%.0f");

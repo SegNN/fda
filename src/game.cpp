@@ -1,4 +1,6 @@
+#include "ability_max_levels.h"
 #include "game.h"
+#include "npc_visibility.h"
 #include "offsets.h"
 #include "damage_estimate.h"
 #include <unordered_map>
@@ -9,7 +11,11 @@ namespace game {
 
 Sys g_sys;
 EntityProbe g_probe;
+ControllerProbe g_controllerProbe;
 
+std::atomic<uintptr_t> g_playerResource{0};
+std::atomic<uintptr_t> g_teamVisibilityData[2]{{0},{0}};
+std::atomic<uint32_t> g_teamVisibilityDataHandle[2]{{0},{0}};
 uintptr_t g_rules         = 0;
 uintptr_t g_rulesProxy    = 0;
 uintptr_t g_roshanSpawner = 0;
@@ -130,6 +136,16 @@ static bool ReadUnitName(uintptr_t e, char* out, int cap) {
     return true;
 }
 
+static bool ReadDesignerUnitName(uintptr_t e,char* out,int cap) {
+    uintptr_t identity=0,back=0,name=0;uint32_t handle=0;
+    if(!mem::Read(e+off::instEntity,identity)||!mem::ValidPtr(identity)||
+       !mem::Read(identity,back)||back!=e||!mem::Read(identity+off::idHandleFld,handle)||
+       !handle||handle==0xFFFFFFFFu||ResolveIndexEx((int)(handle&g_sys.handleMask),handle)!=e||
+       !mem::Read(identity+off::Identity::m_designerName,name)||name<0x100000000ULL||name>0x00007FFFFFFFFFFFULL)return false;
+    char text[64]={};if(!mem::ReadStr(name,text,sizeof(text))||!LooksLikeUnitName(text))return false;
+    strncpy(out,text,cap-1);out[cap-1]=0;return true;
+}
+
 static void MakeNick(const char* cls, const char* name, char* out, int cap) {
     out[0] = 0;
     static const char* kHeroCls = "C_DOTA_Unit_Hero_";
@@ -161,8 +177,9 @@ static bool RulesPlausible(uintptr_t p) {
 }
 
 struct CacheEntry {
+    uintptr_t identity = 0;
+    uint32_t handle = 0;
     uintptr_t vptr = 0;
-    bool      keep = false;
     UnitKind  kind = UnitKind::Unknown;
     const char* cls = nullptr;
     char      name[64] = {};
@@ -174,6 +191,12 @@ static std::unordered_map<uintptr_t, CacheEntry> g_cache;
 struct MoveHist { Vec3 pos{}; float sim = -1.f; Vec3 dir{}; bool ok = false; };
 static std::unordered_map<uintptr_t, MoveHist> g_moveHist;
 static std::vector<StaticUnit> g_frameSnapshot;
+
+static bool IsAnnouncer(const char* cls,const char* name) {
+    // Announcer units can use npc_dota_hero_* identifiers, but are not playable heroes.
+    return (cls&&(Contains(cls,"Announcer")||Contains(cls,"announcer"))) ||
+        (name&&StartsWith(name,"npc_dota_hero_announcer"));
+}
 
 static bool Classify(uintptr_t e, uintptr_t vptr, StaticUnit& u) {
     const char* cls = rtti::ClassOf(g_sys.clientBase, vptr);
@@ -193,8 +216,9 @@ static bool Classify(uintptr_t e, uintptr_t vptr, StaticUnit& u) {
 
     char name[64] = {};
     bool runeClass=cls && (Streq(cls,"C_DOTA_Item_Rune") || StartsWith(cls,"C_DOTA_Item_RuneSpawner"));
-    bool hasName = !runeClass && ReadUnitName(e, name, sizeof(name)); // Avoid NPC-only fields on spawners.
+    bool hasName = !runeClass && (ReadUnitName(e,name,sizeof(name)) || ReadDesignerUnitName(e,name,sizeof(name))); // Avoid NPC-only fields on spawners.
 
+    if(IsAnnouncer(cls,hasName?name:nullptr))return false;
     UnitKind kind = UnitKind::Unknown;
 
     if (cls && (Streq(cls,"C_DOTA_Item_RuneSpawner") ||
@@ -230,6 +254,50 @@ static bool Classify(uintptr_t e, uintptr_t vptr, StaticUnit& u) {
     strncpy(u.name, name, sizeof(u.name) - 1);
     MakeNick(cls, name, u.nick, sizeof(u.nick));
     return true;
+}
+
+// A pointer + vtable is not an entity identity: the engine can recycle both.
+// Never cache a negative result; names/RTTI can become available a later pass.
+static bool CachedClassify(uintptr_t e, uintptr_t vptr, StaticUnit& u) {
+    uintptr_t identity = 0;
+    uint32_t handle = 0;
+    if (!mem::Read(e + off::instEntity, identity) || !mem::ValidPtr(identity) ||
+        !mem::Read(identity + off::idHandleFld, handle) || !handle || handle == 0xFFFFFFFFu ||
+        ResolveIndexEx((int)(handle & g_sys.handleMask), handle) != e) {
+        g_cache.erase(e);
+        return false;
+    }
+    auto it = g_cache.find(e);
+    if (it != g_cache.end() && it->second.vptr == vptr &&
+        it->second.identity == identity && it->second.handle == handle &&
+        it->second.cls == rtti::ClassOf(g_sys.clientBase, vptr)) {
+        const auto& ce = it->second;
+        u = StaticUnit{};
+        u.entityHandle = handle; u.addr = e; u.kind = ce.kind; u.cls = ce.cls;
+        memcpy(u.name, ce.name, sizeof(u.name));
+        memcpy(u.nick, ce.nick, sizeof(u.nick));
+        return true;
+    }
+    g_cache.erase(e);
+    u = StaticUnit{};
+    if (!Classify(e, vptr, u)) return false;
+    u.entityHandle = handle;
+    CacheEntry ce;
+    ce.identity = identity; ce.handle = handle; ce.vptr = vptr;
+    ce.kind = u.kind; ce.cls = u.cls;
+    memcpy(ce.name, u.name, sizeof(ce.name));
+    memcpy(ce.nick, u.nick, sizeof(ce.nick));
+    if (g_cache.size() > 24576) g_cache.clear();
+    g_cache[e] = ce;
+    return true;
+}
+
+static bool IsPlayerControllerVtable(uintptr_t vp) {
+    if (vp < g_sys.clientBase || vp >= g_sys.clientBase + g_sys.imageSize) return false;
+    // Keep the known exact address, with a named RTTI fallback from the same dump.
+    const char* cls=rtti::ClassOf(g_sys.clientBase,vp);
+    if(cls)return Streq(cls,"C_DOTAPlayerController"); // A known wrong class overrides an old RVA.
+    return vp==g_sys.clientBase+off::Ctrl::vtableRva;
 }
 
 // All checks in this resolver are reads; no layout checks are bypassed.
@@ -365,7 +433,7 @@ static bool DiscoverEntitySystem() {
         uintptr_t value = 0;
         if (!mem::Read(slot, value)) { g_probe.stage.store(2); continue; }
         g_probe.pointer.store(value);
-        if (ValidateEntityCandidate(value, slot)) return true;
+        if (ValidateEntityCandidate(value, slot)) {g_probe.lastScanStage.store(8);return true;}
         if (g_probe.matchedObjects.load()) continue;
         if (!mem::ValidPtr(value)) { g_probe.stage.store(3); continue; }
         uintptr_t first = 0;
@@ -400,12 +468,129 @@ static bool DetectMask(uintptr_t ctrl) {
         if (!mem::Read(e + off::instEntity, back) || back != id) continue;
 
         char nm[64] = {};
-        if (ReadUnitName(e, nm, sizeof(nm)) && StartsWith(nm, "npc_dota_hero_")) {
+        if (ReadUnitName(e, nm, sizeof(nm)) && StartsWith(nm, "npc_dota_hero_") && !IsAnnouncer(nullptr,nm)) {
             g_sys.handleMask = m;
             return true;
         }
     }
     return false;
+}
+
+static bool IsHeroEntity(uintptr_t hero) {
+    uintptr_t vp = 0;
+    if (!mem::ValidPtr(hero) || !mem::Read(hero, vp) ||
+        vp < g_sys.clientBase || vp >= g_sys.clientBase + g_sys.imageSize) return false;
+    const char* cls = rtti::ClassOf(g_sys.clientBase, vp);
+    char name[64] = {};
+    bool hasName=ReadUnitName(hero,name,sizeof(name));
+    if(IsAnnouncer(cls,hasName?name:nullptr))return false;
+    if(cls&&StartsWith(cls,"C_DOTA_Unit_Hero_"))return true;
+    return hasName&&StartsWith(name,"npc_dota_hero_");
+}
+
+// Dedicated hero player ID can prove demo ownership when generic NPC owner is -1.
+// Any valid conflicting ID is rejected, not overridden by another field.
+static bool HeroBelongsToPlayer(uintptr_t hero,int player){
+ if(player<0||player>=64||!IsHeroEntity(hero))return false;
+ int owner=-1,heroPlayer=-1;bool ownerRead=mem::Read(hero+off::NPC::m_nPlayerOwnerID,owner);
+ bool heroRead=mem::Read(hero+off::Hero::m_iPlayerID,heroPlayer);
+ if((ownerRead&&(owner<-1||owner>=64))||(heroRead&&(heroPlayer<-1||heroPlayer>=64)))return false;
+ bool ownerValid=ownerRead&&owner>=0&&owner<64,heroValid=heroRead&&heroPlayer>=0&&heroPlayer<64;
+ if((ownerValid&&owner!=player)||(heroValid&&heroPlayer!=player))return false;
+ return ownerValid||heroValid;
+}
+// A scanned controller must carry the local flag. The dump's dedicated local
+// global may also be used with flag=0, but only with a verified owned hero.
+static bool ControllerCandidate(uintptr_t ctrl, bool fromGlobal) {
+    uintptr_t vp = 0;
+    if (!mem::ValidPtr(ctrl) || !mem::Read(ctrl, vp) || !IsPlayerControllerVtable(vp)) return false;
+    uint8_t local = 2;
+    if (!mem::Read(ctrl + off::Ctrl::m_bIsLocalPlayerController, local) || local > 1) return false;
+    if (local == 1) return true;
+    if (!fromGlobal) return false;
+    int player = -1;
+    uint32_t h = 0;
+    if (!mem::Read(ctrl + off::Ctrl::m_nPlayerID, player) || player < 0 || player >= 64 ||
+        !mem::Read(ctrl + off::Ctrl::m_hAssignedHero, h) || !h || h == 0xFFFFFFFFu) return false;
+    uintptr_t hero = EntityByHandle(h);
+    if (!hero && DetectMask(ctrl)) hero = EntityByHandle(h);
+    return HeroBelongsToPlayer(hero,player);
+}
+
+static uintptr_t GlobalLocalController() {
+    // CTRL1 live screenshot proved this dump's named global is C_DOTAGamerules.
+    // Do not continue probing/using it as a player pointer.
+    g_controllerProbe.globalSlot.store(0);
+    g_controllerProbe.globalValue.store(0);
+    g_controllerProbe.globalVtable.store(0);
+    g_controllerProbe.globalStage.store(7);
+    return 0;
+}
+
+static uintptr_t ChooseLocalController(uintptr_t globalCtrl, uintptr_t scannedCtrl, int localFlags) {
+    if (globalCtrl) {g_controllerProbe.source.store(1);return globalCtrl;}
+    if (localFlags == 1) {g_controllerProbe.source.store(2);return scannedCtrl;}
+    g_controllerProbe.source.store(localFlags > 1 ? 3 : 0);return 0;
+}
+
+struct ControllerReferenceScan {
+    uintptr_t base=0,cached=0;std::vector<std::pair<uintptr_t,uintptr_t>> ranges;
+    size_t range=0;uintptr_t cursor=0;uint64_t retryAt=0;bool collecting=false,ambiguous=false,truncated=false;
+    uintptr_t found=0;unsigned slots=0;
+};
+static ControllerReferenceScan g_controllerRefs;
+static bool StrictLocalReference(uintptr_t ctrl) {
+    uintptr_t vp=0;uint32_t h=0;int player=-1;uint8_t local=2;
+    if(!mem::ValidPtr(ctrl)||!mem::Read(ctrl,vp)||!IsPlayerControllerVtable(vp)||
+       !mem::Read(ctrl+off::Ctrl::m_bIsLocalPlayerController,local)||local!=1||
+       !mem::Read(ctrl+off::Ctrl::m_nPlayerID,player)||player<0||player>=64||
+       !mem::Read(ctrl+off::Ctrl::m_hAssignedHero,h)||!h||h==0xFFFFFFFFu)return false;
+    uintptr_t hero=EntityByHandle(h);
+    if(!HeroBelongsToPlayer(hero,player))return false;
+    uint8_t localAgain=2;uint32_t handleAgain=0;
+    return mem::Read(ctrl+off::Ctrl::m_bIsLocalPlayerController,localAgain)&&localAgain==1&&
+           mem::Read(ctrl+off::Ctrl::m_hAssignedHero,handleAgain)&&handleAgain==h;
+}
+static uintptr_t SearchLocalControllerRefs(unsigned budget=16384) {
+    auto& s=g_controllerRefs;auto& p=g_controllerProbe;
+    if(s.base!=g_sys.clientBase){s=ControllerReferenceScan{};s.base=g_sys.clientBase;}
+    if(s.cached){if(StrictLocalReference(s.cached)){p.controllerRefStage.store(4);return s.cached;}s.cached=0;s.retryAt=0;}
+    uint64_t now=GetTickCount64();if(!s.collecting&&now<s.retryAt)return 0;
+    if(!s.collecting) {
+        s.ranges.clear();s.range=0;s.found=0;s.ambiguous=false;s.truncated=false;s.slots=0;p.controllerRefHits.store(0);
+        IMAGE_DOS_HEADER dos{};IMAGE_NT_HEADERS64 nt{};
+        if(!mem::Read(s.base,dos)||dos.e_magic!=IMAGE_DOS_SIGNATURE||dos.e_lfanew<=0||
+           (uint32_t)dos.e_lfanew>g_sys.imageSize||!mem::Read(s.base+dos.e_lfanew,nt)||
+           nt.Signature!=IMAGE_NT_SIGNATURE||nt.OptionalHeader.Magic!=IMAGE_NT_OPTIONAL_HDR64_MAGIC||nt.FileHeader.NumberOfSections>96){p.controllerRefStage.store(1);s.retryAt=now+30000;return 0;}
+        uintptr_t table=s.base+dos.e_lfanew+sizeof(DWORD)+sizeof(IMAGE_FILE_HEADER)+nt.FileHeader.SizeOfOptionalHeader;
+        uint64_t bytes=0;
+        for(unsigned i=0;i<nt.FileHeader.NumberOfSections;++i){IMAGE_SECTION_HEADER sh{};
+            if(!mem::Read(table+i*sizeof(sh),sh)||!(sh.Characteristics&IMAGE_SCN_MEM_READ)||!(sh.Characteristics&IMAGE_SCN_MEM_WRITE)||(sh.Characteristics&IMAGE_SCN_MEM_EXECUTE)||sh.VirtualAddress>=g_sys.imageSize)continue;
+            uint32_t size=(uint32_t)sh.Misc.VirtualSize;if(size>g_sys.imageSize-sh.VirtualAddress)size=g_sys.imageSize-sh.VirtualAddress;
+            if(uint64_t(size)>uint64_t(16*1024*1024)-bytes)s.truncated=true;
+            size=(uint32_t)std::min(uint64_t(size),uint64_t(16*1024*1024)-bytes);size&=~uint32_t(7);
+            if(size){s.ranges.emplace_back(s.base+sh.VirtualAddress,s.base+sh.VirtualAddress+size);bytes+=size;}
+        }
+        if(s.ranges.empty()){p.controllerRefStage.store(1);s.retryAt=now+30000;return 0;}
+        s.cursor=s.ranges[0].first;s.collecting=true;
+    }
+    p.controllerRefStage.store(2);
+    for(unsigned n=0;n<budget&&s.range<s.ranges.size();++n){
+        if(!cfg::running.load())return 0;
+        uintptr_t slot=s.cursor,value=0,ctrl=0;++s.slots;s.cursor+=8;
+        if(mem::Read(slot,value)){
+            if(IsPlayerControllerVtable(value))ctrl=slot;
+            else if(mem::ValidPtr(value)){uintptr_t vp=0;if(mem::Read(value,vp)&&IsPlayerControllerVtable(vp))ctrl=value;}
+            if(ctrl&&StrictLocalReference(ctrl)){if(!s.found){s.found=ctrl;p.controllerRefHits.store(1);}else if(s.found!=ctrl){s.ambiguous=true;p.controllerRefHits.store(2);}}
+        }
+        if(s.cursor>=s.ranges[s.range].second){++s.range;if(s.range<s.ranges.size())s.cursor=s.ranges[s.range].first;}
+    }
+    p.controllerRefSlots.store(s.slots);
+    if(s.range<s.ranges.size())return 0; // Never choose the first hit before checking ambiguity.
+    s.collecting=false;s.retryAt=now+30000;
+    if(s.truncated){p.controllerRefStage.store(6);return 0;}
+    if(!s.ambiguous&&s.found&&StrictLocalReference(s.found)){s.cached=s.found;p.controllerRefStage.store(4);return s.cached;}
+    p.controllerRefStage.store(s.ambiguous?5:3);return 0;
 }
 
 static DWORD g_nextProbeAt = 0;
@@ -443,6 +628,8 @@ bool TryInit() {
 
 void ScanLoop() {
     while (cfg::running.load()) {
+        g_controllerProbe.scanHeartbeat.store(GetTickCount64());
+        g_controllerProbe.scanPasses.fetch_add(1);
         if (!g_sys.ready) { Sleep(250); continue; }
 
         RefreshPages();
@@ -455,10 +642,14 @@ void ScanLoop() {
         int sampleN = 0;
         int found = 0;
         uintptr_t localCtrl = 0;
+        int controllerCount = 0, localFlagCount = 0;
+        uintptr_t playerResource=0;int resourceCount=0;
+        uintptr_t teamData[2]{};uint32_t teamDataHandles[2]{};int teamDataCount[2]{};
+        uintptr_t globalCtrl = GlobalLocalController();
 
         std::vector<AegisCandidate> nextAegis;
         const int kMaxIndex = off::maxIdPages * off::entsPerPage;
-        for (int i = 1; i <= kMaxIndex; ++i) {
+        for (int i = 0; i < kMaxIndex; ++i) {
             uintptr_t e = ResolveIndex(i);
             if (!mem::ValidPtr(e)) continue;
 
@@ -469,48 +660,30 @@ void ScanLoop() {
             ++found;
             if (sampleN < 128) sample[sampleN++] = vptr;
 
-            if (vptr == g_sys.clientBase + off::Ctrl::vtableRva) {
-                uint8_t loc = 0;
-                mem::Read(e + off::Ctrl::m_bIsLocalPlayerController, loc);
-                if (loc) localCtrl = e;
+            if (IsPlayerControllerVtable(vptr)) {
+                ++controllerCount;
+                if (ControllerCandidate(e, false)) {
+                    ++localFlagCount;
+                    localCtrl = e;
+                }
             }
 
             // Collect only an exact Aegis RTTI match while doing the existing
             // entity scan. This does not guess an inventory-vector layout.
             const char* itemClass=rtti::ClassOf(g_sys.clientBase,vptr);
+            if(Streq(itemClass,"C_DOTA_PlayerResource")){playerResource=e;++resourceCount;}
+            if(Streq(itemClass,"C_DOTA_DataRadiant")){teamData[0]=e;mem::Read(IdentityAddr(i)+off::idHandleFld,teamDataHandles[0]);++teamDataCount[0];}
+            if(Streq(itemClass,"C_DOTA_DataDire")){teamData[1]=e;mem::Read(IdentityAddr(i)+off::idHandleFld,teamDataHandles[1]);++teamDataCount[1];}
             if(Streq(itemClass,"C_DOTA_Item_Aegis")&&nextAegis.size()<32)nextAegis.push_back({e,vptr});
-            auto it = g_cache.find(e);
-            if (it != g_cache.end() && it->second.vptr == vptr) {
-                if (it->second.keep) {
-                    StaticUnit u;
-                    u.addr = e;
-                    u.kind = it->second.kind;
-                    u.cls = it->second.cls;
-                    memcpy(u.name, it->second.name, sizeof(u.name));
-                    memcpy(u.nick, it->second.nick, sizeof(u.nick));
-                    next.push_back(u);
-                }
-                continue;
-            }
-
             StaticUnit u;
-            bool keep = Classify(e, vptr, u);
-
-            if (g_cache.size() > 24576) g_cache.clear();
-            CacheEntry ce;
-            ce.vptr = vptr;
-            ce.keep = keep;
-            ce.kind = u.kind;
-            ce.cls = u.cls;
-            memcpy(ce.name, u.name, sizeof(ce.name));
-            memcpy(ce.nick, u.nick, sizeof(ce.nick));
-            g_cache[e] = ce;
-
-            if (keep) next.push_back(u);
+            if (CachedClassify(e, vptr, u)) next.push_back(u);
         }
 
+        g_playerResource.store(resourceCount==1?playerResource:0);
+        for(int team=0;team<2;++team){g_teamVisibilityDataHandle[team].store(teamDataCount[team]==1?teamDataHandles[team]:0);g_teamVisibilityData[team].store(teamDataCount[team]==1?teamData[team]:0);}
         if (!rtti::Ready() && sampleN >= 8)
             rtti::DetectDelta(g_sys.clientBase, sample, sampleN);
+        g_sys.rttiOk = rtti::Ready();
 
         if (!g_rules) {
             for (int i = 1; i < 0x400 && !g_rules; ++i) {
@@ -525,11 +698,18 @@ void ScanLoop() {
             }
         }
 
-        if (localCtrl != g_sys.localCtrl)
-            g_sys.localCtrl = localCtrl;
-        static bool s_maskDone = false;
-        if (!s_maskDone && g_sys.localCtrl)
-            s_maskDone = DetectMask(g_sys.localCtrl);
+        g_controllerProbe.classifiedUnits.store((int)next.size());
+        int classifiedHeroes=0;for(const auto& u:next)if(u.kind==UnitKind::Hero)++classifiedHeroes;
+        g_controllerProbe.classifiedHeroes.store(classifiedHeroes);
+        g_controllerProbe.scannedEntities.store(found);
+        g_controllerProbe.candidates.store(controllerCount);
+        g_controllerProbe.localFlags.store(localFlagCount);
+        // Never arbitrarily choose one of several local-marked controllers.
+        localCtrl = ChooseLocalController(globalCtrl, localCtrl, localFlagCount);
+        if(!localCtrl && localFlagCount==0){localCtrl=SearchLocalControllerRefs();if(localCtrl)g_controllerProbe.source.store(4);}
+        if (localCtrl != g_sys.localCtrl) g_sys.localCtrl = localCtrl;
+        if (g_sys.localCtrl) DetectMask(g_sys.localCtrl);
+        g_controllerProbe.scanHeartbeat.store(GetTickCount64());
 
         {
             static int s_emptyPass = 0;
@@ -592,15 +772,24 @@ static bool ItemIdentityName(uintptr_t item, char* icon, int cap) {
     return false;
 }
 static void ReadItems(uintptr_t npc, FrameUnit& unit) {
-    unit.itemN=0;unit.inventoryRead=false;unit.inventoryCount=-1;
+    unit.itemN=0;unit.inventoryRead=false;unit.inventoryCount=-1;unit.inventoryLayout=0;
     unit.inventoryResolved=unit.inventoryUnmapped=0;
     uintptr_t inventory=npc+off::NPC::m_Inventory,vector=inventory+off::Inventory::m_hItems;
-    int count=0,parity=0;uintptr_t data=0;
-    // Count at +0 / data pointer at +8 remains a runtime-validation requirement.
-    // Read into a temporary snapshot and reject torn vectors instead of showing partial rows.
-    if(!mem::Read(inventory+off::Inventory::m_iParity,parity)||!mem::Read(vector,count)||
-       !mem::Read(vector+8,data)||count<0||count>27||(count&&!mem::ValidPtr(data)))return;
-    unit.inventoryCount=count;
+    unit.inventoryProbeMask=0;
+    if(mem::Read(vector,unit.inventoryRaw0))unit.inventoryProbeMask|=1;
+    if(mem::Read(vector+8,unit.inventoryRaw8))unit.inventoryProbeMask|=2;
+    if(mem::Read(inventory+off::Inventory::m_hInventoryParent,unit.inventoryParent))unit.inventoryProbeMask|=4;
+    struct Shape {int count,data,code;};const Shape shapes[]={{0,8,1},{8,0,2},{0,4,3}};
+    int matches=0,parity=0;FrameUnit selected;
+    if(!mem::Read(inventory+off::Inventory::m_iParity,parity))return;
+    for(auto shape:shapes){
+    int count=0;uintptr_t data=0;
+    if(!mem::Read(vector+shape.count,count)||count<0||count>27)continue;
+    if(shape.code==3){if(count!=25)continue;data=vector+4;}
+    else if(!mem::Read(vector+shape.data,data)||(data&&!mem::ValidPtr(data))||(count&&!data))continue;
+    // Alternate private vector layout requires proof this inventory belongs to this full handle.
+    uint32_t parent=0;bool parentRead=mem::Read(inventory+off::Inventory::m_hInventoryParent,parent);
+    if((parentRead&&parent!=unit.entityHandle)||(shape.code>=2&&!parentRead))continue;
     ItemInfo pending[27]{};int n=0,resolved=0,unmapped=0;bool complete=true;
     for(int slot=0;slot<count;++slot) {
         uint32_t handle=0;
@@ -608,6 +797,9 @@ static void ReadItems(uintptr_t npc, FrameUnit& unit) {
         if(handle==0xFFFFFFFFu||handle==0)continue;
         uintptr_t item=ResolveIndexEx((int)(handle & g_sys.handleMask),handle);
         if(!mem::ValidPtr(item)){complete=false;continue;}
+        uintptr_t itemIdentity=0,itemBacklink=0;uint32_t serial=0;
+        if(!mem::Read(item+off::instEntity,itemIdentity)||!mem::ValidPtr(itemIdentity)||
+           !mem::Read(itemIdentity,itemBacklink)||itemBacklink!=item||!mem::Read(itemIdentity+off::idHandleFld,serial)||serial!=handle){complete=false;continue;}
         ++resolved;uintptr_t vp=0;
         if(!mem::Read(item,vp)){complete=false;continue;}
         const char* cls=rtti::ClassOf(g_sys.clientBase,vp);
@@ -624,13 +816,27 @@ static void ReadItems(uintptr_t npc, FrameUnit& unit) {
         float expires=-1.f;
         if(mem::Read(item+off::Item::m_flReclaimTime,expires)&&std::isfinite(expires)&&expires>0.f)info.expiresAt=expires;
     }
+
     int checkCount=0,checkParity=0;uintptr_t checkData=0;
-    if(!mem::Read(vector,checkCount)||!mem::Read(vector+8,checkData)||
-       !mem::Read(inventory+off::Inventory::m_iParity,checkParity)||
-       count!=checkCount||data!=checkData||parity!=checkParity)return;
-    unit.inventoryResolved=resolved;unit.inventoryUnmapped=unmapped;
-    unit.inventoryRead=complete;
-    for(int i=0;i<n;++i)unit.items[unit.itemN++]=pending[i];
+    checkData=shape.code==3?vector+4:0;
+    if(!mem::Read(vector+shape.count,checkCount)||(shape.code!=3&&!mem::Read(vector+shape.data,checkData))||
+       !mem::Read(inventory+off::Inventory::m_iParity,checkParity)||count!=checkCount||data!=checkData||parity!=checkParity)continue;
+    // Inline handles can mutate without moving a pointer: reread every slot.
+    if(shape.code==3){for(int slot=0;slot<count;++slot){uint32_t again=0;int found=-1;
+       for(int i=0;i<n;++i)if(pending[i].slot==slot)found=i;
+       if(!mem::Read(data+4ULL*slot,again)||(found>=0?again!=pending[found].instanceHandle:(again!=0&&again!=0xFFFFFFFFu))){complete=false;break;}}}
+    if(parentRead){uint32_t parentAgain=0;if(!mem::Read(inventory+off::Inventory::m_hInventoryParent,parentAgain)||parentAgain!=parent)continue;}
+    // Every non-empty slot must resolve: no partial inventory is allowed to drive Armlet.
+    if(!complete)continue;
+    if(matches){bool same=selected.inventoryCount==count&&selected.itemN==n;
+       for(int i=0;same&&i<n;++i)same=selected.items[i].instanceHandle==pending[i].instanceHandle&&selected.items[i].slot==pending[i].slot;
+       if(!same){unit.inventoryLayout=-1;return;}continue;}
+    ++matches;selected.inventoryCount=count;selected.inventoryResolved=resolved;selected.inventoryUnmapped=unmapped;
+    selected.inventoryRead=true;selected.inventoryLayout=shape.code;selected.itemN=n;
+    for(int i=0;i<n;++i)selected.items[i]=pending[i];
+    }
+    if(matches){unit.inventoryCount=selected.inventoryCount;unit.inventoryResolved=selected.inventoryResolved;unit.inventoryUnmapped=selected.inventoryUnmapped;
+       unit.inventoryRead=true;unit.inventoryLayout=selected.inventoryLayout;unit.itemN=selected.itemN;for(int i=0;i<unit.itemN;++i)unit.items[i]=selected.items[i];}
 }
 
 // Fallback is limited to schema-backed item ownership. Each candidate is
@@ -687,14 +893,18 @@ static int ReadAbilities(uintptr_t npc, AbilityInfo* out, int cap) {
             Streq(icon,"attribute_bonus") || Contains(icon,"high_five") || Contains(icon,"generic_hidden")) continue;
 
         AbilityInfo& ai = out[n++];
-        ai = AbilityInfo{};
+        ai = AbilityInfo{};ai.addr=a;ai.entityHandle=h;
         ai.slot = i;
         ai.level = lvl;
         ai.cls = abilityClass;
         ai.maxLevel = mem::ReadOr<int>(a + off::Ability::m_iMaxLevel, 0);
         int maxOverride = mem::ReadOr<int>(a + off::Ability::m_nMaxLevelOverride, 0);
         if (maxOverride > 0 && maxOverride <= 10) ai.maxLevel = maxOverride;
-        if (ai.maxLevel < 1 || ai.maxLevel > 10) ai.maxLevel = 0;
+        if (ai.maxLevel < 1 || ai.maxLevel > 10) {
+            // Do not guess 4 for every spell. Exact published fallback, no automation impact.
+            int published=PublishedAbilityMax(icon);
+            ai.maxLevel=(published>=lvl)?published:0;
+        }
         bool manaRead=mem::Read(a+off::Ability::m_iManaCost,ai.mana)&&ai.mana>=0&&ai.mana<=20000;
         float cooldown = -1.f;
         ai.cooldownRead = mem::Read(a + off::Ability::m_fCooldown, cooldown) &&
@@ -705,7 +915,7 @@ static int ReadAbilities(uintptr_t npc, AbilityInfo* out, int cap) {
         ai.cdLen = mem::ReadOr<float>(a + off::Ability::m_flCooldownLength);
         uint8_t phase=2,frozen=2,indefinite=2;float muted=-1;
         bool phaseRead=mem::Read(a+off::Ability::m_bInAbilityPhase,phase)&&phase<=1;
-        ai.phase=phaseRead&&phase!=0;
+        ai.phaseRead=phaseRead;ai.phase=phaseRead&&phase!=0;
         ai.automationReady=ai.automationReady&&phaseRead&&!ai.phase &&
             mem::Read(a+0x630,muted)&&std::isfinite(muted)&&muted==0 &&
             mem::Read(a+0x654,indefinite)&&indefinite==0&&mem::Read(a+0x655,frozen)&&frozen==0;
@@ -718,6 +928,7 @@ static int ReadAbilities(uintptr_t npc, AbilityInfo* out, int cap) {
 
 static void Reset(Frame& f) {
     f.ok = false;
+    f.observedOnly = false;
     f.now = 0.f;
     f.localTeam = 2;
     f.localPos = Vec3{};
@@ -765,11 +976,39 @@ static void ReadBuffs(uintptr_t npc,FrameUnit& u,float now){
  if(!u.entityHandle || EntityByHandle(u.entityHandle)!=npc)return;
  if(buffLayouts.size()>128)buffLayouts.clear();
  BuffMemoryReader reader{npc};auto& layout=buffLayouts[u.entityHandle];
- auto result=buffreader::Read(reader,npc+0xE30,u.entityHandle,now,layout);
- u.buffsRead=result.verified;u.buffs=std::move(result.buffs);
+ auto result=buffreader::Read(reader,npc+off::NPC::m_ModifierManager,u.entityHandle,now,layout);
+ u.buffsRead=result.verified;u.buffsVisualRead=result.verified||result.visualOnly;u.buffs=std::move(result.buffs);
 }
 
+static bool TeamDataIdentity(uintptr_t object,int team,uint32_t& handle){
+ uintptr_t vp=0,id=0,back=0;return mem::ValidPtr(object)&&mem::Read(object,vp)&&
+ Streq(rtti::ClassOf(g_sys.clientBase,vp),team==2?"C_DOTA_DataRadiant":"C_DOTA_DataDire")&&
+ mem::Read(object+off::instEntity,id)&&mem::ValidPtr(id)&&mem::Read(id,back)&&back==object&&
+ mem::Read(id+off::idHandleFld,handle)&&handle&&handle!=0xffffffffu&&EntityByHandle(handle)==object;
+}
+static void ReadNPCVisibility(FrameUnit& unit,const Frame& f){
+ unit.npcVisibilityRead=unit.npcVisible=false;unit.npcVisibilityProbeMask=0;unit.npcVisibilityWord=unit.npcVisibilitySelfWord=0;unit.npcVisibilityDataHandle=unit.npcVisibilityIndex=0;
+ if(f.observedOnly||!f.localHandle||!f.localHero||(f.localTeam!=2&&f.localTeam!=3)||!unit.entityHandle)return;
+ uintptr_t data=g_teamVisibilityData[f.localTeam-2].load();uint32_t expected=g_teamVisibilityDataHandle[f.localTeam-2].load();uint32_t h=0,h2=0,assigned=0,assigned2=0;uint8_t localFlag=2,localFlag2=2;
+ if(!expected||!TeamDataIdentity(data,f.localTeam,h)||h!=expected||EntityByHandle(f.localHandle)!=f.localHero||EntityByHandle(unit.entityHandle)!=unit.addr||
+    !mem::Read(g_sys.localCtrl+off::Ctrl::m_hAssignedHero,assigned)||assigned!=f.localHandle||
+    !mem::Read(g_sys.localCtrl+off::Ctrl::m_bIsLocalPlayerController,localFlag)||localFlag!=1)return;
+ // Raw bounded candidates are diagnostic only; known/visible remain false until all stable checks pass.
+ uint32_t localIndex=f.localHandle&g_sys.handleMask,targetIndex=unit.entityHandle&g_sys.handleMask;
+ unit.npcVisibilityDataHandle=h;unit.npcVisibilityIndex=targetIndex;
+ if(g_sys.handleMask==0x3fffu&&localIndex<16384&&targetIndex<16384){
+  if(mem::Read(data+off::TeamVisibilityData::m_bNPCVisibleState+8*(localIndex/64),unit.npcVisibilitySelfWord))unit.npcVisibilityProbeMask|=1;
+  if(mem::Read(data+off::TeamVisibilityData::m_bNPCVisibleState+8*(targetIndex/64),unit.npcVisibilityWord))unit.npcVisibilityProbeMask|=2;
+ }
+ struct Reader{bool Read(uintptr_t a,uint64_t& v){return mem::Read(a,v);}} reader;
+ auto bits=npcvisibility::Read(reader,data+off::TeamVisibilityData::m_bNPCVisibleState,unit.entityHandle,f.localHandle,g_sys.handleMask);
+ if(!bits.known||!TeamDataIdentity(data,f.localTeam,h2)||h2!=h||g_teamVisibilityDataHandle[f.localTeam-2].load()!=expected||g_teamVisibilityData[f.localTeam-2].load()!=data||EntityByHandle(unit.entityHandle)!=unit.addr||EntityByHandle(f.localHandle)!=f.localHero||
+    !mem::Read(g_sys.localCtrl+off::Ctrl::m_hAssignedHero,assigned2)||assigned2!=assigned||!mem::Read(g_sys.localCtrl+off::Ctrl::m_bIsLocalPlayerController,localFlag2)||localFlag2!=localFlag)return;
+ unit.npcVisibilityRead=true;unit.npcVisible=bits.visible;unit.npcVisibilityWord=bits.word;unit.npcVisibilitySelfWord=bits.selfWord;unit.npcVisibilityIndex=bits.index;unit.npcVisibilityDataHandle=h;
+}
 static bool FillUnit(const StaticUnit& u, FrameUnit& fu, const Frame& f) {
+    // Reject a snapshot from a previous occupant of this address.
+    if (u.entityHandle && EntityByHandle(u.entityHandle) != u.addr) return false;
     fu = FrameUnit{};
     fu.addr = u.addr;
     fu.kind = u.kind;
@@ -818,8 +1057,15 @@ static bool FillUnit(const StaticUnit& u, FrameUnit& fu, const Frame& f) {
     mem::Read(u.addr + off::BaseEntity::m_lifeState, life);
     fu.alive = (life == 0 && fu.hp > 0);
 
-    fu.illusion = mem::ReadOr<bool>(u.addr + off::NPC::m_bIsIllusion, false);
-    fu.invis = mem::ReadOr<float>(u.addr + off::NPC::m_flInvisibilityLevel, 0.f);
+    uint8_t illusion=2;
+    fu.illusionRead=mem::Read(u.addr+off::NPC::m_bIsIllusion,illusion)&&illusion<=1;
+    fu.illusion=fu.illusionRead&&illusion!=0;
+    fu.invisRead=mem::Read(u.addr+off::NPC::m_flInvisibilityLevel,fu.invis)&&std::isfinite(fu.invis)&&fu.invis>=0.f&&fu.invis<=1.f;
+    if(!fu.invisRead)fu.invis=0.f;
+    fu.stateRead=mem::Read(u.addr+off::NPC::m_nUnitState64,fu.unitState);
+    if(!fu.stateRead)fu.unitState=0;
+    fu.clockRead=mem::Read(u.addr+off::BaseEntity::m_flSimulationTime,fu.sampleTime)&&std::isfinite(fu.sampleTime)&&fu.sampleTime>0.f&&fu.sampleTime<86400.f;
+    if(!fu.clockRead)fu.clockRead=mem::Read(u.addr+off::BaseEntity::m_flAnimTime,fu.sampleTime)&&std::isfinite(fu.sampleTime)&&fu.sampleTime>0.f&&fu.sampleTime<86400.f;
     fu.level = mem::ReadOr<int>(u.addr + off::NPC::m_iCurrentLevel, 0);
     fu.mana = mem::ReadOr<float>(u.addr + off::NPC::m_flMana, 0.f);
     fu.maxMana = mem::ReadOr<float>(u.addr + off::NPC::m_flMaxMana, 0.f);
@@ -838,10 +1084,30 @@ static bool FillUnit(const StaticUnit& u, FrameUnit& fu, const Frame& f) {
             fu.bountyMax = hi;
         }
     }
-    if (fu.kind == UnitKind::Hero || fu.kind == UnitKind::Ward)
+    if(f.observedOnly) {
+        // Inventory, statuses and per-entity clock are independent of local player identity.
+        // Visual reads do NOT make this a trusted local frame or enable any automation.
+        if(!fu.entityHandle||fu.hp<0||fu.hp>fu.maxHp||fu.maxHp>10000000||
+           (fu.team!=2&&fu.team!=3&&fu.team!=4))return false;
+        fu.dist=0.f;
+        if(fu.kind==UnitKind::Hero) {
+            fu.playerId=mem::ReadOr<int>(u.addr+off::Hero::m_iPlayerID,-1);
+            if(cfg::hudItems)ReadItems(u.addr,fu);
+            if(cfg::hudAbilities)fu.abilN=ReadAbilities(u.addr,fu.abil,16);
+            if((cfg::showEffects||cfg::hudStatusBadges||cfg::hudIllusions)&&fu.clockRead)ReadBuffs(u.addr,fu,fu.sampleTime);
+            // No global cooldown-direction guesses, last-hit data, respawn or Aegis clock inferred.
+        }
+        return true;
+    }
+    if (fu.kind == UnitKind::Hero || fu.kind == UnitKind::Ward){
         fu.teamVisibilityRead = mem::Read(u.addr + off::ModelEntity::m_iTeamVisibilityBitmask, fu.teamVisibilityMask);
+        ReadNPCVisibility(fu,f);
+        uintptr_t node=0,owner=0;uint8_t dormant=2;
+        fu.sceneDormantRead=mem::Read(u.addr+off::BaseEntity::m_pGameSceneNode,node)&&mem::ValidPtr(node)&&mem::Read(node+off::SceneNode::m_pOwner,owner)&&owner==u.addr&&mem::Read(node+off::SceneNode::m_bDormant,dormant)&&dormant<=1;
+        fu.sceneDormant=fu.sceneDormantRead&&dormant!=0; // diagnostics only, NOT team vision
+    }
     if (fu.kind == UnitKind::Hero) {
-        if(cfg::showEffects || cfg::killStealer || cfg::showKillHelper || cfg::armletAuto)ReadBuffs(u.addr,fu,f.now);
+        if(cfg::showEffects || cfg::hudStatusBadges || cfg::hudIllusions || cfg::killStealer || cfg::showKillHelper || cfg::armletAuto)ReadBuffs(u.addr,fu,f.now);
         fu.playerId = mem::ReadOr<int>(u.addr + off::Hero::m_iPlayerID, -1);
         ReadItems(u.addr, fu);
         ReadOwnedAegis(u.addr, fu);
@@ -902,29 +1168,57 @@ static bool FillUnit(const StaticUnit& u, FrameUnit& fu, const Frame& f) {
     return true;
 }
 
+void BuildObservedFrame(Frame& f) {
+    Reset(f);
+    if (!g_sys.ready) return;
+    f.observedOnly=true;
+    f.localTeam=0; // Unknown. Do not silently assume Radiant or choose a hero as 'self'.
+    CopyUnits(g_frameSnapshot);
+    f.units.reserve(g_frameSnapshot.size());
+    for (const auto& u:g_frameSnapshot) {
+        if(u.kind==UnitKind::Rune||u.kind==UnitKind::RuneSpawner)continue; // no trusted clock
+        FrameUnit out;
+        if(FillUnit(u,out,f))f.units.push_back(out);
+    }
+    // Intentionally keep ok/localAlive/localHero/localHandle false/zero.
+}
+
 static bool  s_roshanAlivePrev = false;
 static float s_roshanDiedAt = -1.f;
 
 void BuildFrame(Frame& f, uintptr_t ctrl) {
     Reset(f);
+    auto& probe = g_controllerProbe;
+    probe.frameStage.store(1);probe.heroHandle.store(0);probe.heroAddress.store(0);
     if (!g_sys.ready) return;
+    probe.frameStage.store(2);
     if (!mem::ValidPtr(ctrl)) return;
-
+    probe.frameStage.store(3);
     uintptr_t vp = 0;
-    if (!mem::Read(ctrl, vp) || vp != g_sys.clientBase + off::Ctrl::vtableRva) return;
-
-    RefreshPages();
-
+    if (!mem::Read(ctrl, vp) || !IsPlayerControllerVtable(vp) ||
+        !ControllerCandidate(ctrl, probe.source.load()==1 && probe.globalValue.load()==ctrl)) return;
+    probe.frameStage.store(4);
+    if (!RefreshPages()) return;
+    probe.frameStage.store(5);
     uint32_t heroH = 0;
-    mem::Read(ctrl + off::Ctrl::m_hAssignedHero, heroH);
+    if (!mem::Read(ctrl + off::Ctrl::m_hAssignedHero, heroH) || !heroH || heroH == 0xFFFFFFFFu) return;
+    probe.heroHandle.store(heroH);
     uintptr_t hero = EntityByHandle(heroH);
-    if (!mem::ValidPtr(hero)) return;
+    if (!hero && DetectMask(ctrl)) hero = EntityByHandle(heroH);
+    probe.heroAddress.store(hero);probe.frameStage.store(6);
+    if (!IsHeroEntity(hero)) return;
+    probe.frameStage.store(11);
+    int playerId = -1;
+    if (!mem::Read(ctrl + off::Ctrl::m_nPlayerID, playerId) || playerId < 0 || playerId >= 64 ||
+        !HeroBelongsToPlayer(hero,playerId)) return;
     f.localHero=hero;f.localHandle=heroH;
 
     f.now = mem::ReadOr<float>(hero + off::BaseEntity::m_flSimulationTime, 0.f);
     if (!(f.now > 0.f))
         f.now = mem::ReadOr<float>(hero + off::BaseEntity::m_flAnimTime, 0.f);
-    f.localTeam = mem::ReadOr<uint8_t>(hero + off::BaseEntity::m_iTeamNum, 2);
+    uint8_t localTeam = 0;
+    bool localTeamRead = mem::Read(hero + off::BaseEntity::m_iTeamNum, localTeam);
+    f.localTeam = localTeam;
     f.hp = mem::ReadOr<int>(hero + off::BaseEntity::m_iHealth, 0);
     f.maxHp = mem::ReadOr<int>(hero + off::BaseEntity::m_iMaxHealth, 0);
     f.mana = (int)mem::ReadOr<float>(hero + off::NPC::m_flMana, 0.f);
@@ -946,7 +1240,15 @@ void BuildFrame(Frame& f, uintptr_t ctrl) {
     f.atkRange = mem::ReadOr<int>(hero + off::NPC::m_iAttackRange, 0);
     if (f.atkRange <= 0) f.atkRange = 300;
 
-    if (!ReadOrigin(hero, f.localPos)) f.localPos = Vec3{};
+    probe.frameStage.store(7);
+    if (!ReadOrigin(hero, f.localPos) || !std::isfinite(f.localPos.x) ||
+        !std::isfinite(f.localPos.y) || !std::isfinite(f.localPos.z) ||
+        fabsf(f.localPos.x)>50000 || fabsf(f.localPos.y)>50000) return;
+    probe.frameStage.store(8);
+    if (!localTeamRead || (f.localTeam != 2 && f.localTeam != 3) || f.maxHp <= 0 || f.maxHp > 10000000 ||
+        f.hp < 0 || f.hp > f.maxHp) return;
+    probe.frameStage.store(9);
+    if (!std::isfinite(f.now) || f.now < 0.f || f.now > 300000.f) return;
 
     f.rules = g_rules;
     uint32_t query = 0;
@@ -1044,6 +1346,7 @@ void BuildFrame(Frame& f, uintptr_t ctrl) {
     }
 
     f.ok = true;
+    probe.frameStage.store(10);
 }
 
 }

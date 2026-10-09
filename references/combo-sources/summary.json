@@ -1,0 +1,95 @@
+[
+  {
+    "repo": "VickTheRock/Ensage-scripts",
+    "commit": "d0e12f3ba796269560a4d374a6275afdb60df64b",
+    "updated": "2015-08-14T06:56:33Z",
+    "license": null,
+    "code_files": 19,
+    "samples": [
+      "Libraries/HeroInfo.lua",
+      "Libraries/Utils.lua",
+      "Other/Ideas/ComboSkills_Script_Idea_Table.lua",
+      "Other/Old/Emoticons_for_Free.old.lua",
+      "Other/WIP/Tinker_Push_Bot_WIP.lua",
+      "Other/WIP/Tinker_Push_Tools_WIP.lua",
+      "Scripts/Abaddon.lua",
+      "Scripts/Challenge_accepted_rework.lua",
+      "Scripts/DooM.lua",
+      "Scripts/Emoticons_for_Free.lua",
+      "Scripts/Skywrath_Mage.lua",
+      "Scripts/Slardar.lua",
+      "Scripts/TS_Combo_Extension.lua",
+      "Scripts/Timbersaw_Simple_Combo.lua",
+      "Scripts/Tinker_Push_Tools.lua",
+      "Scripts/Tusk.lua",
+      "Scripts/Visage_Helper_Rework.lua",
+      "Scripts/Weaver.lua"
+    ]
+  },
+  {
+    "repo": "ivanius51/UmbrellaD2LUA",
+    "commit": "ce275c6069322a6abcfdf0df0cf7745f4336d9c5",
+    "updated": "2019-04-11T14:15:59Z",
+    "license": "GPL-3.0",
+    "code_files": 12,
+    "samples": [
+      "Autohook.lua",
+      "CreepBlock.lua",
+      "CreepStopper.lua",
+      "CustomRangeRadius.lua",
+      "Invoker.lua",
+      "LastHitCreep/LastHitCreep.lua",
+      "LastHitCreep/settings/heroinfo.lua",
+      "PerfomanceTest.lua",
+      "PseudoRandom.lua",
+      "SkillAlert.lua",
+      "settings/heroinfo.lua",
+      "wispautotpbase Good.lua"
+    ]
+  },
+  {
+    "repo": "bundlepak/useful",
+    "commit": "d76860ccc19a307b76e9288ad1ec478200e8afa4",
+    "updated": "2018-03-10T23:39:38Z",
+    "license": null,
+    "code_files": 9,
+    "samples": [
+      "clinkz.lua",
+      "disabler.lua",
+      "dodge.lua",
+      "ember.lua",
+      "lc.lua",
+      "lycan.lua",
+      "purge.lua",
+      "roshan.lua",
+      "terror.lua"
+    ]
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "updated": "2021-04-17T18:18:23Z",
+    "license": "MIT",
+    "code_files": 43,
+    "samples": [
+      "Abaddon.lua",
+      "AbyssalHelper.lua",
+      "AntiMageExtended.lua",
+      "Armlet.lua",
+      "AutoStash.lua",
+      "AutoUseItems.lua",
+      "Axe.lua",
+      "BountyHunter.lua",
+      "Bristleback.lua",
+      "Detect.lua",
+      "Dict.lua",
+      "Dodge.lua",
+      "DragonKnight.lua",
+      "Draw.lua",
+      "EarthSpirit.lua",
+      "EconPanel.lua",
+      "Ember.lua",
+      "Enigma.lua"
+    ]
+  }
+]

@@ -1,13 +1,14 @@
 #include "kill_helper.h"
+#include "local_visibility.h"
 #include "imgui.h"
 #include <algorithm>
 namespace clientui {bool English();}
 namespace killhelper {
 Report Build(const Frame& f){
- Report out;if(!f.ok||!f.localAlive||f.localTeam<2||f.localTeam>3||!f.localHero||!f.queryUnit)return out;
+ Report out;if(!f.ok||f.observedOnly||!f.localAlive||f.localTeam<2||f.localTeam>3||!f.localHero||!f.queryUnit)return out;
  const FrameUnit *self=nullptr,*enemy=nullptr;
  for(const auto& u:f.units){if(u.kind!=UnitKind::Hero)continue;if(u.addr==f.localHero)self=&u;
-  if(u.addr==f.queryUnit&&u.team!=f.localTeam&&(u.team==2||u.team==3)&&u.alive&&!u.illusion&&u.hp>0&&u.teamVisibilityRead&&(u.teamVisibilityMask&(1u<<f.localTeam))&&std::isfinite(u.invis)&&u.invis<.01f)enemy=&u;}
+  if(u.addr==f.queryUnit&&u.team!=f.localTeam&&(u.team==2||u.team==3)&&u.alive&&!u.illusion&&u.hp>0&&localvisibility::Get(f,u).visible&&std::isfinite(u.invis)&&u.invis<.01f)enemy=&u;}
  if(!self||!enemy)return out;
  out.target=true;out.hp=enemy->hp;snprintf(out.name,sizeof(out.name),"%s",enemy->nick);
  uint64_t own=0,target=0;bool ownRead=mem::Read(self->addr+0x12B8,own),targetRead=mem::Read(enemy->addr+0x12B8,target);

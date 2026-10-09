@@ -1,7 +1,7 @@
 #pragma once
 #include "cosmetic_core.h"
 namespace skins {
-struct Status {bool connected=false,enabled=false,cacheReady=false;size_t definitions=0,selections=0,pending=0;uint64_t account=0;std::string message;};
+struct Status {bool connected=false,enabled=false,cacheReady=false;size_t definitions=0,selections=0,pending=0;uint64_t account=0;uint32_t lastOutgoing=0;int lastDecision=-1;unsigned handled=0,rejected=0;std::string message;};
 const cosmetic::Definition* Catalog(size_t& count);
 void Poll();
 Status GetStatus();

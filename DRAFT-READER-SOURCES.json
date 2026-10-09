@@ -1,0 +1,17 @@
+{
+  "offset_source": "https://github.com/SegNN/dota2bud/blob/master/dota2_dump/client.dll.hpp",
+  "source_git_blob_sha1": "b768ef6754870ad27b06048a8afa8b40cccfc3e7",
+  "fields": {
+    "C_DOTA_PlayerResource.m_vecPlayerTeamData": "0x608",
+    "C_DOTA_PlayerResource.m_vecPlayerData": "0x670",
+    "PlayerResourcePlayerData_t.size": "0xF0",
+    "PlayerResourcePlayerData_t.m_bIsValid": "0x30",
+    "PlayerResourcePlayerData_t.m_iPlayerTeam": "0x40",
+    "PlayerResourcePlayerTeamData_t.size": "0x238",
+    "PlayerResourcePlayerTeamData_t.m_nSelectedHeroID": "0x98"
+  },
+  "vector_header_candidates": "count/data = 0/8,16/0,48/56,80/88; bounded and reject conflicting candidates",
+  "current_live_offsets_verified": false,
+  "use": "display-only experimental ally-pick suggestions; no hero-select orders or gameplay input",
+  "validation": "exact RTTI, full entity handle serial and backlinks, local controller flag/player ID, bounds, known hero IDs, duplicate rejection, repeated fields/headers, second independent snapshot at least 250 ms later"
+}

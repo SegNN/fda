@@ -23,6 +23,7 @@ int main(){
  killstealer::Observe(f);assert(killstealer::BindCurrentHero());assert(!killstealer::Run(f)); // no quickcast confirmation
  cfg::ksQuickcastConfirmed=true;f.units[1].buffsRead=false;assert(!killstealer::Run(f));f.units[1].buffsRead=true;
  mem::Put(enemy.addr+0x12B8,killcore::Bit(8));assert(!killstealer::Run(f));mem::Put(enemy.addr+0x12B8,uint64_t(0));
+ f.observedOnly=true;assert(!killstealer::Run(f)&&winmock::keyInputs==0);f.observedOnly=false;
  assert(killstealer::Run(f));assert(winmock::keyInputs==2);assert(!killstealer::Run(f));
  winmock::now=13000;strcpy(f.units[0].name,"npc_dota_hero_lion");assert(!killstealer::Run(f));assert(winmock::keyInputs==2);
  std::cout<<"PASS production auto-accept under MOCK GC/Windows/GDI: calibration, stability, dedup, dimension/focus/capture/match guards\n";

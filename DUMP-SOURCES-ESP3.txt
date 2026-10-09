@@ -1,0 +1,38 @@
+Источники и сверка дампов (ничего из установленной игры не читалось)
+
+1. Новый публичный набор:
+https://github.com/ikhsanprasetyo/dota2dumped/tree/a2bba3bf95c9c25e5018a481bc88c02155d88a8e
+Коммит: a2bba3bf95c9c25e5018a481bc88c02155d88a8e
+Generated header timestamp: 2026-10-08 20:27:02 +07:00.
+Полный архив этого репозитория предоставлен отдельно. Это схемы, offsets и interfaces,
+не вся память процесса, не исходный код Dota и не пакет бинарников.
+В архиве сохранена лицензия автора. Совпадение сборки пользователя не подтверждено.
+
+Сверенные поля:
+client dwViewMatrix 0x621EB30 — совпадает.
+C_BaseEntity m_pGameSceneNode 0x330, maxHP 0x348, HP 0x34C — совпадают.
+C_DOTA_BaseNPC m_iszUnitName 0xD70, healthBarOffset 0xCF4, ownerID 0x13C0 — совпадают.
+CBasePlayerController localFlag 0x778 — совпадает.
+C_DOTAPlayerController playerID 0x910, assignedHero 0x914 — совпадают.
+CGameSceneNode и CEntityIdentity definitions отсутствуют в новом client_dll.hpp,
+поэтому absOrigin 0xD8 и owner 0x30 НЕ подтверждены этим новым заголовком.
+Новый dump также содержит другие entity-list/pawn globals, но они НЕ перенесены
+в проект без runtime type/ownership validation. Один named global уже оказался Gamerules.
+
+2. Предыдущая схема:
+https://github.com/SegNN/dota2bud/tree/5a0549bf00b414f716a760ff00e462e715dccfdb
+Этот же коммит всё ещё HEAD на момент проверки.
+В client.dll.hpp CGameSceneNode m_vecAbsOrigin 0xD8 и m_pOwner 0x30.
+Новый номер сборки установленного клиента необходимо узнать отдельно; репозиторий
+не доказывает, что схема актуальна именно для запущенной у пользователя Dota.
+
+3. Проект внешнего сборщика дампа именно своего клиента:
+https://github.com/Anroshka/dota2-dumper
+README проверен на commit 47c2e97dcecd904b0622ca536787f1166189f020.
+Автор описывает external memory-reading utility через memflow-native для Windows/Linux.
+По README: игра запущена в главном меню, затем из отдельной папки:
+.\dota2-dumper.exe -o .\output
+Выход по умолчанию: cs, hpp, json, rs, zig. Это schema/offset/interface output, не whole-process memory dump.
+Бинарник не скачивался, не запускался и не аудировался. Исполняемые файлы в наши архивы не вложены.
+Не нужны DMA/kernel/connectors для обычного native варианта, не предлагать их как исправление.
+Перед любым запуском сторонних утилит проверять исходники и риски правил/античита.

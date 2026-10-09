@@ -1,8 +1,16 @@
 #include "mem.h"
+#include "runtime_rtti.h"
+#include <map>
+#include <array>
+#include <mutex>
+#include <atomic>
 
 namespace rtti {
 
 using RttiEntry = Entry;
+static std::atomic<unsigned> runtimeAttempts{0},runtimeParsed{0};
+unsigned RuntimeAttempts(){return runtimeAttempts.load();}
+unsigned RuntimeParsed(){return runtimeParsed.load();}
 
 #include "rtti_client.inc"
 
@@ -55,6 +63,22 @@ void DetectDelta(uintptr_t clientBase, const uintptr_t* objects, int count) {
 
 const char* ClassOf(uintptr_t clientBase, uintptr_t vptr) {
     if (!vptr) return nullptr;
+    // Use current in-memory MSVC RTTI before the old RVA catalog. No engine calls or file reads.
+    static std::mutex runtimeMutex;std::lock_guard<std::mutex> runtimeLock(runtimeMutex);
+    static uintptr_t runtimeBase=0;static uint32_t runtimeSize=0;
+    static std::map<uintptr_t,std::array<char,128>> runtimeNames;
+    if(runtimeBase!=clientBase){runtimeBase=clientBase;runtimeSize=mem::ModuleSize(clientBase);runtimeNames.clear();runtimeAttempts.store(0);runtimeParsed.store(0);}
+    if(!runtimeSize)runtimeSize=mem::ModuleSize(clientBase);
+    auto found=runtimeNames.find(vptr);if(found!=runtimeNames.end())return found->second.data();
+    struct Reader {bool Read(uintptr_t p,uintptr_t& out){return mem::Read(p,out);}bool Read(uintptr_t p,runtimertti::Locator& out){return mem::Read(p,out);}bool Read(uintptr_t p,char& out){return mem::Read(p,out);}} reader;
+    runtimeAttempts.fetch_add(1);
+    std::array<char,128> name{};
+    if(runtimertti::Name(reader,clientBase,runtimeSize,vptr,name.data(),name.size())){
+        runtimeParsed.fetch_add(1);
+        if(runtimeNames.size()<4096)return runtimeNames.emplace(vptr,name).first->second.data();
+        // Never return a pointer to stack data when the cache limit is reached.
+    }
+
     if (g_ready) {
         const char* n = LookupDelta(clientBase, vptr, g_delta);
         if (n) return n;

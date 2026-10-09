@@ -1,15 +1,4 @@
-FDA 0.5.5 — полный экспериментальный SOURCE-проект, не готовая DLL.
-Распаковать в НОВУЮ папку. MSVC x64 + Windows SDK: build.bat.
-
-Новое: «Прокасты / Помощник», 127 героев снимка с поиском.
-126 — заглушки. Huskar — Armlet-помощник по порогу HP.
-Нужны отдельный бинд активации, настоящий слот + native item key,
-проверка в демо и явное подтверждение риска. OFF по умолчанию.
-Выбрать только своего Huskar, закрыть меню, оставить Dota в фокусе.
-Предсказания всех входящих ударов НЕТ. Возможна смерть; при остановке
-Armlet мог остаться выключенным — проверить вручную. Остальные игровые
-автонажатия подавлены, пока Armlet-помощник включён.
-
-ОБЯЗАТЕЛЬНО README-0.5.5.txt: порядок, диагностика, ограничения.
-Тесты — MOCK, не проверка в Dota. Нет гарантий от банов.
-Старые README описывают прежние модули и историю, а не «всё закончено».
+FDA ESP19 — MERGED COMBO18 (9 basic profiles) + ARM18 fixes + candidate NPC visibility reader + compact top HUD.
+Read README-ESP19.txt FIRST. Extract ENTIRE source project to a NEW folder -> build.bat.
+No prebuilt DLL. Windows/live Dota and candidate visibility offsets/mapping unverified.
+Do not extract into installed game folders. Historical README/QA files are not current status.

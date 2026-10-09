@@ -8,7 +8,7 @@
 // not asserted from an old cheat offset. An empty unknown vector is never "no buffs".
 namespace buffreader {
 struct Buff { uintptr_t address=0; uint32_t parent=0,ability=0; int serial=0,index=0,stacks=0; float created=0,duration=-1,expires=-1; char name[128]={}; };
-struct Result { bool verified=false; std::vector<Buff> buffs; };
+struct Result { bool verified=false,visualOnly=false; std::vector<Buff> buffs; };
 struct Layout { int count=-1,data=-1; };
 inline bool Time(float t){return std::isfinite(t)&&t>=-120&&t<=86400;}
 template<class Reader> bool Entry(Reader& r,uintptr_t addr,uint32_t owner,float now,Buff& b){
@@ -41,18 +41,24 @@ template<class Reader> Result Candidate(Reader& r,uintptr_t mgr,Layout l,uint32_
 template<class Reader> Result Read(Reader& r,uintptr_t mgr,uint32_t owner,float now,Layout& learned){
  if(!owner||!std::isfinite(now))return {};
  if(learned.count>=0){auto out=Candidate(r,mgr,learned,owner,now,true);if(out.verified)return out;learned={};}
- // Only the manager's opaque 0x00..0x27 prefix. No heap scan, no virtual calls.
- // Pointer/count pair layouts of CUtlVector and network-vector containers are hypotheses,
- // accepted only when an entire non-empty array has independently validated buffs.
+ // Opaque prefix only. Identical positive snapshots may be displayed even when
+ // count vs capacity is ambiguous; they are NEVER declared a complete list for automation.
  Result found;Layout chosen;int matches=0;
+ auto same=[](const Result& a,const Result& b){if(a.buffs.size()!=b.buffs.size())return false;
+  for(size_t i=0;i<a.buffs.size();++i){const auto& x=a.buffs[i];const auto& y=b.buffs[i];
+   if(x.address!=y.address||x.parent!=y.parent||x.serial!=y.serial||x.index!=y.index||x.stacks!=y.stacks||x.created!=y.created||x.duration!=y.duration||x.expires!=y.expires||strcmp(x.name,y.name))return false;
+  }return true;
+ };
  for(int c=0;c<=0x20;c+=4)for(int d=0;d<=0x20;d+=8){
   if((c<d+8&&c+4>d))continue;
   Layout l{c,d};auto out=Candidate(r,mgr,l,owner,now,false);if(!out.verified)continue;
-  if(matches)return {}; // Ambiguous count/capacity fields are not a proven layout.
+  if(matches){if(!same(found,out))return {}; ++matches;continue;}
   found=std::move(out);chosen=l;++matches;
  }
- if(matches){learned=chosen;return found;}return {};
+ if(matches==1){learned=chosen;return found;}
+ if(matches>1){found.verified=false;found.visualOnly=true;return found;}return {};
 }
+
 inline float Remaining(const Buff& b,float now){
  if(b.duration<0)return -1;
  if(!std::isfinite(now)||b.expires<=0||b.expires<b.created)return -2; // Unknown, never guessed.

@@ -1,0 +1,10 @@
+{
+  "offset_source": "https://github.com/SegNN/dota2bud/blob/master/dota2_dump/client.dll.hpp",
+  "source_git_blob_sha1": "b768ef6754870ad27b06048a8afa8b40cccfc3e7",
+  "semantic_reference": "https://github.com/SteamTracking/GameTracking-Dota2/tree/5c3ea270b75b892ea607d0c236222a3f0ee34ad1/DumpSource2",
+  "descriptor_count": 1455,
+  "class_count": 915,
+  "purpose": "read-only diagnostic candidates; static offsets not runtime-schema resolved; no damage/tick prediction or automation authorization",
+  "base_buff_previous_tick_offset": null,
+  "base_buff_think_interval_offset": null
+}

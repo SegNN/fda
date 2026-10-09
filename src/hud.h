@@ -8,5 +8,8 @@ void Initialize(ID3D11Device* device);
 void Shutdown();
 void UpdateAegis(Frame& frame);
 void Draw(const Frame& frame);
+void BeginWorldFrame(const Frame& frame);
+bool WorldHeroVisible(const Frame& frame, const FrameUnit& hero);
+void DrawFogMarkers();
 void DrawWorldHero(const Frame& frame, const FrameUnit& hero);
 }

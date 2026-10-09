@@ -1,0 +1,13 @@
+Schema fields: SegNN/dota2bud commit 5a0549bf00b414f716a760ff00e462e715dccfdb
+https://github.com/SegNN/dota2bud/tree/5a0549bf00b414f716a760ff00e462e715dccfdb
+C_DOTA_BaseNPC m_nUnitState64=0x12B8, ModifierManager=0xE30, illusion=0xD24,
+inventory=0x11C0, inventory items=0x20/parity=0xA4; simulation time=0x3B8.
+These are schema offsets, not proof of private vector layout in the live client.
+
+MODIFIER_STATE bit indices checked against ModDota generated declarations:
+https://github.com/ModDota/TypeScriptDeclarations/blob/df7722b560d5c616f7b2f6be42480aa5053baec8/packages/dota-lua-types/types/enums.generated.d.ts
+root0 disarm1 silence3 mute4 stun5 hex6 invisible7 invulnerable8 nightmare11
+commandRestricted20 outOfGame33. State values are read from the client, never invented.
+
+Public latest dump comparison is documented separately in DUMP-SOURCES-ESP3.txt.
+No public dump establishes ownership of the live user's local player; runtime validation is required.

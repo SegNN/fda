@@ -5,6 +5,9 @@
 #include "hud.h"
 #include "kill_stealer.h"
 #include "armlet.h"
+#include "combos.h"
+#include "observed_esp.h"
+#include "esp_projection.h"
 
 #include <cfloat>
 
@@ -75,50 +78,14 @@ void Update() {
 
 }
 
-static bool Project(int mode, const Vec3& w, float& sx, float& sy, float& pw) {
-    const float* m = g_mat;
-    float px, py;
-
-    if (mode & 2) {
-        px = m[0] * w.x + m[4] * w.y + m[8]  * w.z + m[12];
-        py = m[1] * w.x + m[5] * w.y + m[9]  * w.z + m[13];
-        pw = m[3] * w.x + m[7] * w.y + m[11] * w.z + m[15];
-    } else {
-        px = m[0] * w.x + m[1] * w.y + m[2]  * w.z + m[3];
-        py = m[4] * w.x + m[5] * w.y + m[6]  * w.z + m[7];
-        pw = m[12] * w.x + m[13] * w.y + m[14] * w.z + m[15];
-    }
-
-    if (fabsf(pw) < 1e-6f) return false;
-
-    float nx = px / pw;
-    float ny = py / pw;
-    if (mode & 1) ny = -ny;
-
-    sx = (nx * 0.5f + 0.5f) * (float)view::W;
-    sy = (0.5f - ny * 0.5f) * (float)view::H;
-    return true;
+static espprojection::Choice g_projectionChoice;
+static bool Project(int mode,const Vec3& w,float& sx,float& sy,float& pw) {
+    return espprojection::Project(g_mat,mode,w,view::W,view::H,sx,sy,pw);
 }
-
 static void ResolveMode(const Frame& f) {
-    if (!g_matOk) return;
-
-    float nA = fabsf(g_mat[12]) + fabsf(g_mat[13]) + fabsf(g_mat[14]);
-    float nB = fabsf(g_mat[3])  + fabsf(g_mat[7])  + fabsf(g_mat[11]);
-
-    int mode;
-    if (nA < nB * 0.5f)      mode = 0;
-    else if (nB < nA * 0.5f) mode = 2;
-    else                     mode = g_mode & 2;
-
-    float ax, ay, aw, bx, by, bw;
-    Vec3 up{ f.localPos.x, f.localPos.y, f.localPos.z + 150.f };
-    if (Project(mode, f.localPos, ax, ay, aw) && Project(mode, up, bx, by, bw) &&
-        aw > 0.f && bw > 0.f && (by - ay) > 1.f)
-        mode |= 1;
-
-    if (mode != g_mode)
-        g_mode = mode;
+    if(!g_matOk)return;
+    g_projectionChoice=espprojection::Resolve(g_mat,view::W,view::H,f,g_mode);
+    g_mode=g_projectionChoice.mode;
 }
 
 static void DText(ImDrawList* dl, const char* s, ImVec2 p, ImU32 col, float size = 0.f) {
@@ -248,7 +215,7 @@ static void DrawHero(const Frame& f, const FrameUnit& u, bool enemy, ImDrawList*
     snprintf(buf, sizeof(buf), "%d", u.hp);
     DText(dl, buf, ImVec2(bx + barW + 3.f, barY - 1.f), soft, 12.f);
 
-    if (cfg::espDist) {
+    if (cfg::espDist && !f.observedOnly) {
         snprintf(buf, sizeof(buf), "%d", (int)u.dist);
         DText(dl, buf, ImVec2(b.x + 4.f, b.y - 14.f), soft);
     }
@@ -317,7 +284,7 @@ static void DrawCreepMarkers(const Frame& f, const FrameUnit& u, ImDrawList* dl)
 }
 
 static void DrawWard(const Frame& f, const FrameUnit& u, ImDrawList* dl) {
-    bool enemy = (u.team != f.localTeam);
+    bool enemy = !f.observedOnly && (u.team != f.localTeam);
     ImVec2 p;
     if (!view::W2S(u.pos, p)) {
         ImVec2 rp;
@@ -331,7 +298,7 @@ static void DrawWard(const Frame& f, const FrameUnit& u, ImDrawList* dl) {
     const char* label = enemy ? "WARD!!" : "ward";
 
     DTextC(dl, label, p.x, p.y - 48.f, col, enemy ? 19.f : 15.f);
-    if (cfg::espDist) {
+    if (cfg::espDist && !f.observedOnly) {
         char buf[32];
         snprintf(buf, sizeof(buf), "%d", (int)u.dist);
         DTextC(dl, buf, p.x, p.y - 30.f, theme::PurpleLight);
@@ -504,11 +471,7 @@ static void GroundBand(ImDrawList* dl, const Vec3& from, const Vec3& dir,
 }
 
 static void DrawSkillPreview(const Frame& f, const FrameUnit& u, ImDrawList* dl) {
-    if (u.alive && u.mdirOk) {
-        GroundBand(dl, Vec3{ u.pos.x - u.mdir.x * 40.f, u.pos.y - u.mdir.y * 40.f, u.pos.z },
-                   u.mdir, 460.f, 34.f, u.pos.z,
-                   IM_COL32(168, 85, 247, 45), IM_COL32(192, 132, 252, 95));
-    }
+    // Direction band removed: movement heading is not a spell trajectory.
 
     const AbilityInfo* cast = nullptr;
     for (int i = 0; i < u.abilN; ++i) {
@@ -775,7 +738,20 @@ static void ApplyVision(const Frame& f) {
 
 void DrawOverlay(const Frame& f) {
     ImDrawList* dl = ImGui::GetBackgroundDrawList();
-    if (!dl || !f.ok) return;
+    if (!dl) return;
+    hud::BeginWorldFrame(f);
+    if(f.observedOnly) {
+        ResolveMode(f);
+        auto project=[](const Vec3& world,ImVec2& screen){return view::W2S(world,screen);};
+        observedesp::Draw(f,dl,project,view::W,view::H,cfg::espHeroes,cfg::espWards,cfg::espRoshan,
+            [&](const FrameUnit& u){
+                hud::DrawWorldHero(f,u); // Same configured/native-bar UI as the normal path.
+            },
+            [&](const FrameUnit& u){DrawWard(f,u,dl);},
+            [&](const FrameUnit& u){DrawHero(f,u,true,dl);});
+        return; // No ApplyVision, glow, fog writes, alerts or local-player calculations.
+    }
+    if(!f.ok)return;
 
     ResolveMode(f);
 
@@ -798,7 +774,7 @@ void DrawOverlay(const Frame& f) {
             bool self = (u.team == f.localTeam) &&
                         (dx * dx + dy * dy + dz * dz) < 1.0f;
             // Local hero also receives the ability strip; native HP remains untouched.
-            if (cfg::skillPreview && u.team != f.localTeam)
+            if (cfg::skillPreview && u.team != f.localTeam && hud::WorldHeroVisible(f,u))
                 DrawSkillPreview(f, u, dl);
             if (cfg::espHeroes) {
                 hud::DrawWorldHero(f, u);
@@ -829,6 +805,7 @@ void DrawOverlay(const Frame& f) {
         }
     }
 
+    hud::DrawFogMarkers();
     DrawRoshanMarker(f, dl);
     if (!cfg::hudRoshan) DrawDotaPlus(f, dl);
     DrawAlerts(dl);
@@ -857,9 +834,17 @@ static HWND GameHwnd() {
 }
 
 void RunAutomation(const Frame& f) {
-    // Armlet owns the automation lane while enabled; no queued farm/dodge/KS input.
-    if(cfg::armletAuto||armlet::Pending()){input::CancelPending();armlet::Tick(f);return;}
+    if(!f.ok||f.observedOnly) {
+        input::CancelPending();
+        combos::Cancel("Invalid/observed frame; release binding");
+        armlet::Tick(f); // invalid/observed frame guard cancels the unfinished state; no new input
+        return;
+    }
+
+    // Armlet owns the lane for own Huskar or an unfinished cycle; no queued farm/dodge/KS input.
+    if(armlet::OwnsLane(f)){input::CancelPending();combos::Cancel("Armlet owns input lane; release binding");armlet::Tick(f);return;}
     armlet::Tick(f); // cancel a disabled unfinished cycle; never send late recovery input
+    if(combos::Run(f)){input::CancelPending();return;}
     if(cfg::killStealer&&binds::items[10].holding)input::CancelPending();
     input::Tick();
     if(killstealer::Run(f))return; // do not schedule another automation action in this frame
@@ -1099,15 +1084,42 @@ Snapshot snapshot;
 void Update(const Frame& frame) {
     snapshot = Snapshot{};
     snapshot.frameOk = frame.ok;
+    snapshot.observedOnly = frame.observedOnly;
     snapshot.matrixOk = g_matOk;
-    if (!frame.ok) return;
+    if(g_matOk)memcpy(snapshot.matrix,g_mat,sizeof(g_mat));
+    if (!frame.ok && !frame.observedOnly) return;
     ResolveMode(frame);
+    snapshot.projectionMode=g_mode;
+    snapshot.uprightVotes=g_projectionChoice.uprightVotes;
+    snapshot.flippedVotes=g_projectionChoice.flippedVotes;
     snapshot.unitCount = (int)frame.units.size();
     ImVec2 screen;
-    snapshot.projectedLocal = view::W2SRaw(frame.localPos, screen);
+    snapshot.projectedLocal = frame.ok && view::W2SRaw(frame.localPos, screen);
     for (const auto& unit : frame.units) {
+        if(view::W2S(unit.pos,screen))++snapshot.projectedUnits;
         if (unit.kind != UnitKind::Hero) continue;
         ++snapshot.heroCount;
+        if(unit.pos.x==0.f&&unit.pos.y==0.f&&unit.pos.z==0.f)++snapshot.zeroOriginHeroes;
+        if(snapshot.samplesCount<12) {
+            auto& p=snapshot.samples[snapshot.samplesCount++];
+            snprintf(p.name,sizeof(p.name),"%s",unit.nick[0]?unit.nick:unit.name);
+            p.pos=unit.pos;p.hp=unit.hp;p.alive=unit.alive;
+            p.items=unit.itemN;p.abilities=unit.abilN;p.buffs=(int)unit.buffs.size();p.level=unit.level;
+            p.shownAbilityCount=std::min(unit.abilN,6);for(int j=0;j<p.shownAbilityCount;++j){strncpy(p.abilityNames[j],unit.abil[j].icon,79);p.abilityLevels[j]=unit.abil[j].level;p.abilityMaxima[j]=unit.abil[j].maxLevel;}
+            p.entityHandle=unit.entityHandle;p.ownerIDRead=mem::Read(unit.addr+off::NPC::m_nPlayerOwnerID,p.ownerID);p.heroPlayerIDRead=mem::Read(unit.addr+off::Hero::m_iPlayerID,p.heroPlayerID);
+            p.inventoryRaw0=unit.inventoryRaw0;p.inventoryRaw8=unit.inventoryRaw8;p.inventoryParent=unit.inventoryParent;p.inventoryProbeMask=unit.inventoryProbeMask;
+            p.inventoryLayout=unit.inventoryLayout;p.inventoryRead=unit.inventoryRead;p.inventorySlots=unit.inventoryCount;p.resolved=unit.inventoryResolved;p.unmapped=unit.inventoryUnmapped;
+            p.shownBuffCount=std::min((int)unit.buffs.size(),16);for(int j=0;j<p.shownBuffCount;++j){const auto& b=unit.buffs[j];snprintf(p.buffNames[j],128,"%s",b.name);p.buffStacks[j]=b.stacks;p.buffDuration[j]=b.duration;p.buffExpires[j]=b.expires;}
+            p.team=unit.team;p.visionRead=unit.teamVisibilityRead;p.visionMask=unit.teamVisibilityMask;p.npcVisionRead=unit.npcVisibilityRead;p.npcVisible=unit.npcVisible;p.npcProbeMask=unit.npcVisibilityProbeMask;p.npcWord=unit.npcVisibilityWord;p.npcSelfWord=unit.npcVisibilitySelfWord;p.npcDataHandle=unit.npcVisibilityDataHandle;p.npcIndex=unit.npcVisibilityIndex;p.sceneDormantRead=unit.sceneDormantRead;p.sceneDormant=unit.sceneDormant;
+            p.buffsRead=unit.buffsRead;p.buffsVisualRead=unit.buffsVisualRead;p.illusionRead=unit.illusionRead;p.illusion=unit.illusion;p.invisRead=unit.invisRead;p.stateRead=unit.stateRead;p.state=unit.unitState;p.clockRead=unit.clockRead;p.clock=unit.sampleTime;
+            p.footProjected=view::W2SRaw(unit.pos,p.foot);
+            Vec3 upper{unit.pos.x,unit.pos.y,unit.pos.z+unit.hbOffset};
+            p.headProjected=view::W2SRaw(upper,p.head);
+            uintptr_t node=0,owner=0;
+            p.nodeRead=mem::Read(unit.addr+off::BaseEntity::m_pGameSceneNode,node)&&mem::ValidPtr(node);
+            p.ownerMatches=p.nodeRead&&mem::Read(node+off::SceneNode::m_pOwner,owner)&&owner==unit.addr;
+        }
+        if(!snapshot.sampledWorld){snapshot.sampleWorld=unit.pos;snapshot.sampledWorld=true;}
         if (view::W2S(unit.pos, screen)) snapshot.projectedHero = true;
     }
 }

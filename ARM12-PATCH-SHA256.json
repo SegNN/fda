@@ -1,0 +1,12 @@
+{
+  "src/armlet.cpp": "0e7e502aa53d2bd9a50b024597f6af3cdb14a2170f492dea69b85072ba05342b",
+  "src/armlet.h": "6a96cdf4845b886c8225333a9a3ae5bf6196f89ed428a558e9b0c637f08dda49",
+  "src/armlet_core.h": "b5fd583b9eeee09dc6e156fbadeaac262a8aa699605c2a5bdad04c47dadd6716",
+  "src/common.h": "f493a82ce51dd75d50af17f0879a4c371e2998f9318d90e52006bb265fe9c383",
+  "src/menu.cpp": "2830decaffb776905ee0d0dc4d0481e79d9a02ccbafe6ee426d0013119b3341d",
+  "build.bat": "acd15a31439fb84a115ece4aedb65e089544d761cf222e9678eade03b45a00ec",
+  "tests/armlet_core_test.cpp": "523aa3cef370ca9df2ce62ded827e17b0fab6a35d5f86f64b6e0a66616685247",
+  "tests/effects-mock/armlet_adapter_test.cpp": "4c5e8c1c73e6d345e1f4c4a7e0668f8a5b80beb74f0d2e73d128a10ddb20bbac",
+  "README-ARM12.txt": "f3c18358ba2b27da0974e99c6ce5875bf058bae35184a4a65b1307ddc5538662",
+  "QA-ARM12.txt": "27928ab2082be971292fecebe69e3e3dc13c4c2ae486115e121f745dce87c327"
+}

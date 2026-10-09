@@ -1,0 +1,10 @@
+User-provided repository inspected via GitHub MCP, pinned commit:
+https://github.com/experienceds/melonity-re/tree/c889c9fd0e2842ecd39acf29fbcaea1b8fca1874
+https://github.com/experienceds/melonity-re/blob/c889c9fd0e2842ecd39acf29fbcaea1b8fca1874/README.md
+https://github.com/experienceds/melonity-re/blob/c889c9fd0e2842ecd39acf29fbcaea1b8fca1874/docs/FEATURE_CLAIM_AUDIT.md
+Audit does not prove single-server-tick Armlet. No src/ directory in inspected root.
+No evasion/injection/auth implementation used or incorporated.
+Schema inventory parent +0xA8 and controller class name verified in previously retrieved
+SegNN/dota2bud public client schema; provenance in HUD5-SOURCES.txt.
+Runtime RTTI helper is newly written for reading validated MSVC x64 metadata;
+private vector layouts remain runtime validation hypotheses, not schema-proven offsets.

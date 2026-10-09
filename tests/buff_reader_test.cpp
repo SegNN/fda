@@ -20,7 +20,7 @@ int main(){Memory r;uintptr_t mgr=0x100000000ULL,data=0x200000000ULL,b=0x3000000
  r.Put(mgr+16,0);layout={};assert(!buffreader::Read(r,mgr,0x8001,105,layout).verified); // unknown empty isn't verified
  r.Put(mgr+16,1);out=buffreader::Read(r,mgr,0x8001,105,layout);assert(out.verified);
  r.Put(mgr+16,0);assert(buffreader::Read(r,mgr,0x8001,105,layout).verified); // previously verified layout, empty
- r.Put(mgr+16,1);r.Put(mgr+20,1);layout={};assert(!buffreader::Read(r,mgr,0x8001,105,layout).verified); // count vs capacity ambiguous
+ r.Put(mgr+16,1);r.Put(mgr+20,1);layout={};out=buffreader::Read(r,mgr,0x8001,105,layout);assert(!out.verified&&out.visualOnly&&out.buffs.size()==1&&layout.count<0); // identical positive snapshot, automation still BLOCKED
  r.Put(mgr+20,0);r.Put(b+0x60,-1.f);out=buffreader::Read(r,mgr,0x8001,105,layout);assert(out.verified&&buffreader::Remaining(out.buffs[0],105)==-1);
  r.Put(b+0x60,10.f);r.Put(b+0x64,0.f);out=buffreader::Read(r,mgr,0x8001,105,layout);assert(out.verified&&buffreader::Remaining(out.buffs[0],105)==-2);
  std::cout<<"PASS buff ownership, serials, bounded discovery, ambiguous layouts, unknown empty and timer semantics\n";

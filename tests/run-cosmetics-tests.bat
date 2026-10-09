@@ -11,7 +11,7 @@ cl /nologo /std:c++17 /EHsc /O2 /utf-8 /Fetest-build\cosmetic-core-test.exe /Fot
 if errorlevel 1 exit /b 1
 test-build\cosmetic-core-test.exe
 if errorlevel 1 exit /b 1
-cl /nologo /std:c++17 /EHsc /O2 /utf-8 /Itests\winshim /Fotest-build\ /Fetest-build\cosmetic-adapter-test.exe tests\cosmetic_adapter_test.cpp tests\auto_accept_observer_stub.cpp src\skin_changer.cpp
+cl /nologo /std:c++17 /EHsc /O2 /utf-8 /Itests\winshim /Fotest-build\ /Fetest-build\cosmetic-adapter-test.exe tests\disabled_cosmetics_test.cpp src\skin_changer.cpp
 if errorlevel 1 exit /b 1
 test-build\cosmetic-adapter-test.exe
 exit /b %errorlevel%

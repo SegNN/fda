@@ -20,5 +20,6 @@ void ApplyStyle();
 void LoadFonts();
 ImFont* FontSmall();
 ImFont* FontBig();
+ImFont* FontHp();
 
 }

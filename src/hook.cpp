@@ -8,6 +8,7 @@
 #include "effects_ui.h"
 #include "kill_stealer.h"
 #include "kill_helper.h"
+#include "draft_live.h"
 #include "auto_accept.h"
 
 #include <string>
@@ -57,9 +58,11 @@ static Frame g_frame;
 
 static ImFont* g_fontSmall = nullptr;
 static ImFont* g_fontBig = nullptr;
+static ImFont* g_fontHp = nullptr;
 
 ImFont* theme::FontSmall() { return g_fontSmall; }
 ImFont* theme::FontBig()   { return g_fontBig; }
+ImFont* theme::FontHp() { return g_fontHp; }
 
 // Read bundled fonts with Unicode-safe Win32 paths, including Cyrillic folders.
 static ImFont* BundledFont(const wchar_t* name,float pixels,const ImWchar* ranges) {
@@ -91,6 +94,7 @@ void theme::LoadFonts() {
     cfg.OversampleH = 2;
     cfg.OversampleV = 2;
 
+    g_fontHp=BundledFont(L"ui-regular.ttf",16.f,ranges);
     g_fontSmall=BundledFont(L"ui-semibold.otf",15.f,ranges);
     g_fontBig=BundledFont(L"ui-semibold.otf",19.f,ranges);
     static const char* kSmall[] = {
@@ -116,6 +120,7 @@ void theme::LoadFonts() {
     }
     if (!g_fontSmall) g_fontSmall = io.Fonts->AddFontDefault();
     if (!g_fontBig)   g_fontBig = g_fontSmall;
+    if(!g_fontHp)g_fontHp=g_fontBig;
     io.FontDefault=g_fontSmall;
 }
 
@@ -366,7 +371,7 @@ static void DoFrame(IDXGISwapChain* chain) {
     if (GetAsyncKeyState(cfg::unloadKey) & 1)
         RequestUnload();
 
-    skins::Poll(); // official Steam interface; no guessed client offsets
+    skins::Poll(); // Cosmetics disabled: compatibility no-op.
     binds::ProcessBinds();
 
     if (cfg::menuOpen && g_hwnd)
@@ -378,13 +383,19 @@ static void DoFrame(IDXGISwapChain* chain) {
     else {
         g_frame.ok = false;
         g_frame.units.clear();
+        game::g_controllerProbe.frameStage.store(2);
+        game::g_controllerProbe.heroHandle.store(0);
+        game::g_controllerProbe.heroAddress.store(0);
     }
 
+    if (!g_frame.ok) game::BuildObservedFrame(g_frame);
+
+    draftadvisor::Observe(g_frame,ImGui::GetTime());
     killstealer::Observe(g_frame);
     hud::UpdateAegis(g_frame); // shared lifecycle before world and top drawing
     view::Update();
     diagnostics::Update(g_frame);
-    topanchor::Update(chain,g_frame);
+    // ESP19 compact top HUD uses stable player slots, not narrow portrait pixel anchors.
 
     DrawMenuWindow(); // latest reference uses an opaque background, no blur passes
     DrawOverlay(g_frame);
@@ -394,7 +405,7 @@ static void DoFrame(IDXGISwapChain* chain) {
     killhelper::Draw(g_frame);
     DrawKeybinds();
     RunAutomation(g_frame);
-    autoaccept::Tick(g_frame.ok);
+    autoaccept::Tick(g_frame.ok || (g_frame.observedOnly && !g_frame.units.empty()));
 
     ImGui::Render();
     if (g_rtv && g_ctx) {

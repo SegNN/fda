@@ -1,0 +1,13 @@
+{
+  "repo": "forest0xia/dota2bot-OpenHyperAI",
+  "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+  "files": [
+    "bots/FunLib/aba_hero_pos_weights.lua",
+    "bots/ts_libs/dota/heroes.lua",
+    "bots/hero_selection.lua"
+  ],
+  "license": "MIT",
+  "generated_file": "src/draft_position_weights.inc",
+  "roster_count": 127,
+  "heuristic": "Enumerate unique position assignments 1-5; respect requested position and ally locks; maximize published role weights plus small pair control/damage term; propose partner in 1+5 or 3+4 lanes; position 2 solo. Inference, not real ally intent or optimal matchup/winrate."
+}

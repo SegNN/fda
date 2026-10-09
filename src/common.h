@@ -19,7 +19,6 @@ namespace cfg {
     inline bool armletAuto=false, armletConfirmed=false;
     inline int armletKey=0, armletSlot=0;
     inline float armletThreshold=350.f;
-    inline bool hudWorld = false; // default: keep native health bar, no duplicate custom bar
     inline bool hudTop = true;
     inline bool hudItems = true;
     inline bool hudAbilities = true;
@@ -43,7 +42,9 @@ namespace cfg {
     inline bool hudManaNumber = true;
     inline bool hudIllusions = true;
     inline float hudIconScale = 1.f;
-    inline float hudSkillPixels = 35.f;
+    inline float hudSkillPixels = 30.f;
+    inline float nativeHpOffsetX=0.f,nativeHpOffsetY=-9.f;
+    inline float nativeHpRedOffsetY=6.f;
     inline bool hudTopAbilities = true;
     inline bool hudStatusBadges = true;
     inline bool hudVisibleByEnemy = false; // experimental read-only client visibility mask
@@ -58,7 +59,7 @@ namespace cfg {
 
 
     inline bool espHeroes = true;
-    inline bool espBoxes  = true;
+    inline bool espBoxes  = false; // Legacy Roshan-only setting, not a hero renderer.
     inline bool espCds    = true;
     inline bool espDist   = true;
 

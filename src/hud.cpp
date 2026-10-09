@@ -3,6 +3,10 @@
 #include "top_anchor.h"
 #include "theme.h"
 #include "aegis_tracker.h"
+#include "hero_info.h"
+#include "fog_memory.h"
+#include "local_visibility.h"
+#include "compact_top.h"
 #include "imgui.h"
 #include <wincodec.h>
 #include <string>
@@ -13,6 +17,14 @@
 
 namespace hud {
 ReadProbe readProbe;
+static int g_fogTeam=0;static uintptr_t g_fogRules=0;static uint32_t g_fogOwner=0;
+static compacttop::Roster g_topRoster;
+static fogmemory::Tracker g_fogMemory;
+static std::vector<fogmemory::Marker> g_fogMarkers;
+static heroinfo::InvisTracker g_invisTracker;
+static heroinfo::Layout g_worldLayout;
+static int g_worldLayoutFrame=-1;
+
 static aegis::Tracker g_aegisTracker;
 static ID3D11Device* g_device = nullptr;
 static IWICImagingFactory* g_wic = nullptr;
@@ -47,6 +59,7 @@ void Initialize(ID3D11Device* device) {
     topanchor::Initialize(device);
 }
 void Shutdown() {
+    g_fogMemory.Reset();g_fogMarkers.clear();g_topRoster.Reset();g_invisTracker.Reset();g_worldLayout.occupied.clear();g_worldLayoutFrame=-1;
     g_aegisTracker.Reset();
     topanchor::Shutdown();
     for (auto& pair:g_icons) if (pair.second) pair.second->Release();
@@ -172,50 +185,51 @@ static void Aegis(ImDrawList* dl,const Frame& f,const FrameUnit& u,ImVec2 p,floa
          u.aegisEstimated?IM_COL32(247,186,96,255):IM_COL32_WHITE,16.f,true,true);
 }
 
-void DrawWorldHero(const Frame& f,const FrameUnit& u) {
-    if(!u.alive)return;
-    ImVec2 foot,top;
-    if(!view::W2S(u.pos,foot))return;
-    Vec3 raised{u.pos.x,u.pos.y,u.pos.z+u.hbOffset};
-    if(!view::W2S(raised,top))return;
+bool WorldHeroVisible(const Frame& f,const FrameUnit& u){return localvisibility::Get(f,u).visible;}
+void BeginWorldFrame(const Frame& f) {
+    g_fogMarkers.clear();
+    if(!f.ok||f.observedOnly||!cfg::espHeroes||cfg::vbe||f.localTeam<2||f.localTeam>3||!std::isfinite(f.now)){
+        g_fogMemory.Reset();return;
+    }
+    if(g_fogTeam!=f.localTeam||g_fogRules!=f.rules||g_fogOwner!=f.localHandle){g_fogMemory.Reset();g_fogTeam=f.localTeam;g_fogRules=f.rules;g_fogOwner=f.localHandle;}
+    g_fogMemory.Begin(f.now);
+    for(const auto& u:f.units)if(u.kind==UnitKind::Hero&&u.team!=f.localTeam&&(u.team==2||u.team==3)){
+        auto vision=localvisibility::Get(f,u);
+        g_fogMemory.Observe(u.entityHandle,vision.visible?u.alive:true,vision.known,vision.visible,{u.pos.x,u.pos.y,u.pos.z},StartsWith(u.name,"npc_dota_hero_")?u.name:u.nick);
+    }
+    g_fogMarkers=g_fogMemory.End();
+}
+void DrawFogMarkers() {
     auto* dl=ImGui::GetBackgroundDrawList();
-    const float scale=Clamp(cfg::hudIconScale,.6f,1.6f),width=150.f*scale;
-    const float icon=Clamp(cfg::hudSkillPixels,28.f,60.f);
-    ImVec2 p(top.x-width*.5f,top.y-38.f*scale);
-    // Native health bar is left untouched by default. This optional panel is additive.
-    if(cfg::hudWorld) {
-        Panel(dl,ImVec2(p.x-34.f*scale,p.y-3),ImVec2(width+72.f*scale,43.f*scale));
-        if(cfg::hudPortraits){auto* portrait=Texture("heroes",StartsWith(u.name,"npc_dota_hero_")?u.name+strlen("npc_dota_hero_"):u.nick);if(portrait)dl->AddImage(ImTextureRef((void*)portrait),ImVec2(p.x-32.f*scale,p.y),ImVec2(p.x-3,p.y+28.f*scale));}
-        char value[64];snprintf(value,sizeof(value),"%d",u.hp);
-        ImU32 hp=u.illusion&&cfg::hudIllusions?IM_COL32(178,116,240,255):(u.team!=f.localTeam?IM_COL32(237,62,71,255):IM_COL32(69,197,90,255));
-        Bar(dl,p,width,21.f*scale,u.maxHp>0?(float)u.hp/u.maxHp:0,hp,cfg::hudHpNumber?value:"",18.f*scale);
-        snprintf(value,sizeof(value),"%d",(int)u.mana);
-        Bar(dl,ImVec2(p.x,p.y+24.f*scale),width,13.f*scale,u.maxMana>0?u.mana/u.maxMana:0,IM_COL32(54,183,225,255),cfg::hudManaNumber?value:"",11.f*scale);
-        snprintf(value,sizeof(value),"%d",u.level);Text(dl,ImVec2(p.x+width+5,p.y+4),value,IM_COL32_WHITE,18.f*scale);
+    for(const auto& marker:g_fogMarkers){ImVec2 c;Vec3 p{marker.pos.x,marker.pos.y,marker.pos.z};
+        if(!view::W2S(p,c)||c.x<24||c.y<24||c.x>view::W-24||c.y>view::H-43)continue;
+        constexpr float r=20,pi=3.14159265f;float fraction=std::clamp(marker.remaining/10.f,0.f,1.f);
+        dl->AddCircleFilled(c,r,IM_COL32(13,19,27,225),48);
+        ImTextureID avatar=(ImTextureID)(uintptr_t)Texture("heroes",marker.portrait.c_str());
+        if(avatar)heroinfo::RoundImage(dl,avatar,c,r-2.f);
+        dl->AddCircle(c,r,IM_COL32(70,87,103,220),48,2);
+        dl->PathArcTo(c,r,-pi*.5f,-pi*.5f+2*pi*fraction,48);
+        dl->PathStroke(IM_COL32(237,181,91,255),0,2.5f);
+        char value[12];snprintf(value,sizeof(value),"%d",(int)ceilf(marker.remaining));
+        ImVec2 timer(c.x,c.y+r+12.f);
+        dl->AddRectFilled(ImVec2(c.x-14,timer.y-9),ImVec2(c.x+14,timer.y+9),IM_COL32(13,19,27,225),4);
+        heroinfo::NumericCentered(dl,theme::FontSmall(),14,timer,IM_COL32_WHITE,value);
     }
-    if(cfg::hudAbilities){
-        const int count=u.abilN;const int cols=std::min(count,6);
-        for(int i=0;i<count;++i){int row=i/6,column=i%6,inRow=std::min(6,count-row*6);float span=inRow*(icon+3)-3;
-            const auto& a=u.abil[i];Icon(dl,"abilities",a.icon,ImVec2(foot.x-span*.5f+column*(icon+3),foot.y+12+row*(icon+12)),icon,a.level,a.cd,a.cooldownRead,-1,a.maxLevel);}
-        (void)cols;
-    }
-    if(cfg::hudVisibleByEnemy && u.team==f.localTeam) {
-        const int enemy=f.localTeam==2?3:2;
-        const char* flag=!u.teamVisibilityRead||cfg::vbe?"VISION ?":((u.teamVisibilityMask&(1u<<enemy))?"SEEN BY ENEMY*":"MASK NOT SET*");
-        Text(dl,ImVec2(top.x,top.y-60),flag,IM_COL32(247,186,96,255),14,true);
-    }
-    if(cfg::hudStatusBadges) {
-        // Only effects already identified by the verified reader; no invented buff icons.
-        int row=0;const float badgeX=foot.x+std::min(u.abilN,6)*(icon+3)*.5f+10;
-        if(u.illusion){Panel(dl,ImVec2(badgeX,foot.y+12),ImVec2(72,24));Text(dl,ImVec2(badgeX+7,foot.y+17),"ILLUSION",IM_COL32(200,165,255,255),12);++row;}
-        if(u.invis>.4f){Panel(dl,ImVec2(badgeX,foot.y+12+row*27),ImVec2(72,24));Text(dl,ImVec2(badgeX+7,foot.y+17+row*27),"INVIS",IM_COL32(200,165,255,255),12);}
-    }
-    if(cfg::hudItems){int row=0;const float itemSize=icon;
-        for(int i=0;i<u.itemN&&row<8;++i){const auto& it=u.items[i];if(it.slot>5&&it.slot!=16)continue;if(!it.icon[0])continue;if(!strcmp(it.icon,"aegis")||!strcmp(it.icon,"tpscroll"))continue;
-            Icon(dl,"items",it.icon,ImVec2(top.x+width*.5f+10,top.y+row*(itemSize+3)),itemSize,-1,it.cd,it.cooldownRead,it.charges>0?it.charges:-1);++row;}
-        Aegis(dl,f,u,ImVec2(top.x+width*.5f+10,top.y-itemSize-4),itemSize);
-        if(const auto* tp=Special(u,"tpscroll"))Icon(dl,"items","tpscroll",ImVec2(top.x+width*.5f+10,top.y+row*(itemSize+3)),itemSize,-1,tp->cd,tp->cooldownRead,tp->charges);
-    }
+}
+void DrawWorldHero(const Frame& f,const FrameUnit& u) {
+    if(!u.alive||!WorldHeroVisible(f,u))return;
+    ImVec2 foot,top;Vec3 raised{u.pos.x,u.pos.y,u.pos.z+u.hbOffset};
+    if(!view::W2S(u.pos,foot)||!view::W2S(raised,top))return;
+    int frame=ImGui::GetFrameCount();if(frame!=g_worldLayoutFrame){g_worldLayoutFrame=frame;g_worldLayout.occupied.clear();}
+    heroinfo::Style style;style.hp=cfg::hudHpNumber;style.abilities=cfg::hudAbilities;style.items=cfg::hudItems;
+    style.statuses=cfg::hudStatusBadges;style.illusions=cfg::hudIllusions;style.effects=cfg::showEffects;style.timedOnly=cfg::effectsTimedOnly;
+    // Display-only colour group. Never infer local identity for automation from this.
+    int displayTeam=f.ok?f.localTeam:0;
+    if(!displayTeam&&mem::ValidPtr(game::g_sys.localCtrl)){uint8_t team=0;if(mem::Read(game::g_sys.localCtrl+off::BaseEntity::m_iTeamNum,team)&&(team==2||team==3))displayTeam=team;}
+    bool red=displayTeam?u.team!=displayTeam:u.team==3;
+    style.above=true;if(cfg::hudTop){auto box=compacttop::Place(float(view::W),float(view::H),2,0,cfg::hudTopY);if(box.valid)style.minOverlayY=box.y+box.h+12;}style.hpFont=theme::FontHp();style.pixels=cfg::hudSkillPixels;style.hpX=cfg::nativeHpOffsetX;style.hpY=heroinfo::HpOffset(cfg::nativeHpOffsetY,cfg::nativeHpRedOffsetY,red);
+    heroinfo::Draw(u,ImGui::GetBackgroundDrawList(),theme::FontSmall(),foot,top,view::W,view::H,ImGui::GetTime(),style,g_invisTracker,g_worldLayout,
+        [](const char* category,const char* name)->ImTextureID{return (ImTextureID)(uintptr_t)Texture(category,name);});
 }
 
 static void Drag(float& x,float& y,float w,float h) {
@@ -229,39 +243,33 @@ static void Drag(float& x,float& y,float w,float h) {
     x=Clamp(x,0,std::max(0.f,io.DisplaySize.x-w));y=Clamp(y,0,std::max(0.f,io.DisplaySize.y-h));
 }
 static void Top(const Frame& f,ImDrawList* dl) {
-    if(!cfg::hudTop)return;
-    const float size=Clamp(cfg::hudSkillPixels,28.f,60.f),gap=3.f;
-    for(const auto& u:f.units){
-        if(u.kind!=UnitKind::Hero||u.illusion)continue;
-        topanchor::Anchor anchor;if(!topanchor::Find(u,anchor))continue;
-        // 35 px requested even when native portraits are narrower. Icons use one
-        // column until the confirmed portrait is wide enough for two; never overlap neighbours.
-        const int cols=std::max(1,(int)((anchor.w-4+gap)/(size+gap)));
-        const float w=std::max(anchor.w,size+4),x=anchor.x+(anchor.w-w)*.5f,y=anchor.y+anchor.h+3;
-        const int rows=cfg::hudTopAbilities?(u.abilN+cols-1)/cols:0;
-        const float height=38.f+(rows?rows*(size+10):20.f);
-        Panel(dl,ImVec2(x,y),ImVec2(w,height));char value[32];
-        snprintf(value,sizeof(value),"%d",u.hp);Bar(dl,ImVec2(x+1,y+1),w-2,17,u.maxHp>0?(float)u.hp/u.maxHp:0,u.team==f.localTeam?IM_COL32(67,188,76,255):IM_COL32(229,56,69,255),cfg::hudHpNumber?value:"",14);
-        snprintf(value,sizeof(value),"%d",(int)u.mana);Bar(dl,ImVec2(x+1,y+20),w-2,14,u.maxMana>0?u.mana/u.maxMana:0,IM_COL32(56,112,220,255),cfg::hudManaNumber?value:"",12);
-        if(cfg::hudTopAbilities)for(int i=0;i<u.abilN;++i){
-            const auto& a=u.abil[i];const float span=cols*(size+gap)-gap;
-            Icon(dl,"abilities",a.icon,ImVec2(x+(w-span)*.5f+(i%cols)*(size+gap),y+38+(i/cols)*(size+10)),size,a.level,a.cd,a.cooldownRead,-1,a.maxLevel);
-        }
-        if(!rows){snprintf(value,sizeof(value),"L%d",u.level);Text(dl,ImVec2(x+5,y+39),value,IM_COL32_WHITE,13);}
-        // Aegis has a dedicated row independent of ability mode. Timer sits
-        // below its icon in narrow top cards, avoiding overlap with adjacent heroes.
-        if(u.aegisVisible){
-            ImVec2 p(x+(w-size)*.5f,y+height+4);Icon(dl,"items","aegis",p,size,-1,0,true);
-            char timer[24];AegisTime(u,timer,sizeof(timer));
-            Panel(dl,ImVec2(x,p.y+size+2),ImVec2(w,24));
-            Text(dl,ImVec2(x+w*.5f,p.y+size+6),timer,
-                 u.aegisEstimated?IM_COL32(247,186,96,255):IM_COL32_WHITE,14,true,true);
-        }
-        if(cfg::hudVisibleByEnemy&&u.team==f.localTeam){
-            const int enemy=f.localTeam==2?3:2;
-            const char* flag=!u.teamVisibilityRead||cfg::vbe?"VISION ?":((u.teamVisibilityMask&(1u<<enemy))?"SEEN*":"MASK 0*");
-            Text(dl,ImVec2(x+w*.5f,y-18),flag,IM_COL32(247,186,96,255),12,true);
-        }
+    if(!cfg::hudTop||!f.ok||f.observedOnly)return;
+    g_topRoster.Begin(f.now,f.rules,f.localHandle);
+    for(const auto& u:f.units)if(u.kind==UnitKind::Hero&&!u.illusion&&(u.team==2||u.team==3))g_topRoster.Observe(u.team,u.playerId,u.entityHandle,u.name);
+    for(const auto& e:g_topRoster.Entries()){
+        if(!e.handle)continue;auto box=compacttop::Place(ImGui::GetIO().DisplaySize.x,ImGui::GetIO().DisplaySize.y,e.team,e.slot,cfg::hudTopY);if(!box.valid)continue;
+        const FrameUnit* unit=nullptr;for(const auto& u:f.units)if(u.entityHandle==e.handle&&u.team==e.team&&u.kind==UnitKind::Hero){unit=&u;break;}
+        auto vision=unit?localvisibility::Get(f,*unit):localvisibility::State{};
+        bool current=unit&&vision.known&&vision.visible;
+        float x=box.x,y=box.y,w=box.w,size=box.icon;Panel(dl,{x,y},{w,box.h});
+        std::string portrait=fogmemory::PortraitKey(e.name.c_str());auto* avatar=Texture("heroes",portrait.c_str());
+        if(cfg::hudPortraits&&avatar)dl->AddImage(ImTextureRef((void*)avatar),{x+4,y+4},{x+32,y+32});
+        else Text(dl,{x+5,y+9},"?",IM_COL32(160,170,186,255),14);
+        float barX=x+36,barW=w-40;char hp[24]="?",mana[24]="?";
+        if(current){snprintf(hp,sizeof(hp),"%d",unit->hp);snprintf(mana,sizeof(mana),"%d",int(unit->mana));}
+        Bar(dl,{barX,y+4},barW,15,current&&unit->maxHp>0?float(unit->hp)/unit->maxHp:0,e.team==f.localTeam?IM_COL32(65,174,99,255):IM_COL32(215,71,83,255),cfg::hudHpNumber?hp:"",14);
+        Bar(dl,{barX,y+21},barW,11,current&&unit->maxMana>0?unit->mana/unit->maxMana:0,IM_COL32(61,119,195,255),cfg::hudManaNumber?mana:"",11);
+        if(!current){const char* label=!unit?"NO SNAPSHOT":vision.known?"FOG":"VISION ?";Text(dl,{x+w*.5f,y+53},label,IM_COL32(181,190,205,255),w>130?14:12,true);continue;}
+        if(!unit->alive){Text(dl,{x+w*.5f,y+54},"DEAD",IM_COL32(226,139,143,255),14,true);continue;}
+        int overflowSpells=0,overflowItems=0;
+        if(cfg::hudTopAbilities){int count=std::min(unit->abilN,box.capacity);overflowSpells=std::max(0,unit->abilN-count);
+            for(int i=0;i<count;++i){const auto& a=unit->abil[i];Icon(dl,"abilities",a.icon,{x+4+i*(size+2),y+38},size,a.level,a.cd,a.cooldownRead,-1,a.maxLevel);}}
+        else {char level[16];snprintf(level,sizeof(level),"LV %d",unit->level);Text(dl,{x+5,y+41},level,IM_COL32_WHITE,14);}
+        if(cfg::hudItems&&unit->inventoryRead){int at=0;for(int slot=0;slot<6;++slot)for(int i=0;i<unit->itemN;++i)if(unit->items[i].slot==slot){const auto& item=unit->items[i];if(at<box.capacity)Icon(dl,"items",item.icon,{x+4+at*(size+2),y+size+49},size,-1,item.cd,item.cooldownRead,item.charges>0?item.charges:-1);else ++overflowItems;++at;}}
+        char footer[64]="";
+        if(unit->aegisVisible){char timer[24];AegisTime(*unit,timer,sizeof(timer));snprintf(footer,sizeof(footer),"AEGIS %s",timer);}
+        else if(overflowSpells||overflowItems)snprintf(footer,sizeof(footer),"S+%d  I+%d",overflowSpells,overflowItems);
+        if(footer[0])Text(dl,{x+w*.5f,y+box.h-15},footer,IM_COL32(222,186,117,255),12,true);
     }
 }
 

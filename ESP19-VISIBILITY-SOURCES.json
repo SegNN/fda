@@ -1,0 +1,28 @@
+{
+  "source_dump_1": {
+    "repository": "https://github.com/SegNN/dota2bud",
+    "commit": "5a0549bf00b414f716a760ff00e462e715dccfdb",
+    "local_reviewed_schema": "/data/client-schema.hpp",
+    "C_DOTA_DataNonSpectator.m_bNPCVisibleState": "0xE58 uint64[256]",
+    "C_DOTA_DataRadiant": "inherits C_DOTA_DataNonSpectator",
+    "C_DOTA_DataDire": "inherits C_DOTA_DataNonSpectator",
+    "CGameSceneNode.m_bDormant": "0x113, diagnostics only"
+  },
+  "source_dump_2": {
+    "repository": "https://github.com/ikhsanprasetyo/dota2dumped",
+    "commit": "a2bba3bf95c9c25e5018a481bc88c02155d88a8e",
+    "reviewed_field": "m_bNPCVisibleState = 0xE58 uint64[256]"
+  },
+  "mapping_candidate": "entity full-handle masked index / 64, bit index % 64; bounded 16384 bits; local-team data only",
+  "runtime_guards": [
+    "unique exact team class",
+    "cached full data serial/backlink",
+    "valid own/target full handles",
+    "local controller flag/assigned hero",
+    "self visible bit required",
+    "stable words; repeat identities"
+  ],
+  "fallback": "nonzero raw model visibility mask only; zero mask is unknown, not proof of fog",
+  "live_verified": false,
+  "claims": "Source field agreement and synthetic tests do not prove current-client semantics. No dormancy-as-vision shortcut."
+}

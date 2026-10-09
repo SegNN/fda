@@ -1,0 +1,1666 @@
+[
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Abaddon.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Abaddon.lua",
+    "sha256": "384ad4c5718232cf932337450a237a556d72196abb68cea4f789131f1451ea5a",
+    "bytes": 3729
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "AbyssalHelper.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/AbyssalHelper.lua",
+    "sha256": "977bbc43514d1b39627e4837ec96de4a752ec8b4f81947cc53a77d46edd44b3a",
+    "bytes": 1919
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "AntiMageExtended.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/AntiMageExtended.lua",
+    "sha256": "f4d089530aa6e99bd36099cd0f6507aa8a7b254199fe0ad8778b9a034c7f48bc",
+    "bytes": 4305
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Armlet.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Armlet.lua",
+    "sha256": "b1f98fbe660d8350439fed68c96cc9ad9d2fd1640ffe51133f04b8a385b54038",
+    "bytes": 4491
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "AutoStash.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/AutoStash.lua",
+    "sha256": "c7d50d35b5c63147494becc4fc96ad221765e66fbff804589ce28cd45611d740",
+    "bytes": 4714
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "AutoUseItems.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/AutoUseItems.lua",
+    "sha256": "f807c81382cd89db57746eebc96d0f03ccdeff007ad871867c03135a47ba4e9c",
+    "bytes": 24959
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Axe.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Axe.lua",
+    "sha256": "3a1c25a3cbe60343a560446796f30fa825283deb9a81f514e80229706708212e",
+    "bytes": 5902
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "BountyHunter.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/BountyHunter.lua",
+    "sha256": "92f1502b2f380490bd6ab509bfe03bf8e56c3872a2e846a36f55d71526489153",
+    "bytes": 5285
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Bristleback.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Bristleback.lua",
+    "sha256": "ed868b8c6a5f872ce2018c14532741f6e03c8a974cd380564eae7fbf8754c7d8",
+    "bytes": 2973
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Detect.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Detect.lua",
+    "sha256": "d8fe9b00c6959d6440da877b8562a187e095f22cbb5a18848b40bd634f2aeebb",
+    "bytes": 5650
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Dict.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Dict.lua",
+    "sha256": "8fc6675dbaed09d9304bd8a46f97c31230c251b39d81a314c578b5b635efe899",
+    "bytes": 5477
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Dodge.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Dodge.lua",
+    "sha256": "22ed958367b18ed9fdb322ab6f0b62e0fb1f8ad8c6646b85964a7f7c166fa08d",
+    "bytes": 32648
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "DragonKnight.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/DragonKnight.lua",
+    "sha256": "a1e4686ded7d59ce498e232f59dc896659a69b57f948b4b79287b2d90dca65f7",
+    "bytes": 4385
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Draw.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Draw.lua",
+    "sha256": "e22beabbc001d0f9a92fa6392eaa8f65b5f9b2bc5a7d339094b3c994d6d4189b",
+    "bytes": 2559
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "EarthSpirit.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/EarthSpirit.lua",
+    "sha256": "1d98b59239f5b1207918ed3a5a31efdb2e4a98e3859e31dd9399720ee93ce88e",
+    "bytes": 5097
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "EconPanel.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/EconPanel.lua",
+    "sha256": "23f972d062237edf88b29947f9526bfdd0fe99c42baed03091ae2334c6e13b29",
+    "bytes": 14849
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Ember.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Ember.lua",
+    "sha256": "a088022c86fbae9477b2a7de7684d77383cc8a0d2decd8e89703b9fc38173381",
+    "bytes": 3624
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Enigma.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Enigma.lua",
+    "sha256": "f53a23db33acddc9df033d17830724045a80959b88db5cd40b82dd35156b7ff6",
+    "bytes": 1134
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "ForceStaff.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/ForceStaff.lua",
+    "sha256": "6c21b60c8c0aaf1619fe9410e321c7ef9e646185c908e7e96eafe1194548d231",
+    "bytes": 1246
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Invoker.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Invoker.lua",
+    "sha256": "8e65cdb57c55b0fd6e54e8583917a2113a0fbd666f120472902aad717fb2e6c8",
+    "bytes": 35515
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "ItemCooldown.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/ItemCooldown.lua",
+    "sha256": "3899d7215b6d45c3334efac1fbf1b896cd57f6b6bfbd7904bc3003a75dcab108",
+    "bytes": 5268
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "LastHit.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/LastHit.lua",
+    "sha256": "ae9047dab78d99d049fd63c7f500ff1764439d6c69673e42c7073fe85eb162a0",
+    "bytes": 2451
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Legion.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Legion.lua",
+    "sha256": "489f2cd2f82680063968373ba3689c901d5e1bc2a4659a02d25275d1dce9bb73",
+    "bytes": 3524
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "License.txt",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/License.txt",
+    "sha256": "2bc1ac2789c34f0185c98b86ac7a5ecfe76333b81bdef85b8be601b4fabc30e4",
+    "bytes": 1063
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Lina.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Lina.lua",
+    "sha256": "56090a75b4af8dce683f9a2cdf73a239e40aef1847ca7548e0919454684b69c5",
+    "bytes": 7883
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Lion.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Lion.lua",
+    "sha256": "5a3700a74f2c45e9e30d2af0c66cd7b8160f99ed48074e93bddb7ae7ec3bec2f",
+    "bytes": 15498
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Magnus.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Magnus.lua",
+    "sha256": "d87d12a3980018aea873cc9e0a242049269bdf66c941dcc66459a42995d455c1",
+    "bytes": 7740
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Map.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Map.lua",
+    "sha256": "5e81e65734c422e504f4886c47a404b97d0e3db5f341f58aff282d78605ddd7a",
+    "bytes": 2295
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Morphling.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Morphling.lua",
+    "sha256": "1d625a2e1a73231cb5e9495804c88d415cdccdf1dac3f7cff85995f3ca85c10d",
+    "bytes": 6466
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Notification.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Notification.lua",
+    "sha256": "4af2f24a6a3fa1daa3dc3fc3884f059313092aadc258251a0b5206ed00ecf1b2",
+    "bytes": 1724
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Nyx.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Nyx.lua",
+    "sha256": "ccdf95a3c3912de6b96b7641027077d402fd259cfb1252b8f330b1433e940ebb",
+    "bytes": 1165
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Omniknight.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Omniknight.lua",
+    "sha256": "581d30a2d8d892b6c5181891edfc145c7ed1e5a07a273f2e796140a01e337069",
+    "bytes": 2717
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "OutworldDevourer.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/OutworldDevourer.lua",
+    "sha256": "94f4d9468ae9d01eede2d4c5c9fe0023eb167828d5bf8a74c76a9f37bd68de8c",
+    "bytes": 7845
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Phoenix.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Phoenix.lua",
+    "sha256": "10690ca87c4ab583bab7fa0e19083e34b6e3a6a6d45b6c86150c0e6898c872f7",
+    "bytes": 5439
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Puck.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Puck.lua",
+    "sha256": "2f1ec0c98ccff49589bc5c90e5c592171ea46d89f72459c11049f80643a6761d",
+    "bytes": 5510
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "README.md",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/README.md",
+    "sha256": "a0e526ac59f3233cb21157bc157a9b8b2112e6652e7994e112bc864ed5c3de5b",
+    "bytes": 851
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Rubick.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Rubick.lua",
+    "sha256": "593ffd04101d219e14790cff5f1b8f14f0f3a461a2cf4def66537cefe240d28c",
+    "bytes": 19494
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "ShadowFiend.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/ShadowFiend.lua",
+    "sha256": "0b95d5eb737ec85f033ff2bf70aed5c2b700d06e1f21860e64d5c478517d9a38",
+    "bytes": 4080
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Spectre.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Spectre.lua",
+    "sha256": "b2dc5799c295839b89d12368882ad72d7d7e66483b161a6d999058980671cb59",
+    "bytes": 1561
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Storm.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Storm.lua",
+    "sha256": "3a53a67794e481e0b33fc9a9a79acfde25cba6522ab1dfc86b36dfb3fddfb024",
+    "bytes": 3931
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Tinker.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Tinker.lua",
+    "sha256": "5b72d3698e6c32a185f45a66172cc62795c940ac69bb9c0385d966b14e7d1bc9",
+    "bytes": 10741
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "TranquilBoots.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/TranquilBoots.lua",
+    "sha256": "5c5bc8008c134c4dbd830205191d6774573878a973bce4743b0c35a5d3d7e818",
+    "bytes": 2634
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Troll.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Troll.lua",
+    "sha256": "bbf1fea0fe6c05df6b91c877071c67259d64842034dcfe5f9f09c588bdea99de",
+    "bytes": 3319
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Utility.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Utility.lua",
+    "sha256": "743ee1f7e0e48f6f0ce9a5d3b7a5f8827c962f3931036785a43779588e21cf0c",
+    "bytes": 25173
+  },
+  {
+    "repo": "Eroica-cpp/dota2scripts",
+    "commit": "e00695943eaf866181a6dbd8279bd0ade0b59ddb",
+    "path": "Void.lua",
+    "url": "https://raw.githubusercontent.com/Eroica-cpp/dota2scripts/e00695943eaf866181a6dbd8279bd0ade0b59ddb/Void.lua",
+    "sha256": "6a3df92e7b0532861c96cbbb6e5f6baf07acdcb59c63201eb7af65f9cf1a1f53",
+    "bytes": 3907
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "LICENSE",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/LICENSE",
+    "sha256": "d1cfca3c5d304538e8345a1c3b3e43a99e1dd8e9e085bf99558c3e0eec4d23bd",
+    "bytes": 1068
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "README.md",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/README.md",
+    "sha256": "a8432e720f84fbbb9907c9c2eb54b509fdc6bd77c5c85c6d77e522b1f00b603c",
+    "bytes": 9812
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_abaddon.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_abaddon.lua",
+    "sha256": "e290288c7103780c5cc7437ff2d9fe3d96ffb0e50c068845e342be5e43df5b39",
+    "bytes": 17058
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_abyssal_underlord.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_abyssal_underlord.lua",
+    "sha256": "27c6f469ae52f2258a118985eccb39b385f8ca367fba9a6ffa2be9bca0f94237",
+    "bytes": 18649
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_alchemist.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_alchemist.lua",
+    "sha256": "64b7c5b4f22f729a12a716a36b6b0df68ed8ddd5d60e28d2a8a1f95c92c46b5e",
+    "bytes": 20637
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_ancient_apparition.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_ancient_apparition.lua",
+    "sha256": "fb4cd9f5a65cd1c243e76f43a061cd1917ae742429664eb6d50016df3c30b306",
+    "bytes": 20837
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_antimage.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_antimage.lua",
+    "sha256": "6ce0b58977d477c17a990364ce44e3c0b42582347f83ee00e3bf5af8c4666a4b",
+    "bytes": 20505
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_arc_warden.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_arc_warden.lua",
+    "sha256": "cbe2267479335b868432906a928d94276c1a31497c729815cd9257d07a40e42c",
+    "bytes": 27075
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_axe.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_axe.lua",
+    "sha256": "83e26d933bf490d2e157501d0540202ca17d978b1ad9d9c5361b829bb0a4c0e7",
+    "bytes": 15426
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_bane.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_bane.lua",
+    "sha256": "d31d519443d54dc406e041a143829dfec6aa36b01007815172339a874e1ad37d",
+    "bytes": 21685
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_batrider.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_batrider.lua",
+    "sha256": "0096db68ab4d2fe508f5c89a0bafa149f8f2ae2bc9362ce8e4d2169976221c5f",
+    "bytes": 24783
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_beastmaster.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_beastmaster.lua",
+    "sha256": "b5bc4dc24ad7a9e465a15ba1d93dbf6159723c37bdecdd05819127844d803261",
+    "bytes": 30071
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_bloodseeker.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_bloodseeker.lua",
+    "sha256": "49d28d90b719951963ea3202130aa59a5b05ef8d3c3d9af87be8365fc190f673",
+    "bytes": 13427
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_bounty_hunter.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_bounty_hunter.lua",
+    "sha256": "a94407f34ebf2795a5985ca74aeb587d6c9dec05f3f555d6fb4629465ab2a2ac",
+    "bytes": 18456
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_brewmaster.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_brewmaster.lua",
+    "sha256": "390e0c048ff73b8ddf2e1a689fcc70bee58c61945cd3706af7ba4d559c244cd8",
+    "bytes": 19992
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_bristleback.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_bristleback.lua",
+    "sha256": "f62fcd0d03939224ee1b0dee4d01e94e62527651bcd85fb0f599ce032043a3be",
+    "bytes": 18268
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_broodmother.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_broodmother.lua",
+    "sha256": "91426db7312333e4920dcc652aec5d1207697dd3a472ae7c14886d29566fd08d",
+    "bytes": 19370
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_centaur.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_centaur.lua",
+    "sha256": "cf9745df28da99cfa064bf53c18ce8bdd8eddb2fdbb6488ef271e55912a228df",
+    "bytes": 18601
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_chaos_knight.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_chaos_knight.lua",
+    "sha256": "6ef57e072f93eac835435dfa47d4e0067bb19b9e92117d83e6e42680a7a76b8a",
+    "bytes": 13493
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_chen.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_chen.lua",
+    "sha256": "269640155a58c1894d7ca92c04ef11f0bfc4058efd7c1a28657b01a78b6897e3",
+    "bytes": 18708
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_clinkz.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_clinkz.lua",
+    "sha256": "5d87430c3ba3e738cc02c2acdaa52ee49d0b28abce96d31d2dd8696d8f515be6",
+    "bytes": 31008
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_crystal_maiden.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_crystal_maiden.lua",
+    "sha256": "addb9de853a041ed65494a2589192a1ef2f64852e31b04323f5c9c4b003c34bf",
+    "bytes": 29856
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_dark_seer.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_dark_seer.lua",
+    "sha256": "c25fe7c41e29f5fcf6f8b81e34e402899e331a1ec231fa2696ec93a6cc335f99",
+    "bytes": 21794
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_dark_willow.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_dark_willow.lua",
+    "sha256": "06af1039f3d0121fd900124555b0f018adcffacf6acd317f80ca3cd4f47716db",
+    "bytes": 16741
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_dawnbreaker.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_dawnbreaker.lua",
+    "sha256": "8d5f100a4ea4ae60f59f18e6aa26c35a31df96e6cffdf067eed4193375680c49",
+    "bytes": 21049
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_dazzle.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_dazzle.lua",
+    "sha256": "540675a342da08a7b1f0e915c62d7f5ee1949766cf2b9f5ced84216313fd24fc",
+    "bytes": 25845
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_death_prophet.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_death_prophet.lua",
+    "sha256": "3b825a31f4d299ca2dbdc328f060fa84cd654e2c8284800be721e29fffdddba6",
+    "bytes": 18056
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_disruptor.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_disruptor.lua",
+    "sha256": "65b00a97f88ef8efabc8842400ba2b86d63edcd9efc98f641c4e4b2a02e10a5c",
+    "bytes": 28474
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_doom_bringer.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_doom_bringer.lua",
+    "sha256": "000f0ce8f2fe967529b88aa42bfd68fb0bc10794e1e1e62894962aadd7d18d95",
+    "bytes": 43417
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_dragon_knight.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_dragon_knight.lua",
+    "sha256": "278596a1d13622d1ca4cc49e0d8b9fd082a3d26e66aa2f50675309d0f3479587",
+    "bytes": 26488
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_drow_ranger.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_drow_ranger.lua",
+    "sha256": "b046d5340310647141d540f094d5bbb98a7b35fe48a5167771fc9064b709a4b5",
+    "bytes": 21512
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_earth_spirit.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_earth_spirit.lua",
+    "sha256": "d2f22f13ab1b739a37a2ba2f5f93b6a081321f396bf2791a8b8bcd3d0765d509",
+    "bytes": 22185
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_earthshaker.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_earthshaker.lua",
+    "sha256": "5dc69801a37461facb359fd1ec337514d0066da030792e83e91574040f1c4858",
+    "bytes": 25963
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_elder_titan.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_elder_titan.lua",
+    "sha256": "245ada83cb93ced2adaa42dc62b06122a239ec0c177dbd7c224ff445143f53fb",
+    "bytes": 13402
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_ember_spirit.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_ember_spirit.lua",
+    "sha256": "cd1fe52a528e2a596829b7ee10470dbfbf569651a816ac06c2e31c38c8186d25",
+    "bytes": 21242
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_enchantress.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_enchantress.lua",
+    "sha256": "490abb873682850e38f48f93f0af7b6c907944b6418b6df94d0eff731bf8d911",
+    "bytes": 16873
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_enigma.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_enigma.lua",
+    "sha256": "97a7ad27e428d982751c7e2d166d93a206adf415dd2754b43e060a4d8db7e16e",
+    "bytes": 29121
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_faceless_void.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_faceless_void.lua",
+    "sha256": "311c2e10d8617eaddde477236b88e5d5c95e3742fc062401a44549ecae58e5ce",
+    "bytes": 19504
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_furion.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_furion.lua",
+    "sha256": "a80079a6fc522440a05f1a2eb87a3e7973a34a8fc4e516408fdcdc88ff7ea1c5",
+    "bytes": 23603
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_grimstroke.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_grimstroke.lua",
+    "sha256": "3e30c12024417786c73434ff3275d22c8790030bb6a9fc34f8df9e4ffb6a2bea",
+    "bytes": 25444
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_gyrocopter.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_gyrocopter.lua",
+    "sha256": "78633e8ec493fc43cf9ebfbeb8d3b85f1c52c5e099d990a39170e955f0344785",
+    "bytes": 16162
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_hoodwink.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_hoodwink.lua",
+    "sha256": "d05b75a022721f31abef4b27ec15b6b1b64a0358e8a125d7dd068ef3862888cb",
+    "bytes": 21056
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_huskar.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_huskar.lua",
+    "sha256": "a91976d0429e9c0c229187ea32a53ad50509dc1304aa99cb6fc288fbb657bf8e",
+    "bytes": 18037
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_invoker.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_invoker.lua",
+    "sha256": "f7064274c2a8bd7afba5e4a3c62e1715506068610f2cb780c7627cfaba880697",
+    "bytes": 77317
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_jakiro.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_jakiro.lua",
+    "sha256": "7387e932123409649ae621567f6657523ad912eb76c17279a9ad259094fefbc8",
+    "bytes": 21019
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_juggernaut.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_juggernaut.lua",
+    "sha256": "d7440a8da4ffb1e712a625e85d8f2ab4a019de952b0b4de8698b8cde5fe5ac08",
+    "bytes": 14984
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_keeper_of_the_light.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_keeper_of_the_light.lua",
+    "sha256": "e00aed2079f134d5e7802d20dcda5e192c1b4f70136ee57fd01ba768ef694aa5",
+    "bytes": 27350
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_kez.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_kez.lua",
+    "sha256": "1d60e991da03da684e8606cbb80f927f9536154cb5a7aa3ee219917801d6ab71",
+    "bytes": 34499
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_kunkka.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_kunkka.lua",
+    "sha256": "ab3f21774014e4518fbd7e68743ab9ab54218f013f3bc6ccf8b96a3648b0b84f",
+    "bytes": 19956
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_largo.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_largo.lua",
+    "sha256": "2926c579600e5e13e6f38a2c359c1c68dd1b951bc92473a15cab323ae6da7889",
+    "bytes": 28870
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_legion_commander.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_legion_commander.lua",
+    "sha256": "81cb0857d2f63e5124ae2ee2718971fdd95f5babaf9b1fd761544119c612c178",
+    "bytes": 16197
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_leshrac.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_leshrac.lua",
+    "sha256": "dd5491286274b88514264aa3b505513aa6a5a396ffc6866d447a557998407fde",
+    "bytes": 32889
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_lich.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_lich.lua",
+    "sha256": "118f3b1d6827e8709478b8ef7570d704a74c25fad9314c459b7a35d8f33996e9",
+    "bytes": 29385
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_life_stealer.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_life_stealer.lua",
+    "sha256": "2a8a217d4b57b143a05d10af8a510fe445fc80ed4b731f6d4cf9f56b0a30938f",
+    "bytes": 21775
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_lina.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_lina.lua",
+    "sha256": "efed31cbd5bd8fb32c9272c63407e07ff43c77136616bbcfdc598ddf638ebded",
+    "bytes": 22754
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_lion.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_lion.lua",
+    "sha256": "ebf32325275dc159922c005c82cfa0f7acf920a6a49246151d961dc7903fba92",
+    "bytes": 28187
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_lone_druid.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_lone_druid.lua",
+    "sha256": "d75a9785dd6d6ea981496e81b9f34a4dd9c8a5291ca6f5fc48690e1e6f7d1e74",
+    "bytes": 8587
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_lone_druid_bear.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_lone_druid_bear.lua",
+    "sha256": "dc74639ff121c7c3cc8c7d4a3273cc12bd022b08552719f1b85b7e1ccbf466e4",
+    "bytes": 5569
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_luna.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_luna.lua",
+    "sha256": "e01b7e1fb057f906acff0106d08a11ccd8cdb8b2b8240dde441f6baa773dff20",
+    "bytes": 17141
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_lycan.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_lycan.lua",
+    "sha256": "4fb0c3e8eeb22945bdfd64376a691a1727590d6b70c442b940cabc93c3a495dd",
+    "bytes": 11834
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_magnataur.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_magnataur.lua",
+    "sha256": "e072377bacc356a50a0d1cd3f2a3e9a19f20afa711d44413a14df08509368837",
+    "bytes": 32198
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_marci.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_marci.lua",
+    "sha256": "8a75f4d1860389ad6254e433b9ab925d5f60b34b3865da05ec5f30469d8bf2aa",
+    "bytes": 20852
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_mars.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_mars.lua",
+    "sha256": "520bf6de3de41a275d62c407bf56c71df3d1db3bdd27bc49f1fb783cdd262610",
+    "bytes": 24680
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_medusa.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_medusa.lua",
+    "sha256": "e40512315d36ee7bbe494330a69d33328f672f8cd6f5c6640e67420c4c588551",
+    "bytes": 18983
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_meepo.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_meepo.lua",
+    "sha256": "c47e8e017173ba8395d047ec155a833dd92d84e52ee1d8e9a150ca26f0b101a0",
+    "bytes": 25248
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_mirana.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_mirana.lua",
+    "sha256": "507c5d292b39aa6844270fb524e786ebd2936d93b94e1d172bbd3c0d96fbf995",
+    "bytes": 18823
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_monkey_king.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_monkey_king.lua",
+    "sha256": "06916e5c48ca665408e2779be34c437882889f259c6213a0c47b65cfb17dcb41",
+    "bytes": 25850
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_morphling.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_morphling.lua",
+    "sha256": "5f8be22654a74f2e6b768fa18cfa3aa833204637a9a56425a0ffdf851ca586eb",
+    "bytes": 38747
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_muerta.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_muerta.lua",
+    "sha256": "d77fa3c384c6c7f6949c4e883e91c5fd30f1898e01ecd7b1f4dfca96f1f14082",
+    "bytes": 17676
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_naga_siren.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_naga_siren.lua",
+    "sha256": "f3376bd10d19082a33bdf02be1692e4707e63a78e9dca0d8c6a3a9220c6879fa",
+    "bytes": 16519
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_necrolyte.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_necrolyte.lua",
+    "sha256": "55b5cf86628347b666e394ff113c6ea3cda7272cdeaf1acb44786df1a49318ff",
+    "bytes": 18331
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_nevermore.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_nevermore.lua",
+    "sha256": "7f682866f86b1d98f76ef30e8fab7359c3b97ed72dc972fc8dca3f774a2d93a7",
+    "bytes": 16537
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_night_stalker.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_night_stalker.lua",
+    "sha256": "856dd7563f6c43f32e480e6dac22a13dcefc612baa46b2b1b771b06350c4361c",
+    "bytes": 18176
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_nyx_assassin.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_nyx_assassin.lua",
+    "sha256": "fa5c1b80a1b3565f8bed35d05cf593746ba8a984aac8117a11b81bb863681a6c",
+    "bytes": 18339
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_obsidian_destroyer.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_obsidian_destroyer.lua",
+    "sha256": "5ebd24eef9d3c12245ad57a87f03eb9205eebaa7d1beaa1def0da57069fad0e6",
+    "bytes": 19914
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_ogre_magi.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_ogre_magi.lua",
+    "sha256": "b10b70bd97ae09c259dbbc2b3279e7414c308d5ee87ea78daacce313a71c9b2f",
+    "bytes": 31537
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_omniknight.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_omniknight.lua",
+    "sha256": "71e17bea1ad01c9ae2d90c1190395905bf8afa116a37a8fd92f12e3c139d9ce5",
+    "bytes": 26386
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_oracle.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_oracle.lua",
+    "sha256": "71fd3aaa4ae1b56a79d33f2303c79194147f0fff9bcf268ff013d8b4c5e1199a",
+    "bytes": 15317
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_pangolier.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_pangolier.lua",
+    "sha256": "d1497064d860fbfc0aa054ac34814bd282843ca3ff7de4e856fcf1f94f05f59b",
+    "bytes": 27101
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_phantom_assassin.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_phantom_assassin.lua",
+    "sha256": "7ad12224cd26dbce9317f173485936ad1109e87fc6c517182e04c5945c5bf22d",
+    "bytes": 22358
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_phantom_lancer.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_phantom_lancer.lua",
+    "sha256": "bd734e970b192ac91e24c0e4e8c9b0f3abcc99a6fa2b324129f0a3f8fb3d4cc1",
+    "bytes": 15861
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_phoenix.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_phoenix.lua",
+    "sha256": "093a390e843bc831f8407ed3886e4f046db64736f3352beafd8dd988fc86be0c",
+    "bytes": 31587
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_primal_beast.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_primal_beast.lua",
+    "sha256": "b57ce25b74d896bb5c40ea23c0feaf000c17121e44ca60108f0fdd8880305ca4",
+    "bytes": 21094
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_puck.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_puck.lua",
+    "sha256": "9fed0d62c602604f007838800c09e12c98fdf1056db0dfb9be66103b797f3a7f",
+    "bytes": 27566
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_pudge.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_pudge.lua",
+    "sha256": "ab5f3ca2d6f52f5a1d06f76c0d67375aceaf51c533c20543671f29302f18287d",
+    "bytes": 30226
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_pugna.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_pugna.lua",
+    "sha256": "88eee0953fc2634501a9acc93b8f1d2a99f8da0db7001525a8c44a8b15beaa3f",
+    "bytes": 21397
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_queenofpain.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_queenofpain.lua",
+    "sha256": "80b213c4279d831100906320eca4d9088d1758864ccb9c6dd903bd8f24992157",
+    "bytes": 22442
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_rattletrap.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_rattletrap.lua",
+    "sha256": "f42fdf9849006557ff164a4b617284f018586843b1d03b80073ef9c85bbb5e22",
+    "bytes": 23012
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_razor.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_razor.lua",
+    "sha256": "720ba4ca5943a4c959b3c58b799c3cc3e52d3ef8ba88060b7af5fc6620742c1f",
+    "bytes": 15297
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_riki.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_riki.lua",
+    "sha256": "1be8a8fa0c11021114fba032bbffc2173217b8552ca7ce8592364191b3dbbf43",
+    "bytes": 21116
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_ringmaster.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_ringmaster.lua",
+    "sha256": "011c28a92a8f092ada8de859c75365c92381823983c0e3b992972004afa9dd72",
+    "bytes": 39727
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_rubick.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_rubick.lua",
+    "sha256": "e077662907fcb02b2f84f0aa8f56ddd0e2cdc56e117d2234474b7b9e2f818fb0",
+    "bytes": 27129
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_sand_king.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_sand_king.lua",
+    "sha256": "cecf5bee2a365b410369880b4e0d997ad4b965703d4a66adcc755c13b81dd894",
+    "bytes": 21841
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_shadow_demon.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_shadow_demon.lua",
+    "sha256": "74bd34048abafd138aa2e6b840a98acaf9bb4867fd4885b7324da5189cbacd66",
+    "bytes": 24108
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_shadow_shaman.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_shadow_shaman.lua",
+    "sha256": "93982bf23921dee764cea2f5cfbbaafce68e83ca7bb8ec2fbf9405eaea181857",
+    "bytes": 22203
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_shredder.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_shredder.lua",
+    "sha256": "5ff7ce534a60fe70dc99aab0fa670bdd4316687755e55c2ca2ad2b9cec6506f9",
+    "bytes": 31647
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_silencer.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_silencer.lua",
+    "sha256": "05d3b78c19951b7d0e9e5f9286e57a5df0555350641202caf9f2a68f697e0da9",
+    "bytes": 29320
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_skeleton_king.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_skeleton_king.lua",
+    "sha256": "46dc346d774420826aba6654085cf2215e6cfe7edfab70f32c6d0055aca8c3d5",
+    "bytes": 13327
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_skywrath_mage.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_skywrath_mage.lua",
+    "sha256": "7a581f1fedca57b0ca29b783b2e06f03c451bc264e535ab36ad8bebd6f6ce7e9",
+    "bytes": 18408
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_slardar.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_slardar.lua",
+    "sha256": "d7549a7b59eeba9859106d32e62f328530a7a3c3079d86de4cd7240533f4ded5",
+    "bytes": 13857
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_slark.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_slark.lua",
+    "sha256": "e082ba605e8b2693e125e23fcfb1b39c5f2028fbc5a4831f415a05a03d7df29b",
+    "bytes": 16926
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_snapfire.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_snapfire.lua",
+    "sha256": "1871b60dcb2b5ed5aa5bf85c5431a7b60cfd20a59e35b638dada91f0ada9a66e",
+    "bytes": 27612
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_sniper.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_sniper.lua",
+    "sha256": "be03d2ad159b009452d3c167270e603c601f63a18317249eea58bf3056c2b56e",
+    "bytes": 19976
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_spectre.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_spectre.lua",
+    "sha256": "a25d9d46eee13bbebfeba24b71a41fab95b486c2864d9406daa78194c56cc50b",
+    "bytes": 22857
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_spirit_breaker.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_spirit_breaker.lua",
+    "sha256": "d34325f7aa2a0cd19c8fe5ccfc2457bc41317f16e5db3f915d8fe707938790e9",
+    "bytes": 17399
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_storm_spirit.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_storm_spirit.lua",
+    "sha256": "523b003d667a15807e85b38d85ffd4f1e378bf56b2f8ca96aa5f9bef769838d6",
+    "bytes": 16174
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_sven.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_sven.lua",
+    "sha256": "9fe864d2bc4fbf0d4c671854612f0a80105f3283c59a447b614824df78b5321c",
+    "bytes": 16793
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_techies.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_techies.lua",
+    "sha256": "4da743b31e01d15631722011470e8288c02838ec40609eadeca1f0b05d510980",
+    "bytes": 36483
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_templar_assassin.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_templar_assassin.lua",
+    "sha256": "8020e75e08646408a430f4e3719cf1b8a3c3eeb12f08bc720443e5fdf8a00a75",
+    "bytes": 21661
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_terrorblade.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_terrorblade.lua",
+    "sha256": "aae8e52ef95a9d5f9063de24bb14df442acbbc9e21d576dd16d58ddf77d82b90",
+    "bytes": 13197
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_tidehunter.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_tidehunter.lua",
+    "sha256": "fca40b694e35ff1f27f684acfae743974c4fa6fdeccd3c3834536f9fe4706dd1",
+    "bytes": 22161
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_tinker.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_tinker.lua",
+    "sha256": "6bcda8c1080787f76e76c38e1ce783d7c1e859751a7cea098b88b5ab3bed1990",
+    "bytes": 50663
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_tiny.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_tiny.lua",
+    "sha256": "15dc51bf7502fcee3fa8014a4b505d5f26204f53919646de7f917954e91bd34e",
+    "bytes": 23198
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_treant.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_treant.lua",
+    "sha256": "ee76f2cb2a1da3f221f3d3a457dcc424a19fdee14a9752413dce266ae5205dec",
+    "bytes": 20606
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_troll_warlord.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_troll_warlord.lua",
+    "sha256": "1c2b4d1834596cbea329d5b4550abf0e24942b07623bfb87c5f3f240da8307d2",
+    "bytes": 26639
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_tusk.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_tusk.lua",
+    "sha256": "774e9397d230cdf478a6ea3f1f7bd3367b06569844fbe4bcaf3e0b615c7e5a8b",
+    "bytes": 23670
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_undying.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_undying.lua",
+    "sha256": "8ac70c5ba0873fcc77ad265e1553a438df7e1811b2b450c0c7e98af35fc72ef1",
+    "bytes": 17994
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_ursa.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_ursa.lua",
+    "sha256": "748c452788178ebacbd47bf08676a6e10c6e77c731a24064bed6311c23f1ea8e",
+    "bytes": 10907
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_vengefulspirit.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_vengefulspirit.lua",
+    "sha256": "a8b0ab0be52b3ad04dc0857de6888b5c44f3220a2e152eff193f95cc3471a4a7",
+    "bytes": 20403
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_venomancer.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_venomancer.lua",
+    "sha256": "f7c8d477b2b94a095009e9e2d795344cd0a2567a2693337aa7588afd007436d8",
+    "bytes": 20080
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_viper.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_viper.lua",
+    "sha256": "68a2b54bf81bb45723e5a1c66dfdd246b080ecdbef5b0dc37713107fb8fd3723",
+    "bytes": 23564
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_visage.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_visage.lua",
+    "sha256": "49941547dbbf5567ff25147eba81c079c43fb59846d8a966449a9ce00611d022",
+    "bytes": 15306
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_void_spirit.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_void_spirit.lua",
+    "sha256": "8ec06fcbacf2db8c2e7694c496d4229432cf72e9085101bcf6731cf623a7a0f9",
+    "bytes": 17715
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_warlock.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_warlock.lua",
+    "sha256": "7e9372ac149b5972ff126b3aa4ebe7571e36a1420596d5d5a1c428083791c216",
+    "bytes": 15890
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_weaver.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_weaver.lua",
+    "sha256": "76a9b1507b800c2fee986a5b2aa956bd03f665258b3f530c0897d1cfb460ce37",
+    "bytes": 17205
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_windrunner.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_windrunner.lua",
+    "sha256": "141758c25793982fd10a32779d516f2e0fad6722d1918a260b43799eeea33b12",
+    "bytes": 29053
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_winter_wyvern.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_winter_wyvern.lua",
+    "sha256": "2f2177955a84936135d2125a76e769b9028dab0c9742015d7bee09b51db03229",
+    "bytes": 32487
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_wisp.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_wisp.lua",
+    "sha256": "cf520341eb5b585d6bc0e415a5963675c26847bc07bbf484b2a2600ab3cbcf7f",
+    "bytes": 8286
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_witch_doctor.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_witch_doctor.lua",
+    "sha256": "275391dee389c5865cca4ce6b12c8329b36e97e6e38910ae44982ed67090de48",
+    "bytes": 21658
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/BotLib/hero_zuus.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/BotLib/hero_zuus.lua",
+    "sha256": "812785411503f4c3c63d6fa32ad0fc1806d0f8ed04f1ec58c2e3ac11aa3618b4",
+    "bytes": 19556
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/FunLib/jmz_func.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/FunLib/jmz_func.lua",
+    "sha256": "e22a47c7a87727524a02cd8206300c791b356e2dd8067aae308ddedfe106dcbd",
+    "bytes": 174167
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/hero_selection.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/hero_selection.lua",
+    "sha256": "9981a4dffcea66eef02e1559a15b5a16de08bee9a91661f267003583de496833",
+    "bytes": 40679
+  },
+  {
+    "repo": "zfael/dota2-scripts",
+    "commit": "0c35ea8620c8f5979336bd278f2f95b0e776a70b",
+    "path": "LICENSE",
+    "url": "https://raw.githubusercontent.com/zfael/dota2-scripts/0c35ea8620c8f5979336bd278f2f95b0e776a70b/LICENSE",
+    "sha256": "8bcdafd50d004be9df72408b1b83a860bb960278ab49ab24248eb56fbb8e913b",
+    "bytes": 1062
+  },
+  {
+    "repo": "zfael/dota2-scripts",
+    "commit": "0c35ea8620c8f5979336bd278f2f95b0e776a70b",
+    "path": "README.md",
+    "url": "https://raw.githubusercontent.com/zfael/dota2-scripts/0c35ea8620c8f5979336bd278f2f95b0e776a70b/README.md",
+    "sha256": "574b6b357637fd8c4671461f691464280f334cf1a45646b75168cabc58366c16",
+    "bytes": 5379
+  },
+  {
+    "repo": "zfael/dota2-scripts",
+    "commit": "0c35ea8620c8f5979336bd278f2f95b0e776a70b",
+    "path": "src/actions/armlet.rs",
+    "url": "https://raw.githubusercontent.com/zfael/dota2-scripts/0c35ea8620c8f5979336bd278f2f95b0e776a70b/src/actions/armlet.rs",
+    "sha256": "e4bb7fbbc0e0d864749127deeb8b33619321fd37116e06b3af5cd619452a5bd7",
+    "bytes": 58275
+  },
+  {
+    "repo": "zfael/dota2-scripts",
+    "commit": "0c35ea8620c8f5979336bd278f2f95b0e776a70b",
+    "path": "src/actions/heroes/broodmother.rs",
+    "url": "https://raw.githubusercontent.com/zfael/dota2-scripts/0c35ea8620c8f5979336bd278f2f95b0e776a70b/src/actions/heroes/broodmother.rs",
+    "sha256": "d8bcc8585055e0f0b2ee619cfc42a4d91b62d0cc3c1dce481eb0cb47ac66e363",
+    "bytes": 4187
+  },
+  {
+    "repo": "zfael/dota2-scripts",
+    "commit": "0c35ea8620c8f5979336bd278f2f95b0e776a70b",
+    "path": "src/actions/heroes/earth_spirit.rs",
+    "url": "https://raw.githubusercontent.com/zfael/dota2-scripts/0c35ea8620c8f5979336bd278f2f95b0e776a70b/src/actions/heroes/earth_spirit.rs",
+    "sha256": "ddfc19dc427547eea052d8709453c50bc51e28d03c04a134a584ccbd57fc2622",
+    "bytes": 36428
+  },
+  {
+    "repo": "zfael/dota2-scripts",
+    "commit": "0c35ea8620c8f5979336bd278f2f95b0e776a70b",
+    "path": "src/actions/heroes/ember_spirit.rs",
+    "url": "https://raw.githubusercontent.com/zfael/dota2-scripts/0c35ea8620c8f5979336bd278f2f95b0e776a70b/src/actions/heroes/ember_spirit.rs",
+    "sha256": "ee2f8b24fab3cede3f737dd7b733ffcb95e4c896ac6d90acc97ee2e7aa8e5b36",
+    "bytes": 21168
+  },
+  {
+    "repo": "zfael/dota2-scripts",
+    "commit": "0c35ea8620c8f5979336bd278f2f95b0e776a70b",
+    "path": "src/actions/heroes/huskar.rs",
+    "url": "https://raw.githubusercontent.com/zfael/dota2-scripts/0c35ea8620c8f5979336bd278f2f95b0e776a70b/src/actions/heroes/huskar.rs",
+    "sha256": "9a2555ba732abc9f0219fe0c798ad4a53f777ae7c994b8a6a5096465e448b606",
+    "bytes": 22857
+  },
+  {
+    "repo": "zfael/dota2-scripts",
+    "commit": "0c35ea8620c8f5979336bd278f2f95b0e776a70b",
+    "path": "src/actions/heroes/invoker.rs",
+    "url": "https://raw.githubusercontent.com/zfael/dota2-scripts/0c35ea8620c8f5979336bd278f2f95b0e776a70b/src/actions/heroes/invoker.rs",
+    "sha256": "49667289f015d4fb17378bdf3d08b1668b2577079d3c40d3e403cc135146320c",
+    "bytes": 76615
+  },
+  {
+    "repo": "zfael/dota2-scripts",
+    "commit": "0c35ea8620c8f5979336bd278f2f95b0e776a70b",
+    "path": "src/actions/heroes/largo.rs",
+    "url": "https://raw.githubusercontent.com/zfael/dota2-scripts/0c35ea8620c8f5979336bd278f2f95b0e776a70b/src/actions/heroes/largo.rs",
+    "sha256": "52292402179152dc71986a79535c9024910eb039ed8813acdfb9bb1dfce4c7be",
+    "bytes": 37038
+  },
+  {
+    "repo": "zfael/dota2-scripts",
+    "commit": "0c35ea8620c8f5979336bd278f2f95b0e776a70b",
+    "path": "src/actions/heroes/legion_commander.rs",
+    "url": "https://raw.githubusercontent.com/zfael/dota2-scripts/0c35ea8620c8f5979336bd278f2f95b0e776a70b/src/actions/heroes/legion_commander.rs",
+    "sha256": "8790f3050876e50cfe14fc09477683c5391d38ffff1df59220c81bc3974f6d3c",
+    "bytes": 5042
+  },
+  {
+    "repo": "zfael/dota2-scripts",
+    "commit": "0c35ea8620c8f5979336bd278f2f95b0e776a70b",
+    "path": "src/actions/heroes/magnus.rs",
+    "url": "https://raw.githubusercontent.com/zfael/dota2-scripts/0c35ea8620c8f5979336bd278f2f95b0e776a70b/src/actions/heroes/magnus.rs",
+    "sha256": "fcc7315e8ae5e85b3fe67d93971ac0e4ba2ae6c84f4e4461e549fe14eba38f6f",
+    "bytes": 11579
+  },
+  {
+    "repo": "zfael/dota2-scripts",
+    "commit": "0c35ea8620c8f5979336bd278f2f95b0e776a70b",
+    "path": "src/actions/heroes/meepo.rs",
+    "url": "https://raw.githubusercontent.com/zfael/dota2-scripts/0c35ea8620c8f5979336bd278f2f95b0e776a70b/src/actions/heroes/meepo.rs",
+    "sha256": "be8e0454b167446601c5f626a2da22578c77bea5041976197ac277c8fec765f1",
+    "bytes": 13429
+  },
+  {
+    "repo": "zfael/dota2-scripts",
+    "commit": "0c35ea8620c8f5979336bd278f2f95b0e776a70b",
+    "path": "src/actions/heroes/meepo_macro.rs",
+    "url": "https://raw.githubusercontent.com/zfael/dota2-scripts/0c35ea8620c8f5979336bd278f2f95b0e776a70b/src/actions/heroes/meepo_macro.rs",
+    "sha256": "fae6ff8d2ae4acad1303e3a90e850b42730c6f5d8162d56f21992dfca2ca199e",
+    "bytes": 10271
+  },
+  {
+    "repo": "zfael/dota2-scripts",
+    "commit": "0c35ea8620c8f5979336bd278f2f95b0e776a70b",
+    "path": "src/actions/heroes/meepo_state.rs",
+    "url": "https://raw.githubusercontent.com/zfael/dota2-scripts/0c35ea8620c8f5979336bd278f2f95b0e776a70b/src/actions/heroes/meepo_state.rs",
+    "sha256": "fbe26357456500a3fdb28e24dd6d659b868a5ee9df8c0893a9d0b4848c4056e7",
+    "bytes": 6590
+  },
+  {
+    "repo": "zfael/dota2-scripts",
+    "commit": "0c35ea8620c8f5979336bd278f2f95b0e776a70b",
+    "path": "src/actions/heroes/mirana.rs",
+    "url": "https://raw.githubusercontent.com/zfael/dota2-scripts/0c35ea8620c8f5979336bd278f2f95b0e776a70b/src/actions/heroes/mirana.rs",
+    "sha256": "b256eb2500bb4708d1ab698959d170912fbce78b3ff2932b6f64bf0c6c00350f",
+    "bytes": 8850
+  },
+  {
+    "repo": "zfael/dota2-scripts",
+    "commit": "0c35ea8620c8f5979336bd278f2f95b0e776a70b",
+    "path": "src/actions/heroes/mod.rs",
+    "url": "https://raw.githubusercontent.com/zfael/dota2-scripts/0c35ea8620c8f5979336bd278f2f95b0e776a70b/src/actions/heroes/mod.rs",
+    "sha256": "c01593ed06a51c9d783405718e65ceb98d5265c302d36cf48cdb494457abad21",
+    "bytes": 956
+  },
+  {
+    "repo": "zfael/dota2-scripts",
+    "commit": "0c35ea8620c8f5979336bd278f2f95b0e776a70b",
+    "path": "src/actions/heroes/morphling.rs",
+    "url": "https://raw.githubusercontent.com/zfael/dota2-scripts/0c35ea8620c8f5979336bd278f2f95b0e776a70b/src/actions/heroes/morphling.rs",
+    "sha256": "f6b60bea917d8577b6ccb9ff8de5b4a2af5fdd79e59d721b5e402696ec5eb5c9",
+    "bytes": 35081
+  },
+  {
+    "repo": "zfael/dota2-scripts",
+    "commit": "0c35ea8620c8f5979336bd278f2f95b0e776a70b",
+    "path": "src/actions/heroes/outworld_destroyer.rs",
+    "url": "https://raw.githubusercontent.com/zfael/dota2-scripts/0c35ea8620c8f5979336bd278f2f95b0e776a70b/src/actions/heroes/outworld_destroyer.rs",
+    "sha256": "c638b558aca2576103f6d1ec64687320cc98def10a93802a2d4a2facdf028c7e",
+    "bytes": 15488
+  },
+  {
+    "repo": "zfael/dota2-scripts",
+    "commit": "0c35ea8620c8f5979336bd278f2f95b0e776a70b",
+    "path": "src/actions/heroes/shadow_fiend.rs",
+    "url": "https://raw.githubusercontent.com/zfael/dota2-scripts/0c35ea8620c8f5979336bd278f2f95b0e776a70b/src/actions/heroes/shadow_fiend.rs",
+    "sha256": "4ee5dd631611c90b8f7498ffaa616a74a66514fb9979b98146b903768467c47f",
+    "bytes": 12547
+  },
+  {
+    "repo": "zfael/dota2-scripts",
+    "commit": "0c35ea8620c8f5979336bd278f2f95b0e776a70b",
+    "path": "src/actions/heroes/slark.rs",
+    "url": "https://raw.githubusercontent.com/zfael/dota2-scripts/0c35ea8620c8f5979336bd278f2f95b0e776a70b/src/actions/heroes/slark.rs",
+    "sha256": "91da065faad5e26f6c46668f64f582294bb6bc2625e806fe2619df6da7457469",
+    "bytes": 43475
+  },
+  {
+    "repo": "zfael/dota2-scripts",
+    "commit": "0c35ea8620c8f5979336bd278f2f95b0e776a70b",
+    "path": "src/actions/heroes/snapfire.rs",
+    "url": "https://raw.githubusercontent.com/zfael/dota2-scripts/0c35ea8620c8f5979336bd278f2f95b0e776a70b/src/actions/heroes/snapfire.rs",
+    "sha256": "905d8021c2dede09627463c9889ef82433cde763e27f24cc67881d7dd62e3371",
+    "bytes": 4825
+  },
+  {
+    "repo": "zfael/dota2-scripts",
+    "commit": "0c35ea8620c8f5979336bd278f2f95b0e776a70b",
+    "path": "src/actions/heroes/tiny.rs",
+    "url": "https://raw.githubusercontent.com/zfael/dota2-scripts/0c35ea8620c8f5979336bd278f2f95b0e776a70b/src/actions/heroes/tiny.rs",
+    "sha256": "ce24dd4b7ff10ae6321c7dd9889f1d265bd8814403df2e44e9f1c76e6191d7b1",
+    "bytes": 3618
+  },
+  {
+    "repo": "zfael/dota2-scripts",
+    "commit": "0c35ea8620c8f5979336bd278f2f95b0e776a70b",
+    "path": "src/actions/heroes/traits.rs",
+    "url": "https://raw.githubusercontent.com/zfael/dota2-scripts/0c35ea8620c8f5979336bd278f2f95b0e776a70b/src/actions/heroes/traits.rs",
+    "sha256": "92bc6a81da6b5eb3ac9f2ca9547ab840855ce36ece928572c7b965d665b5015e",
+    "bytes": 528
+  },
+  {
+    "repo": "zfael/dota2-scripts",
+    "commit": "0c35ea8620c8f5979336bd278f2f95b0e776a70b",
+    "path": "src/models/heroes.rs",
+    "url": "https://raw.githubusercontent.com/zfael/dota2-scripts/0c35ea8620c8f5979336bd278f2f95b0e776a70b/src/models/heroes.rs",
+    "sha256": "25cebbef4752d67d69b1adf69073087a6e8ed0edb1588df76f8b14d760cb2359",
+    "bytes": 24518
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/FunLib/aba_hero_pos_weights.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/FunLib/aba_hero_pos_weights.lua",
+    "sha256": "6a582b6610054e5bf3440c7ab77be5f653a14b32cdaab967247bf1ea8e1db955",
+    "bytes": 12072
+  },
+  {
+    "repo": "forest0xia/dota2bot-OpenHyperAI",
+    "commit": "cb814c6c8dc51ed08045d6efd9f4a48147992711",
+    "path": "bots/ts_libs/dota/heroes.lua",
+    "url": "https://raw.githubusercontent.com/forest0xia/dota2bot-OpenHyperAI/cb814c6c8dc51ed08045d6efd9f4a48147992711/bots/ts_libs/dota/heroes.lua",
+    "sha256": "77beb82d8f8a96f2c0b1f0290313aec9c3c12ead1492d15622affbac4dd20251",
+    "bytes": 7650
+  },
+  {
+    "repo": "Nerve11/Umbrella-Scripts-Lua",
+    "commit": "fbdf73985821555a94646d1a99216682324f02ae",
+    "path": "LICENSE",
+    "url": "https://raw.githubusercontent.com/Nerve11/Umbrella-Scripts-Lua/fbdf73985821555a94646d1a99216682324f02ae/LICENSE",
+    "sha256": "33ab15ac6630821ab091e1e84de474e2d123b97bd324a9f977f3d6436d3fc7a5",
+    "bytes": 1063
+  },
+  {
+    "repo": "Nerve11/Umbrella-Scripts-Lua",
+    "commit": "fbdf73985821555a94646d1a99216682324f02ae",
+    "path": "README.md",
+    "url": "https://raw.githubusercontent.com/Nerve11/Umbrella-Scripts-Lua/fbdf73985821555a94646d1a99216682324f02ae/README.md",
+    "sha256": "5203517899cafc9bdf2d0eceee9c88ac15354d35a84b413b570e5ef9b83b7903",
+    "bytes": 2412
+  },
+  {
+    "repo": "Nerve11/Umbrella-Scripts-Lua",
+    "commit": "fbdf73985821555a94646d1a99216682324f02ae",
+    "path": "Scripts/LanayaMeldGate.lua",
+    "url": "https://raw.githubusercontent.com/Nerve11/Umbrella-Scripts-Lua/fbdf73985821555a94646d1a99216682324f02ae/Scripts/LanayaMeldGate.lua",
+    "sha256": "b32dfbae48d7eec51a0d2a866bd8d8dcdd64bff5644a62a4b14d3dad76bfb513",
+    "bytes": 84833
+  },
+  {
+    "repo": "Nerve11/Umbrella-Scripts-Lua",
+    "commit": "fbdf73985821555a94646d1a99216682324f02ae",
+    "path": "dawnbreaker_solar_guardian.lua",
+    "url": "https://raw.githubusercontent.com/Nerve11/Umbrella-Scripts-Lua/fbdf73985821555a94646d1a99216682324f02ae/dawnbreaker_solar_guardian.lua",
+    "sha256": "aa4b25c9d9f58934717b3540672a64f8b1133f40a474fef34bf83872085c8e68",
+    "bytes": 4958
+  },
+  {
+    "repo": "Nerve11/Umbrella-Scripts-Lua",
+    "commit": "fbdf73985821555a94646d1a99216682324f02ae",
+    "path": "puck_shift.lua",
+    "url": "https://raw.githubusercontent.com/Nerve11/Umbrella-Scripts-Lua/fbdf73985821555a94646d1a99216682324f02ae/puck_shift.lua",
+    "sha256": "8d6fa09d934400ab072773b040f3b0eda709118d1da1482010498818bc6c60ca",
+    "bytes": 14251
+  }
+]
