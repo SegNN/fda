@@ -13,6 +13,7 @@ template<class T> inline bool Read(uintptr_t a,T& out){
 }
 template<class T>inline T ReadOr(uintptr_t a,T d=T{}){T v{};return Read(a,v)?v:d;}
 template<class T>inline void Put(uintptr_t a,T v){for(size_t i=0;i<sizeof(T);++i)bytes[a+i]=((unsigned char*)&v)[i];}
+template<class T>inline bool Write(uintptr_t a,const T& value){Put(a,value);return true;}
 inline bool ReadStr(uintptr_t a,char* out,int cap){for(int i=0;i<cap-1;++i){char c=0;if(!Read(a+i,c))return false;out[i]=c;if(!c)return i>0;}out[cap-1]=0;return true;}
 inline void PutString(uintptr_t a,const char* s){for(size_t i=0;i<=strlen(s);++i)Put(a+i,s[i]);}
 }

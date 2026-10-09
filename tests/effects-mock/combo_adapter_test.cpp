@@ -28,5 +28,12 @@ int main(){
  {auto f=Fixture(0);int before=winmock::keyInputs;combos::Run(f);winmock::now+=60;winmock::nextInputResult=0;combos::Run(f);assert(combos::machine.State()==combocore::Phase::Fault&&winmock::keyInputs==before);}
  {auto f=Fixture(0);f.units[1].teamVisibilityMask=0;f.units[1].npcVisibilityRead=f.units[1].npcVisible=true;int before=winmock::keyInputs;assert(combos::Run(f));winmock::now+=60;assert(combos::Run(f)&&winmock::keyInputs==before+2);f.units[1].npcVisible=false;winmock::now+=20;combos::Run(f);assert(combos::machine.State()==combocore::Phase::Fault&&winmock::keyInputs==before+2);}
  {auto f=Fixture(0);cfg::armletAuto=true;int before=winmock::keyInputs;combos::Run(f);winmock::now+=60;combos::Run(f);assert(winmock::keyInputs==before+2);}
+ {auto f=Fixture(1);int before=winmock::keyInputs;combos::Run(f);winmock::now+=60;combos::Run(f);f.units[0].abil[0].cd=10;winmock::now+=20;combos::Run(f);
+  mem::Put(game::g_sys.localCtrl+off::Ctrl::m_hActiveAbility,f.units[0].abil[0].entityHandle);winmock::now+=20;combos::Run(f);assert(combos::machine.State()!=combocore::Phase::Fault&&winmock::keyInputs==before+2);
+  mem::Put(game::g_sys.localCtrl+off::Ctrl::m_hActiveAbility,uint32_t(0));winmock::now+=60;combos::Run(f);winmock::now+=60;combos::Run(f);assert(winmock::keyInputs==before+4);
+ }
+ std::cout<<"PASS ESP21 sequential combo waits for previous acknowledged animation before next input.\n";
+ {auto f=Fixture(1);winmock::keys['B']=0;winmock::keys[VK_SPACE]=0x8000;combos::settings[1].holdKey=VK_SPACE;int before=winmock::keyInputs;combos::Run(f);winmock::now+=60;combos::Run(f);assert(winmock::keyInputs==before+2);}
+ {auto f=Fixture(1);combos::settings[1].confirmed=false;combos::Run(f);assert(strstr(combos::LastOutcome(),"Confirm quickcast"));winmock::keys['B']=0;combos::Run(f);assert(strstr(combos::LastOutcome(),"Confirm quickcast"));}
  std::cout<<"PASS production combo adapter with MOCK Windows/memory: all 9 plans; selection/serial/focus/menu/modifier/channel/Armlet/visibility/identity/timeout guards. No live Dota validation.\n";
 }

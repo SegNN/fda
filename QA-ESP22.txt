@@ -1,0 +1,109 @@
+ESP22 CURRENT SOURCE QA
+27 groups: previous 26 portable/mock groups plus full original Umbrella GUI IO.
+Final targeted original GUI/gear bind persistence and production combo UI run also passed.
+NO ASan/UBSan, no Windows/MSVC/DX11/native backend, Steam/live Dota validation.
+Actual full original renderer, not the previous source-extracted shell approximation.
+Actual complete src/menu.cpp bridge compiled with mock Windows/game services and
+actual combo UI, actual existing native detail blocks, original full GUI and fonts.
+Fixture game services only return bounded synthetic unavailable data; no gameplay proof.
+Source arrays/icons identical to the supplied archive. Full original standalone source
+project copied and SHA256 checked. MEGA file MAC not verified; RAR extracted with CRC.
+No archive EXE executed or shipped. Current ImGui/DX11 base retained (1.92.8 WIP),
+original standalone reference also retained (1.93.0 WIP). Unique MSVC OBJ basenames checked.
+Actual GUI IO: Items toggle / Minified; valid original FA gear glyph; window fitting;
+closed native key edges/reload callback; settings+gear+bool and gear-pointer binds parser;
+malformed/trailing input rejection; empty closed-menu draw data after animations settle.
+HeroInfo real source geometry: default suite retained, per-layer alignment/size/minification,
+zero-alpha vertices and unknown-mana no bar, known-mana bar. No GPU depth occlusion.
+Manual visual QA: original1352/1920, gear popup, real native Lina/Camera fixtures inspected.
+Original rail/sidebar/card/settings structure preserved; original fonts/icons restored;
+no blue fallback native widgets. Native forms use scrollable content; camera labels placed
+above inputs so they are not horizontally truncated. Long original sidebar labels retain
+original clipped/fade behavior. Effective scale fits both original windows inside viewport.
+Full original GUI is not an Umbrella game scripting engine. XP/Lua unsupported and disabled.
+Armlet/scanner/visibility/camera projection/combo runtime unchanged from ESP21 byte-for-byte.
+Current game offsets/actual item execution and ConVar paths remain unverified; not guaranteed.
+The supplied complete source has no Windows-built DLL. Build on user's Windows with build.bat.
+
+
+### full_27_linux_mock_groups
+PASS buff ownership, serials, bounded discovery, ambiguous layouts, unknown empty and timer semantics
+PASS kill profile damage, resistance, immunity, visibility, buffs, readiness, mana and blocking modifiers
+PASS ready-up gating, schema default/state, freshness, duplicate fields, foreground, template and stable frames
+PASS: map events baseline, dedup, pause, rollback, re-enable, serial, unknown data, Roshan and visibility cases
+PASS: lower-bound, average, armor, invalid and unknown damage cases
+PASS helper catalog levels and formulas; HP/margin, unknowns, protection, ready, mana, range and invalid input guards
+PASS ARM18 Armlet state machine: new-OFF veto without ON cancellation; first-fault reason; immediate ON after observed ready OFF, verified active effect despite net HP loss, readiness, threshold, recovery, spacing, cancellation, identity/time change, faults and recognized DoT
+PASS 127 unique source heroes and exactly one Huskar entry
+PASS ARM9 runtime MSVC RTTI: current controller vs gamerules type, locator signature/self/type bounds, primary vtable and decorated-name guards. Not live MSVC data.
+PASS read-only damage probe: 915 class candidates, Viper/Armlet raw fields, stale ownership/serial, identity mutation, unstable fields, NaN, missing/unknown fields, bounded report; NOT live-offset or damage-model validation
+PASS fog memory: ten seconds, pause, reappearance, absent snapshots, unknown, death, serials, new game, finite positions.
+PASS draft advisor: unique roster, published role ranges, ally/exclusion filter, score attribution, stable ranking, invalid input.
+PASS lane planner: data weights, role locks, ally exclusion, paired carry/support, solo mid, Radiant/Dire mirror, conflicts. Heuristic, not live player lanes.
+PASS draft candidate reader: bounded count, stable fields, local player, teams, unknown/duplicate IDs, unpicked IDs, torn reads and malformed headers. Static schema candidates, not live offsets.
+PASS combo core: all 9 plans progress only after exact-spell cooldown; one per hold; identity/readiness/range/mana/clock/timeout/delivery guards
+PASS team NPC visibility bits: visible/hidden, self-bit validation, torn/missing/invalid handles, 16384-bit bounds; compact top slots/geometry at 1120/1280/1920/2560.
+PASS ESP21 visual controls: no unconfirmed writes; bounded client pointer paths; camera/farz/fog types; weather 0..9 fixture; disable restore, foreign changes and write-failure rollback. No live ConVar validation.
+PASS actual combo UI: all 9 modules render in RU/EN; actual Save/Load compile and reject unavailable config path. No Windows INI persistence validation.
+PASS ESP21 sequential combo waits for previous acknowledged animation before next input.
+PASS production combo adapter with MOCK Windows/memory: all 9 plans; selection/serial/focus/menu/modifier/channel/Armlet/visibility/identity/timeout guards. No live Dota validation.
+PASS ESP21 own Lina Armlet OFF/ON and lane guards: high HP/missing item/illusion do not claim combo lane.
+PASS ARM18 production Armlet with MOCK memory/Windows: Viper DoT after OFF does not cancel ON; initially OFF under Viper may turn ON; new OFF blocked; first fault preserved; Huskar, selection, slot, focus/menu, mute/channel/DoT/unknown guards; OFF observation; no late toggle; no mouse actions
+PASS production helper under mock memory: hover selection, visibility/team/illusion/invis, unknown protection, slot-independent name models, manual hero lock, zero input synthesis
+PASS production auto-accept under MOCK GC/Windows/GDI: calibration, stability, dedup, dimension/focus/capture/match guards
+PASS production Kill Stealer under MOCK input: profile, hero lock, quickcast confirmation, buffs, immunity, cooldown
+PASS cache retry, address/vtable recycling, stale frame rejection, late RTTI and controller class guards
+PASS typed controller guards, disabled invalid global, entity zero, observed-only world snapshot, stale handle and invalid-position rejection
+PASS HUD5 observed-only item, modifier ownership, per-entity clock, illusion/invis/state reads without local identity or automation.
+PASS ARM9 actual inventory reader: pointer-first layout, exact item serial/backlink, inventory parent ownership and torn parity rejection.
+PASS ARM10 inline inventory count25/handles+4, parent/serial rejection and actual empty inventory; dedicated hero owner ID with conflict rejection.
+PASS HUD5 bounded controller-reference scan: complete-pass uniqueness, duplicate references, non-local/owner mismatch, ambiguous controllers and no-hit rejection.
+PASS ESP4 excludes announcer/killing-spree pseudo-heroes and retains real heroes.
+PASS actual team NPC table reader: zero model mask, visible->hidden, self bit, team/type/spectator/serial/local-flag rejection. Static source candidate, NOT live offset validation.
+PASS strict designer-name fallback, back-reference and full serial checks
+PASS actual ReadAbilities: readiness, frozen cooldown and missing mana data guards
+PASS actual ReadBuffs: verified ownership, Flask name and stale parent serial rejection
+PASS: actual game.cpp mock-memory reads, non-NPC runes, future/random rune types, exact handle serial and invalid fields
+PASS ESP20 stable camera: pan through origin, no hero-dependent Y/layout change, transpose/inverted initialization, fixed world position follows current matrix.
+PASS ESP3 exact reported-matrix regression: off-camera zero origin cannot flip Y, on-camera drawing, transpose, no votes, inverted camera and NaN guards.
+PASS ESP4 existing-renderer routing, original corner-box vertices, disabled-box toggle emits no diagnostic bars/text, and ward/Roshan dispatch.
+PASS observed ESP dispatcher and corner-box helper: invalid-local-frame drawing emits ImGui vertices; config/dead/HP/projection/geometry guards. No GPU or live-game test.
+PASS ESP22 actual layer align/size/minified/alpha and verified mana bar geometry.
+PASS HUD8 actual HeroInfo ImGui geometry: native HP text/status/illusion/items/ability levels/Flask, stable hero-local layout, observed-7s invis ring, unknown/dead/full-serial guards and all-off mode. Not a GPU/live-game test.
+PASS production draft observer with mock memory: pre-spawn two-read roster, identity/serial/local flag, changed draft, unavailable resource, current-match fallback, no duplicate teammate, observed-only and manual mode. Not live schema validation.
+PASS full original Umbrella host: real toggle/minified mouse IO, FA glyph, fitting, closed-menu edge binds/reload, settings+gear+bind persistence, invalid input rejection, zero hidden backdrop. Not Windows/GPU/live.
+PASS mock and portable tests WITHOUT ASan/UBSan. Live game and Windows build remain untested.
+
+### final_gui_gear_bind_and_combo_UI
+PASS actual combo UI: all 9 modules render in RU/EN; actual Save/Load compile and reject unavailable config path. No Windows INI persistence validation.
+PASS full original Umbrella host: real toggle/minified mouse IO, FA glyph, fitting, closed-menu edge binds/reload, settings+gear+bind persistence, invalid input rejection, zero hidden backdrop. Not Windows/GPU/live.
+PASS mock and portable tests WITHOUT ASan/UBSan. Live game and Windows build remain untested.
+
+### complete_original_renderer_fixture
+PASS full original menu C++ host fixture state 0
+PASS full original menu C++ host fixture state 1
+PASS full original menu C++ host fixture state 2
+PASS full original menu C++ host fixture state 3
+PASS full original menu C++ host fixture state 4
+
+### complete_native_menu_bridge_fixture
+PASS full original menu C++ host fixture state 0
+PASS full original menu C++ host fixture state 1
+PASS full original menu C++ host fixture state 2
+PASS full original menu C++ host fixture state 3
+PASS compiled complete native menu bridge with mocked Windows/game services; not MSVC/live.
+
+### raster_original_1352
+Rendered full original ESP22 C++ draw mesh at 1352 765
+
+### raster_original_1920
+Rendered full original ESP22 C++ draw mesh at 1920 1080
+
+### raster_original_gear
+Rendered full original ESP22 C++ draw mesh at 1352 765
+
+### raster_native_lina
+Rendered full original ESP22 C++ draw mesh at 1352 765
+
+### raster_native_camera
+Rendered full original ESP22 C++ draw mesh at 1352 765

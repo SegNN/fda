@@ -1,0 +1,26 @@
+{
+  "userArchive": "UmbrellaMenu.rar",
+  "archiveSha256": "36d49506db5d5c85df400e6a9be4224720125c6afd52770028abf6c3a62badc8",
+  "downloaded": true,
+  "exeExecuted": false,
+  "megaMacVerified": false,
+  "adapted": [
+    "dark rail/sidebar/content shell",
+    "rounded cards",
+    "toggle geometry and interpolation",
+    "layered soft shadow"
+  ],
+  "notImported": [
+    "standalone Win32 window",
+    "demo settings and fake functions",
+    "standalone EXE",
+    "font binaries",
+    "fake backdrop"
+  ],
+  "coreImGuiRetained": "existing v1.92.8 WIP; no blind dependency swap",
+  "files": {
+    "menu.cpp": "e90a74d34bd00b63d2f82fba0cb1344ae3c59f083b2a6dc42e95e2d1322fb02e",
+    "menu.h": "b281cc981a4e40ffc28843293b5425c7806218cea16fff7bfa6b9452866f8a91",
+    "README.txt": "e7621391d0f4f85aafd238b637941255ba40e3fc303e30fa684e7ba4d79ef2bd"
+  }
+}

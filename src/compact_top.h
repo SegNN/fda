@@ -17,7 +17,7 @@ public:
  }
  const std::array<Entry,10>& Entries()const{return entries;}
 };
-struct Box {float x=0,y=0,w=0,h=112,icon=24;int capacity=6;bool valid=false;};
+struct Box {float x=0,y=0,w=0,h=68,icon=24;int capacity=6;bool valid=false;};
 inline Box Place(float W,float H,int team,int slot,float y){Box b;if(!std::isfinite(W)||!std::isfinite(H)||!std::isfinite(y)||W<900||H<300||(team!=2&&team!=3)||slot<0||slot>=5)return b;
  float centerGap=std::clamp(W*.075f,110.f,160.f),gap=4;
  b.w=std::min(168.f,(W-32-centerGap)/10-gap);b.icon=b.w>=154?24.f:18.f;b.capacity=std::clamp(int((b.w-8+2)/(b.icon+2)),1,6);

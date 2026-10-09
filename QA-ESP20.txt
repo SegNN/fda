@@ -1,0 +1,69 @@
+ESP20 final source QA: 25 Linux portable/mock groups WITHOUT ASan/UBSan.
+Camera regression: stable mode despite pan through origin; row/transpose/inverted
+initialization; a frozen WORLD point uses CURRENT matrix. Native matrix offset and
+GPU frame timing remain live-unverified. Production view::Update was reviewed but
+not run under Windows. World clip portable geometry excludes top/bottom boundaries;
+production DrawOverlay scoped clip and foreground gating are source-reviewed only,
+not a live native UI/Windows rendering test.
+Actual C++ Top fixture: skills/HP/mana only, no item textures loaded by Top,
+menu-open Top emits no vertices. Synthetic1920/1280/hidden render inspected manually:
+PASS card contents within bounds, cooldown numbers, no level dots/items/footer,
+compact height68, no overlapping cards, no false current hidden enemy stats.
+Frozen fog marker memory tested; synthetic marker render uses mock projection.
+No real Dota screenshots, Steam, installed-game modifications, GPU or Windows build.
+Delay before ESP appears not diagnosed; guarded visibility retained, not bypassed.
+Present 2D overlay has NO depth occlusion behind trees/terrain. Fixed safe area is
+not discovery of every native Panorama UI window or alternate HUD configuration.
+Nine basic profiles and ARM18 state machine retained; input automation not live-tested.
+Current test output below. Historical QA files are not current runtime validation.
+
+FINAL FULL TEST LOG:
+PASS buff ownership, serials, bounded discovery, ambiguous layouts, unknown empty and timer semantics
+PASS kill profile damage, resistance, immunity, visibility, buffs, readiness, mana and blocking modifiers
+PASS ready-up gating, schema default/state, freshness, duplicate fields, foreground, template and stable frames
+PASS: map events baseline, dedup, pause, rollback, re-enable, serial, unknown data, Roshan and visibility cases
+PASS: lower-bound, average, armor, invalid and unknown damage cases
+PASS helper catalog levels and formulas; HP/margin, unknowns, protection, ready, mana, range and invalid input guards
+PASS ARM18 Armlet state machine: new-OFF veto without ON cancellation; first-fault reason; immediate ON after observed ready OFF, verified active effect despite net HP loss, readiness, threshold, recovery, spacing, cancellation, identity/time change, faults and recognized DoT
+PASS 127 unique source heroes and exactly one Huskar entry
+PASS ARM9 runtime MSVC RTTI: current controller vs gamerules type, locator signature/self/type bounds, primary vtable and decorated-name guards. Not live MSVC data.
+PASS read-only damage probe: 915 class candidates, Viper/Armlet raw fields, stale ownership/serial, identity mutation, unstable fields, NaN, missing/unknown fields, bounded report; NOT live-offset or damage-model validation
+PASS fog memory: ten seconds, pause, reappearance, absent snapshots, unknown, death, serials, new game, finite positions.
+PASS draft advisor: unique roster, published role ranges, ally/exclusion filter, score attribution, stable ranking, invalid input.
+PASS lane planner: data weights, role locks, ally exclusion, paired carry/support, solo mid, Radiant/Dire mirror, conflicts. Heuristic, not live player lanes.
+PASS draft candidate reader: bounded count, stable fields, local player, teams, unknown/duplicate IDs, unpicked IDs, torn reads and malformed headers. Static schema candidates, not live offsets.
+PASS combo core: all 9 plans progress only after exact-spell cooldown; one per hold; identity/readiness/range/mana/clock/timeout/delivery guards
+PASS team NPC visibility bits: visible/hidden, self-bit validation, torn/missing/invalid handles, 16384-bit bounds; compact top slots/geometry at 1120/1280/1920/2560.
+PASS actual combo UI: all 9 modules render in RU/EN; actual Save/Load compile and reject unavailable config path. No Windows INI persistence validation.
+PASS production combo adapter with MOCK Windows/memory: all 9 plans; selection/serial/focus/menu/modifier/channel/Armlet/visibility/identity/timeout guards. No live Dota validation.
+PASS ARM18 production Armlet with MOCK memory/Windows: Viper DoT after OFF does not cancel ON; initially OFF under Viper may turn ON; new OFF blocked; first fault preserved; Huskar, selection, slot, focus/menu, mute/channel/DoT/unknown guards; OFF observation; no late toggle; no mouse actions
+PASS production helper under mock memory: hover selection, visibility/team/illusion/invis, unknown protection, slot-independent name models, manual hero lock, zero input synthesis
+PASS production auto-accept under MOCK GC/Windows/GDI: calibration, stability, dedup, dimension/focus/capture/match guards
+PASS production Kill Stealer under MOCK input: profile, hero lock, quickcast confirmation, buffs, immunity, cooldown
+PASS cache retry, address/vtable recycling, stale frame rejection, late RTTI and controller class guards
+PASS typed controller guards, disabled invalid global, entity zero, observed-only world snapshot, stale handle and invalid-position rejection
+PASS HUD5 observed-only item, modifier ownership, per-entity clock, illusion/invis/state reads without local identity or automation.
+PASS ARM9 actual inventory reader: pointer-first layout, exact item serial/backlink, inventory parent ownership and torn parity rejection.
+PASS ARM10 inline inventory count25/handles+4, parent/serial rejection and actual empty inventory; dedicated hero owner ID with conflict rejection.
+PASS HUD5 bounded controller-reference scan: complete-pass uniqueness, duplicate references, non-local/owner mismatch, ambiguous controllers and no-hit rejection.
+PASS ESP4 excludes announcer/killing-spree pseudo-heroes and retains real heroes.
+PASS actual team NPC table reader: zero model mask, visible->hidden, self bit, team/type/spectator/serial/local-flag rejection. Static source candidate, NOT live offset validation.
+PASS strict designer-name fallback, back-reference and full serial checks
+PASS actual ReadAbilities: readiness, frozen cooldown and missing mana data guards
+PASS actual ReadBuffs: verified ownership, Flask name and stale parent serial rejection
+PASS: actual game.cpp mock-memory reads, non-NPC runes, future/random rune types, exact handle serial and invalid fields
+PASS ESP20 stable camera: pan through origin, no hero-dependent Y/layout change, transpose/inverted initialization, fixed world position follows current matrix.
+PASS ESP3 exact reported-matrix regression: off-camera zero origin cannot flip Y, on-camera drawing, transpose, no votes, inverted camera and NaN guards.
+PASS ESP4 existing-renderer routing, original corner-box vertices, disabled-box toggle emits no diagnostic bars/text, and ward/Roshan dispatch.
+PASS observed ESP dispatcher and corner-box helper: invalid-local-frame drawing emits ImGui vertices; config/dead/HP/projection/geometry guards. No GPU or live-game test.
+PASS HUD8 actual HeroInfo ImGui geometry: native HP text/status/illusion/items/ability levels/Flask, stable hero-local layout, observed-7s invis ring, unknown/dead/full-serial guards and all-off mode. Not a GPU/live-game test.
+PASS production draft observer with mock memory: pre-spawn two-read roster, identity/serial/local flag, changed draft, unavailable resource, current-match fallback, no duplicate teammate, observed-only and manual mode. Not live schema validation.
+PASS mock and portable tests WITHOUT ASan/UBSan. Live game and Windows build remain untested.
+
+ACTUAL HUD SYNTHETIC RENDER LOG:
+PASS production compact Top + above-bar World rows + visible->hidden frozen marker at 1920 px; synthetic memory only.
+PASS production compact Top + above-bar World rows + visible->hidden frozen marker at 1280 px; synthetic memory only.
+PASS production compact Top + above-bar World rows + visible->hidden frozen marker at 1920 px; synthetic memory only.
+Rendered actual ESP20 C++ draw mesh at 1920 1080
+Rendered actual ESP20 C++ draw mesh at 1280 720
+Rendered actual ESP20 C++ draw mesh at 1920 1080

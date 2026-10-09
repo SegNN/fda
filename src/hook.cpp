@@ -1,7 +1,9 @@
 #include "hook.h"
+#include "umbrella/menu.h"
 #include "theme.h"
 #include "offsets.h"
 #include "hud.h"
+#include "visual_settings.h"
 #include "top_anchor.h"
 #include "skin_changer.h"
 #include "map_events.h"
@@ -321,6 +323,7 @@ static void InitImGui(IDXGISwapChain* sc) {
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     theme::LoadFonts();
+    Menu::Init(125);
 
     ImGui_ImplWin32_Init(g_hwnd);
     ImGui_ImplDX11_Init(g_device, g_ctx);
@@ -393,16 +396,19 @@ static void DoFrame(IDXGISwapChain* chain) {
     draftadvisor::Observe(g_frame,ImGui::GetTime());
     killstealer::Observe(g_frame);
     hud::UpdateAegis(g_frame); // shared lifecycle before world and top drawing
+    visualsettings::Tick(g_frame);
     view::Update();
     diagnostics::Update(g_frame);
-    // ESP19 compact top HUD uses stable player slots, not narrow portrait pixel anchors.
+    // ESP21 compact top HUD uses stable player slots, not narrow portrait pixel anchors.
 
     DrawMenuWindow(); // latest reference uses an opaque background, no blur passes
-    DrawOverlay(g_frame);
-    hud::Draw(g_frame);
-    mapevents::UpdateAndDraw(g_frame);
-    effectsui::Draw(g_frame);
-    killhelper::Draw(g_frame);
+    if(!cfg::menuOpen&&g_hwnd&&GetForegroundWindow()==g_hwnd){
+        DrawOverlay(g_frame);
+        hud::Draw(g_frame);
+        mapevents::UpdateAndDraw(g_frame);
+        effectsui::Draw(g_frame);
+        killhelper::Draw(g_frame);
+    } else hud::BeginWorldFrame(g_frame); // Update memory, not pixels, while menu/focus suppresses drawing.
     DrawKeybinds();
     RunAutomation(g_frame);
     autoaccept::Tick(g_frame.ok || (g_frame.observedOnly && !g_frame.units.empty()));
@@ -515,6 +521,7 @@ void RequestUnload() {
     // Never detach while synthetic inventory still needs its local filter/restoration.
     if(!skins::CanUnload()){skins::NotifyUnloadBlocked();cfg::menuOpen=true;return;}
     if (!cfg::running.load()) return;
+    visualsettings::zoom=visualsettings::weather=false;visualsettings::Tick(g_frame); // owned values only; no stale context writes
     HMODULE mod = nullptr;
     GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
                        (LPCSTR)&UnloadThread, &mod);

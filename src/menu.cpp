@@ -1,10 +1,13 @@
 #include "hook.h"
+#include "umbrella/menu.h"
 #include "theme.h"
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "hud.h"
 #include "top_anchor.h"
 #include "ui_icons.h"
+#include "umbrella_style.h"
+#include "visual_settings.h"
 #include "skin_changer.h"
 #include "auto_accept.h"
 #include "kill_stealer.h"
@@ -22,18 +25,18 @@
 static ImVec4 UI_RGB(int r,int g,int b){return ImVec4(r/255.f,g/255.f,b/255.f,1.f);}
 void theme::ApplyStyle() {
     auto& s=ImGui::GetStyle();s.Alpha=1.f;
-    s.WindowRounding=5;s.ChildRounding=4;s.FrameRounding=3;s.PopupRounding=4;
+    s.WindowRounding=8;s.ChildRounding=6;s.FrameRounding=4;s.PopupRounding=6;
     s.ScrollbarRounding=3;s.GrabRounding=3;s.TabRounding=3;
     s.WindowBorderSize=1;s.ChildBorderSize=1;s.FrameBorderSize=0;
     s.WindowPadding=ImVec2(16,14);s.FramePadding=ImVec2(10,7);
     s.ItemSpacing=ImVec2(12,8);s.ItemInnerSpacing=ImVec2(8,6);s.ScrollbarSize=5;
     auto& c=s.Colors;
-    c[ImGuiCol_Text]=UI_RGB(172,176,185);
+    c[ImGuiCol_Text]=UI_RGB(214,217,226);
     c[ImGuiCol_TextDisabled]=UI_RGB(131,135,144);
     c[ImGuiCol_WindowBg]=UI_RGB(16,17,21);
-    c[ImGuiCol_ChildBg]=UI_RGB(20,21,25);
+    c[ImGuiCol_ChildBg]=UI_RGB(15,17,23);
     c[ImGuiCol_PopupBg]=UI_RGB(20,21,25);
-    c[ImGuiCol_Border]=UI_RGB(24,26,31);
+    c[ImGuiCol_Border]=UI_RGB(37,39,51);
     c[ImGuiCol_FrameBg]=UI_RGB(24,27,32);
     c[ImGuiCol_FrameBgHovered]=UI_RGB(30,34,40);
     c[ImGuiCol_FrameBgActive]=UI_RGB(36,41,49);
@@ -73,7 +76,7 @@ static void RebindPopup(int bi) {
 namespace clientui {
 static int language = 0;
 bool English(){return language!=0;}
-static int accent = 0;
+static int accent = 1;
 static float fontScale = 1.f;
 static int profile = 0;
 static const wchar_t* profileNames[] = { L"default", L"practice", L"custom" };
@@ -142,7 +145,7 @@ static FloatSetting floats[] = {
 };
 static bool Save() {
     if (!ConfigPath()[0]) return false;
-    bool ok = WriteNumber(L"uiVersion",12);
+    bool ok = WriteNumber(L"uiVersion",13);
     for(const auto& setting: {std::pair<const wchar_t*,int>{L"armletKey",cfg::armletKey},{L"armletSlot",cfg::armletSlot},{L"ksSlot",cfg::ksAbilitySlot},{L"ksSpellKey",cfg::ksSpellKey},{L"ksType",cfg::ksDamageType}})if(!WriteNumber(setting.first,setting.second))ok=false;
     for (const auto& b : booleans) if (!WriteNumber(b.key, *b.target ? 1 : 0)) ok = false;
     if (!WriteNumber(L"language", language)) ok = false;
@@ -170,6 +173,7 @@ static bool Save() {
         wchar_t n[8]; swprintf_s(n, L"%d", profile);
         ok = WritePrivateProfileStringW(L"client", L"active", n, ConfigPath()) != FALSE;
     }
+    {auto text=Menu::ExportSettings();int count=MultiByteToWideChar(CP_UTF8,0,text.c_str(),-1,nullptr,0);if(count<=0)ok=false;else{std::wstring wide(count,L'\0');MultiByteToWideChar(CP_UTF8,0,text.c_str(),-1,wide.data(),count);if(!WritePrivateProfileStringW(profileNames[profile],L"umbrella22",wide.c_str(),ConfigPath()))ok=false;}}
     return ok;
 }
 static bool Load() {
@@ -209,10 +213,14 @@ static bool Load() {
         cfg::hudHpNumber=true;cfg::hudItems=true;cfg::hudAbilities=true;cfg::hudStatusBadges=true;
         cfg::hudIllusions=true;cfg::showEffects=true;cfg::hudSkillPixels=30.f;
     }
-    // User-requested ESP19 default: migrate old profiles once, then preserve future edits.
+    // User-requested ESP22 default: migrate old profiles once, then preserve future edits.
     if(GetPrivateProfileIntW(profileNames[profile],L"uiVersion",2,path)<12){
         cfg::nativeHpOffsetY=-9.f;
         WriteNumber(L"uiVersion",12);WriteNumber(L"nativeHpOffsetY",-900);
+    }
+    if(GetPrivateProfileIntW(profileNames[profile],L"uiVersion",2,path)<13){
+        cfg::hudTopY=54.f;cfg::hudTopAbilities=true;
+        WriteNumber(L"uiVersion",13);WriteNumber(L"hudTopY",5400);
     }
     if(GetPrivateProfileIntW(profileNames[profile],L"uiVersion",2,path)<7){accent=0;fontScale=1.f;}
     wchar_t heroName[64]={};GetPrivateProfileStringW(profileNames[profile],L"ksHeroName",L"",heroName,64,path);
@@ -234,11 +242,10 @@ static bool Load() {
     cfg::vbe = false; // legacy fog writes are never enabled by a visibility-information profile
     if(!binds::items[0].vk)binds::items[0].vk='V';
     binds::items[0].hold=true;
+    {std::vector<wchar_t> wide(60001);GetPrivateProfileStringW(profileNames[profile],L"umbrella22",L"",wide.data(),int(wide.size()),path);int count=WideCharToMultiByte(CP_UTF8,0,wide.data(),-1,nullptr,0,nullptr,nullptr);if(count>1&&count<=60001){std::string text(count,'\0');WideCharToMultiByte(CP_UTF8,0,wide.data(),-1,text.data(),count,nullptr,nullptr);text.resize(count-1);Menu::ImportSettings(text);}}
     return true;
 }
-static ImVec4 Accent(){
-    return accent==1?ImVec4(.745f,.553f,1.f,1):accent==2?ImVec4(.35f,.82f,.67f,1):UI_RGB(32,157,212);
-}
+static ImVec4 Accent(){return ImGui::ColorConvertU32ToFloat4(Menu::GetOverlay().accent);}
 static void Style(){theme::ApplyStyle();auto c=Accent();auto& s=ImGui::GetStyle();
     s.Colors[ImGuiCol_CheckMark]=s.Colors[ImGuiCol_SliderGrab]=s.Colors[ImGuiCol_NavCursor]=c;
 }
@@ -253,8 +260,7 @@ static void Row(const char* ru,const char* en,bool* target,int bind=-1){
     uiicons::Draw(dl,ImVec2(p.x+8,cy),18,*target?ImGui::GetColorU32(Accent()):IM_COL32(102,108,118,255),uiicons::Check);
     float maxLabel=w-68;dl->PushClipRect(ImVec2(p.x+26,p.y),ImVec2(p.x+w-42,p.y+h),true);
     dl->AddText(ImVec2(p.x+26,cy-ImGui::GetFontSize()*.5f),ImGui::GetColorU32(ImGuiCol_Text),label);dl->PopClipRect();
-    ImVec2 tr(p.x+w-33,cy-8);dl->AddRectFilled(tr,ImVec2(tr.x+32,tr.y+16),*target?ImGui::GetColorU32(Accent()):IM_COL32(55,59,66,255),8);
-    dl->AddCircleFilled(ImVec2(tr.x+8+(*target?16:0),cy),6,IM_COL32(206,210,218,255));
+    umbrellastyle::Toggle(dl,ImGui::GetItemID(),p.x+w-1,cy,*target,ImGui::GetColorU32(Accent()));
     if(ImGui::IsItemHovered()){
         if(bind>=0)ImGui::SetTooltip("%s\n%s / RMB",label,binds::KeyName(binds::items[bind].vk));
         else if(ImGui::CalcTextSize(label).x>maxLabel)ImGui::SetTooltip("%s",label);
@@ -350,7 +356,7 @@ static void Diagnostics() {
         ImGui::Text("Units: %d | Heroes: %d | Projected units: %d",d.unitCount,d.heroCount,d.projectedUnits);
         ImGui::Text("Matrix: %s  ESP: %s", d.matrixOk ? "plausible" : "invalid", cfg::espHeroes ? "on" : "off");
         const auto& cp = game::g_controllerProbe;
-        ImGui::TextUnformatted("ESP patch: ESP19 / base 40a11e81");
+        ImGui::TextUnformatted("ESP patch: ESP22 / base 40a11e81");
         ImGui::Text("Scanner passes: %u | faults: %u | exception: 0x%X",cp.scanPasses.load(),cp.scanFaults.load(),cp.exceptionCode.load());
         auto heartbeat = cp.scanHeartbeat.load();
         auto currentTick = GetTickCount64();
@@ -366,7 +372,7 @@ static void Diagnostics() {
         ImGui::Text("Y votes: upright=%d flipped=%d | zero-origin heroes=%d",d.uprightVotes,d.flippedVotes,d.zeroOriginHeroes);
         if(ImGui::Button("Copy ESP diagnostics")) {
             char report[32768];snprintf(report,sizeof(report),
-                "ESP19\nentities=%d classified=%d classifiedHeroes=%d controllers=%d localFlags=%d source=%d\nscannerPasses=%u faults=%u exception=0x%X frameGate=%d\nlocalFrame=%d observedOnly=%d units=%d heroes=%d projectedUnits=%d matrixPlausible=%d mode=%d\nsampleHero=%g,%g,%g\nM0=%g,%g,%g,%g\nM1=%g,%g,%g,%g\nM2=%g,%g,%g,%g\nM3=%g,%g,%g,%g\n",
+                "ESP22\nentities=%d classified=%d classifiedHeroes=%d controllers=%d localFlags=%d source=%d\nscannerPasses=%u faults=%u exception=0x%X frameGate=%d\nlocalFrame=%d observedOnly=%d units=%d heroes=%d projectedUnits=%d matrixPlausible=%d mode=%d\nsampleHero=%g,%g,%g\nM0=%g,%g,%g,%g\nM1=%g,%g,%g,%g\nM2=%g,%g,%g,%g\nM3=%g,%g,%g,%g\n",
                 cp.scannedEntities.load(),cp.classifiedUnits.load(),cp.classifiedHeroes.load(),cp.candidates.load(),cp.localFlags.load(),cp.source.load(),
                 cp.scanPasses.load(),cp.scanFaults.load(),cp.exceptionCode.load(),cp.frameStage.load(),d.frameOk,d.observedOnly,d.unitCount,d.heroCount,d.projectedUnits,d.matrixOk,d.projectionMode,
                 d.sampleWorld.x,d.sampleWorld.y,d.sampleWorld.z,
@@ -393,7 +399,7 @@ static void Diagnostics() {
         ImGui::Text("Items: %d (%d mapped)  Abilities: %d (%d mapped)", hud::readProbe.items,hud::readProbe.mappedItems,hud::readProbe.abilities,hud::readProbe.mappedAbilities);
         ImGui::Text("Aegis: %d detected, %d timed, %d estimated, %d owner fallback",hud::readProbe.aegis,hud::readProbe.aegisTimed,hud::readProbe.aegisEstimated,hud::readProbe.aegisFallback);
         ImGui::Text("Inventory slots: %d  Resolved: %d  Unmapped: %d",hud::readProbe.inventorySlots,hud::readProbe.resolved,hud::readProbe.unmapped);
-        ImGui::TextUnformatted("ESP19 top HUD: compact horizontal rows / stable player slots.");
+        ImGui::TextUnformatted("ESP22 top HUD: HP/MP + skill squares with cooldown / stable camera.");
         ImGui::Text("Team-data candidates: Radiant=0x%llX Dire=0x%llX",(unsigned long long)game::g_teamVisibilityData[0].load(),(unsigned long long)game::g_teamVisibilityData[1].load());
         ImGui::TextWrapped("Inventory layout and cooldown direction need runtime verification.");
 
@@ -410,15 +416,15 @@ static Function combatFunctions[]={
     {"Danger alerts",&cfg::dodger,8,-1},{"Click dodge",&cfg::autoDodge,9,8},{"Kill Stealer",&cfg::killStealer,19,10},{"Kill helper",&cfg::showKillHelper,21,-1}};
 static Function mapFunctions[]={
     {"RoshanController",&cfg::hudRoshan,10,-1},{"Wards",&cfg::espWards,11,5},{"CreepBounty",&cfg::hudBounty,12,-1},{"Map notifications",nullptr,18,-1}};
-static Function moreFunctions[]={ {"Skin Changer",nullptr,13,-1},{"Active Buffs / Debuffs",&cfg::showEffects,14,-1},{"Draft advisor",nullptr,23,-1}};
+static Function moreFunctions[]={ {"Skin Changer",nullptr,13,-1},{"Active Buffs / Debuffs",&cfg::showEffects,14,-1},{"Draft advisor",nullptr,23,-1},{"Camera / verified paths",nullptr,24,-1},{"Weather / verified paths",nullptr,25,-1}};
 static Function profileFunctions[]={{"Local profiles",nullptr,15,-1}};
 static Function interfaceFunctions[]={{"Interface",nullptr,16,-1},{"Auto-accept",&cfg::autoAccept,20,2}};
 static Function diagnosticFunctions[]={{"Data diagnostics",nullptr,17,-1}};
 static Function helperFunctions[combos::count+1];
 static constexpr int heroCount=combos::count+1;
-static void InitHelpers(){static bool done=false;if(done)return;done=true;combos::InitializeSettings();helperFunctions[0]={"Huskar / Armlet",&cfg::armletAuto,22,11};for(int i=0;i<combos::count;++i)helperFunctions[i+1]={combos::profiles[i].label,&combos::settings[i].enabled,2000+i,-1};}
+static void InitHelpers(){static bool done=false;if(done)return;done=true;combos::InitializeSettings();helperFunctions[0]={"Armlet / own hero",&cfg::armletAuto,22,11};for(int i=0;i<combos::count;++i)helperFunctions[i+1]={combos::profiles[i].label,&combos::settings[i].enabled,2000+i,-1};}
 static Function* functions[]={renderFunctions,combatFunctions,mapFunctions,moreFunctions,profileFunctions,interfaceFunctions,diagnosticFunctions,helperFunctions};
-static const int functionCounts[]={5,6,4,3,1,2,1,heroCount};
+static const int functionCounts[]={5,6,4,5,1,2,1,heroCount};
 static int category=0,selected=0;static char search[80]={};
 static bool FunctionEntry(Function& fn,bool selected){
     ImGui::PushID(fn.details);ImVec2 p=ImGui::GetCursorScreenPos();float w=ImGui::GetContentRegionAvail().x;
@@ -456,65 +462,28 @@ static void MainSwitch(Function& fn){
     }
 }
 }
-void DrawMenuWindow(){
-    using namespace clientui;if(!cfg::menuOpen)return;InitHelpers();
-    if(!initialized){initialized=true;profile=ConfigPath()[0]?(int)GetPrivateProfileIntW(L"client",L"active",0,ConfigPath()):0;if(profile<0||profile>2)profile=0;Load();}
-    Style();
-    const char* catsRu[]={"Отображение","Бой","Карта","Прочее","Конфиги","Настройки","Диагностика","Прокасты / Помощник"};
-    const char* catsEn[]={"Render","Combat","Map","Misc","Configs","Settings","Diagnostics","Combos / Helper"};
-    ImVec2 screen=ImGui::GetIO().DisplaySize;float width=std::min(1040.f,std::max(600.f,screen.x-32)),height=std::min(730.f,std::max(440.f,screen.y-32));
-    ImGui::SetNextWindowSize(ImVec2(width,height),ImGuiCond_Always);
-    if(auto* old=ImGui::FindWindowByName("FDA Client")){
-        ImVec2 clamped(std::max(16.f,std::min(old->Pos.x,std::max(16.f,screen.x-width-16))),std::max(16.f,std::min(old->Pos.y,std::max(16.f,screen.y-height-16))));
-        if(clamped.x!=old->Pos.x||clamped.y!=old->Pos.y)ImGui::SetNextWindowPos(clamped,ImGuiCond_Always);
-    }else ImGui::SetNextWindowPos(ImVec2((screen.x-width)*.5f,(screen.y-height)*.5f),ImGuiCond_FirstUseEver);
-    ImGui::Begin("FDA Client",nullptr,ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoCollapse|ImGuiWindowFlags_NoBackground|ImGuiWindowFlags_NoScrollbar|ImGuiWindowFlags_NoScrollWithMouse);
-    ImGui::SetWindowFontScale(fontScale);ImVec2 p=ImGui::GetWindowPos(),sz=ImGui::GetWindowSize();auto* dl=ImGui::GetWindowDrawList();
-    // Sampled reference palette: no live game texture and no alpha-composited backdrop.
-    dl->AddRectFilled(p,ImVec2(p.x+sz.x,p.y+sz.y),IM_COL32(16,17,21,255),5);
-    dl->AddRect(p,ImVec2(p.x+sz.x,p.y+sz.y),IM_COL32(24,26,31,255),5);
-    float rail=52,listing=(width<850?182:208)*std::max(1.f,fontScale),detailX=rail+listing+28;
-    dl->AddRectFilled(ImVec2(p.x+1,p.y+1),ImVec2(p.x+rail,p.y+sz.y-1),IM_COL32(19,20,24,255),5,ImDrawFlags_RoundCornersLeft);
-    dl->AddRectFilled(ImVec2(p.x+rail,p.y+1),ImVec2(p.x+rail+listing+8,p.y+sz.y-1),IM_COL32(19,20,24,255));
-    dl->AddLine(ImVec2(p.x+rail,p.y+12),ImVec2(p.x+rail,p.y+sz.y-12),IM_COL32(29,31,37,255),1.f);
-    dl->AddLine(ImVec2(p.x+rail+listing+8,p.y+12),ImVec2(p.x+rail+listing+8,p.y+sz.y-12),IM_COL32(26,28,33,255),1.f);
-    dl->AddLine(ImVec2(p.x+detailX-12,p.y+52),ImVec2(p.x+sz.x-18,p.y+52),IM_COL32(25,27,32,255),1.f);
-    ImGui::SetCursorScreenPos(ImVec2(p.x+8,p.y+14));
-    ImGui::PushStyleColor(ImGuiCol_ChildBg,ImVec4(0,0,0,0));ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding,ImVec2(0,0));
-    ImGui::BeginChild("categories",ImVec2(rail-16,sz.y-28));ImGui::SetWindowFontScale(fontScale);
-    for(int i=0;i<8;++i){ImGui::PushID(i+200);ImVec2 a=ImGui::GetCursorScreenPos();
-        if(ImGui::InvisibleButton("category",ImVec2(36,44),ImGuiButtonFlags_EnableNav)){category=i;selected=0;search[0]=0;}
-        if(category==i)ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(a.x-4,a.y+12),ImVec2(a.x-2,a.y+32),ImGui::GetColorU32(Accent()),1);
-        NavIcon(ImGui::GetWindowDrawList(),ImVec2(a.x+18,a.y+22),i,category==i?ImGui::GetColorU32(Accent()):IM_COL32(117,123,135,255));
-        if(ImGui::IsItemHovered())ImGui::SetTooltip("%s",language?catsEn[i]:catsRu[i]);ImGui::PopID();
-    }ImGui::EndChild();ImGui::PopStyleVar();ImGui::PopStyleColor();
-    ImGui::SetCursorScreenPos(ImVec2(p.x+rail+14,p.y+21));
-    ImGui::PushStyleColor(ImGuiCol_ChildBg,ImVec4(0,0,0,0));ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding,ImVec2(0,0));
-    ImGui::BeginChild("functions",ImVec2(listing-14,sz.y-48));ImGui::SetWindowFontScale(fontScale);
-    ImGui::PushTextWrapPos(0);ImGui::TextDisabled("%s",language?catsEn[category]:catsRu[category]);ImGui::PopTextWrapPos();
-    {ImVec2 line=ImGui::GetCursorScreenPos();ImGui::GetWindowDrawList()->AddLine(ImVec2(line.x,line.y+8),ImVec2(line.x+ImGui::GetContentRegionAvail().x,line.y+8),IM_COL32(27,29,34,255),1.f);}
-    ImGui::Dummy(ImVec2(0,15));
-    if(category==7){
-        ImGui::SetNextItemWidth(-1);ImGui::InputTextWithHint("##hero-search",T("Поиск героя","Find hero"),search,sizeof(search));
-        if(ImGui::Button(T("Показать доступные модули","Show implemented modules"),ImVec2(-1,28))){selected=0;search[0]=0;}
-        ImGui::TextDisabled(T("%d подключённых модулей","%d implemented modules"),heroCount);ImGui::TextDisabled("%s",T("Базовые прокасты: экспериментально","Basic combos: experimental"));
-        ImGui::BeginChild("hero-list",ImVec2(0,std::max(80.f,ImGui::GetContentRegionAvail().y-122)),ImGuiChildFlags_None);
-    }
-    bool found=false;
-    for(int i=0;i<functionCounts[category];++i){Function& fn=functions[category][i];if(search[0]){std::string label=fn.name,needle=search;std::transform(label.begin(),label.end(),label.begin(),[](unsigned char c){return (char)std::tolower(c);});std::transform(needle.begin(),needle.end(),needle.begin(),[](unsigned char c){return (char)std::tolower(c);});if(label.find(needle)==std::string::npos)continue;}found=true;if(FunctionEntry(fn,selected==i))selected=i;}
-    if(!found)ImGui::TextDisabled("%s",T("Ничего не найдено","No results"));
-    if(category==7)ImGui::EndChild();
-    ImGui::SetCursorPosY(std::max(ImGui::GetCursorPosY()+24,ImGui::GetWindowHeight()-96));
-    ImGui::TextDisabled("FDA 0.5.5 / ESP19");ImGui::TextDisabled("%s",profileLabels[profile]);
-    if(ImGui::Button(T("Сохранить","Save"),ImVec2(-1,30)))snprintf(message,sizeof(message),"%s",Save()?T("Сохранено","Saved"):T("Ошибка записи","Write error"));
-    if(message[0])ImGui::TextWrapped("%s",message);
-    ImGui::EndChild();ImGui::PopStyleVar();ImGui::PopStyleColor();
-    Function& fn=functions[category][selected];
-    ImGui::SetCursorScreenPos(ImVec2(p.x+detailX,p.y+18));ImGui::TextDisabled("%s /",language?catsEn[category]:catsRu[category]);ImGui::SameLine();ImGui::TextColored(Accent(),"%s",fn.name);
-    if(width>950){ImGui::SetCursorScreenPos(ImVec2(p.x+sz.x-256,p.y+13));ImGui::SetNextItemWidth(210);ImGui::InputTextWithHint("##function-search",T("Поиск функции","Find function"),search,sizeof(search));}
-    ImGui::SetCursorScreenPos(ImVec2(p.x+sz.x-39,p.y+12));if(ImGui::Button("x",ImVec2(26,28)))cfg::menuOpen=false;
-    ImGui::SetCursorScreenPos(ImVec2(p.x+detailX,p.y+66));
-    ImGui::PushStyleColor(ImGuiCol_ChildBg,ImVec4(0,0,0,0));ImGui::BeginChild("details",ImVec2(sz.x-detailX-18,sz.y-98));ImGui::SetWindowFontScale(fontScale);ImGui::PopStyleColor();
+
+static int HostVK(int k){
+ if(k>=ImGuiKey_A && k<=ImGuiKey_Z)return 'A'+k-ImGuiKey_A;
+ if(k>=ImGuiKey_0 && k<=ImGuiKey_9)return '0'+k-ImGuiKey_0;
+ if(k>=ImGuiKey_Keypad0 && k<=ImGuiKey_Keypad9)return VK_NUMPAD0+k-ImGuiKey_Keypad0;
+ if(k>=ImGuiKey_F1 && k<=ImGuiKey_F24)return VK_F1+k-ImGuiKey_F1;
+ switch(k){case ImGuiKey_Insert:return VK_INSERT;case ImGuiKey_Delete:return VK_DELETE;case ImGuiKey_End:return VK_END;case ImGuiKey_Home:return VK_HOME;case ImGuiKey_Space:return VK_SPACE;case ImGuiKey_Tab:return VK_TAB;case ImGuiKey_Enter:return VK_RETURN;case ImGuiKey_Escape:return VK_ESCAPE;case ImGuiKey_LeftArrow:return VK_LEFT;case ImGuiKey_RightArrow:return VK_RIGHT;case ImGuiKey_UpArrow:return VK_UP;case ImGuiKey_DownArrow:return VK_DOWN;case ImGuiKey_Backspace:return VK_BACK;case ImGuiKey_KeypadDecimal:return VK_DECIMAL;case ImGuiKey_KeypadDivide:return VK_DIVIDE;case ImGuiKey_KeypadMultiply:return VK_MULTIPLY;case ImGuiKey_KeypadSubtract:return VK_SUBTRACT;case ImGuiKey_KeypadAdd:return VK_ADD;case ImGuiKey_KeypadEnter:return VK_RETURN;case ImGuiKey_Oem102:return 226;case ImGuiKey_NumLock:return 144;case ImGuiKey_LeftSuper:return 91;case ImGuiKey_RightSuper:return 92;case ImGuiKey_Menu:return 93;case ImGuiKey_CapsLock:return VK_CAPITAL;case ImGuiKey_ScrollLock:return VK_SCROLL;case ImGuiKey_Pause:return VK_PAUSE;case ImGuiKey_PrintScreen:return VK_SNAPSHOT;case ImGuiKey_Apostrophe:return VK_OEM_7;case ImGuiKey_Comma:return VK_OEM_COMMA;case ImGuiKey_Minus:return VK_OEM_MINUS;case ImGuiKey_Period:return VK_OEM_PERIOD;case ImGuiKey_Slash:return VK_OEM_2;case ImGuiKey_Semicolon:return VK_OEM_1;case ImGuiKey_Equal:return VK_OEM_PLUS;case ImGuiKey_LeftBracket:return VK_OEM_4;case ImGuiKey_Backslash:return VK_OEM_5;case ImGuiKey_RightBracket:return VK_OEM_6;case ImGuiKey_GraveAccent:return VK_OEM_3;case ImGuiKey_MouseMiddle:return VK_MBUTTON;case ImGuiKey_MouseX1:return VK_XBUTTON1;case ImGuiKey_MouseX2:return VK_XBUTTON2;case ImGuiKey_PageUp:return VK_PRIOR;case ImGuiKey_PageDown:return VK_NEXT;case ImGuiKey_LeftCtrl:return VK_LCONTROL;case ImGuiKey_RightCtrl:return VK_RCONTROL;case ImGuiKey_LeftShift:return VK_LSHIFT;case ImGuiKey_RightShift:return VK_RSHIFT;case ImGuiKey_LeftAlt:return VK_LMENU;case ImGuiKey_RightAlt:return VK_RMENU;default:return 0;}}
+static bool HostDown(int k){int vk=HostVK(k);DWORD pid=0;HWND w=GetForegroundWindow();return vk && w && IsWindowVisible(w) && GetWindowThreadProcessId(w,&pid) && pid==GetCurrentProcessId() && (GetAsyncKeyState(vk)&0x8000);}
+static void HostReload(){using namespace clientui;bool ok=Load();Menu::SetEnabled(cfg::hudItems,cfg::hudAbilities,cfg::showEffects,cfg::hudHpNumber);Menu::LogHost(ok?"FDA configuration loaded":"FDA configuration unavailable");}
+static int s_hostChosen[9]={};
+static void HostPage(int rail,int page,float x,float y,float width,float scale,int lang){
+ using namespace clientui;language=lang==0?1:0;fontScale=1.f;
+ ImGui::SetCursorScreenPos({x,y});ImGui::PushFont(nullptr,18.6f*scale);
+ ImGui::BeginChild("FDA native modules",{width,470.f*scale},ImGuiChildFlags_None);
+ int group=rail==4||rail==7?7:rail==1?2:rail==2?1:rail==6?4:rail==8?6:0;
+ int index=0;
+ if(rail==3){switch(page){case 0:group=1;index=0;break;case 1:group=3;index=3;break;case 3:group=0;index=1;break;case 4:group=2;index=3;break;case 5:case 6:case 7:case 8:ImGui::TextWrapped("Not implemented in this base. This is not an enabled game feature.");ImGui::EndChild();ImGui::PopFont();return;case 9:group=2;index=1;break;}}
+ auto& chosen=s_hostChosen;if(rail!=3){index=chosen[rail];index=std::clamp(index,0,functionCounts[group]-1);if(ImGui::BeginCombo("Module",functions[group][index].name)){for(int i=0;i<functionCounts[group];++i)if(ImGui::Selectable(functions[group][i].name,i==index))chosen[rail]=index=i;ImGui::EndCombo();}}
+ // Utility also exposes every base module without adding pretend Umbrella features.
+ if(rail==6){static int nativeGroup=4;const char* groups[]={"Render","Combat","Map","Misc","Profiles","Settings","Diagnostics","Combos"};ImGui::Combo("Base section",&nativeGroup,groups,8);group=nativeGroup;index=std::clamp(chosen[rail],0,functionCounts[group]-1);if(ImGui::BeginCombo("Base module",functions[group][index].name)){for(int i=0;i<functionCounts[group];++i)if(ImGui::Selectable(functions[group][i].name,i==index))chosen[rail]=index=i;ImGui::EndCombo();}}
+ Function& fn=functions[group][index];
+ if(fn.details==16){ImGui::TextWrapped("Interface settings are in the original separate Settings window (rail gear).");ImGui::EndChild();ImGui::PopFont();return;}
     if((fn.details<15&&fn.details!=13)||fn.details==19||fn.details==20||fn.details==21||fn.details==22){Card("main","Основное","General",-1);MainSwitch(fn);EndCard(0);}
     Card("options","Настройки","Settings",0);
     if(fn.details>=2000&&fn.details<2000+combos::count)combos::DrawSettings(fn.details-2000,language!=0);
@@ -531,7 +500,7 @@ void DrawMenuWindow(){
         if(ImGui::Button(T("Сбросить сдвиги HP","Reset HP offsets"))){cfg::nativeHpOffsetX=0;cfg::nativeHpOffsetY=-9;cfg::nativeHpRedOffsetY=6;}
         Row("Visible By Enemy *","Visible By Enemy *",&cfg::hudVisibleByEnemy,6);
         ImGui::SetNextItemWidth(-1);LotusSlider(T("Размер иконок","Icon size"),&cfg::hudSkillPixels,28,60,"%.0f px");break;
-    case 1:Row("Способности сверху","Top abilities",&cfg::hudTopAbilities);Row("Портреты героев","Hero portraits",&cfg::hudPortraits);ImGui::SetNextItemWidth(-1);LotusSlider(T("Высота компактной панели","Compact panel Y"),&cfg::hudTopY,54,240,"%.0f px");Help("Горизонтальные карточки: HP/MP, ряд способностей, ряд предметов. В тумане нет текущих HP/MP/спеллов. Малое разрешение: +N означает дополнительные скрытые иконки, а не вертикальный столбец.","Horizontal cards: HP/MP, ability row, item row. No current HP/MP/spells in fog. On smaller screens, +N counts extra icons rather than growing a vertical column.");break;
+    case 1:Row("Способности сверху","Top abilities",&cfg::hudTopAbilities);Row("Портреты героев","Hero portraits",&cfg::hudPortraits);ImGui::SetNextItemWidth(-1);LotusSlider(T("Высота компактной панели","Compact panel Y"),&cfg::hudTopY,54,240,"%.0f px");Help("Только HP/мана и квадратные скиллы. КД — секунды на затемнённой иконке. Без предметов и точек уровней. В тумане текущие значения не показываются.","HP/mana and square skills only. Remaining cooldown seconds on a dim icon. No items or level dots. No current stats in fog.");break;
     case 2:Help("Показывает ILLUSION по прочитанному флагу или модификатору. Не угадывает по одинаковому герою.","Shows ILLUSION from verified flags/modifiers. Duplicate heroes alone are not proof.");break;
     case 4:ImGui::SetNextItemWidth(220);ImGui::InputText(T("Подпись","Label"),cfg::hudNickname,sizeof(cfg::hudNickname));break;
     case 5:Help("Показывает существующие привязки функций. Их можно менять кнопкой «Клавиша» в настройках функции.","Shows existing function bindings. Edit a binding using the Key button in the function settings.");break;
@@ -560,7 +529,7 @@ void DrawMenuWindow(){
         if(message[0])ImGui::TextUnformatted(message);break;
     case 16:{const char* langs[]={"Русский","English"};const char* colors[]={"Blue","Lotus Violet","Mint"};ImGui::SetNextItemWidth(200);ImGui::Combo(T("Язык","Language"),&language,langs,2);
         ImGui::SetNextItemWidth(200);ImGui::Combo(T("Акцент","Accent"),&accent,colors,3);ImGui::SetNextItemWidth(240);LotusSlider(T("Масштаб текста","Text scale"),&fontScale,.9f,1.3f,"%.2f");
-        Help("Непрозрачная тема по последнему образцу. Blur и просвечивание игры отключены.","Opaque theme from the latest reference. Blur and game transparency are disabled.");break;}
+        Help("Порт компоновки и переключателей из присланного UmbrellaMenu: тёмные карточки, мягкое свечение. Без фальшивого blur сцены.","User-provided UmbrellaMenu layout/toggle adaptation: dark cards and subtle glow. No fake scene blur.");break;}
     case 19:{
         Row("Показывать Kill helper (без нажатий)","Show Kill helper (no inputs)",&cfg::showKillHelper);
         Help("Хелпер работает независимо от автонажатий. Его расчёт и фильтр — в разделе Kill helper.","The helper is independent of autocasting. Calculation and filter settings are under Kill helper.");
@@ -577,24 +546,31 @@ void DrawMenuWindow(){
         ImGui::SetNextItemWidth(180);ImGui::InputFloat(T("Запас HP","HP margin"),&cfg::ksMargin,5,20,"%.0f");
         Help("Ручной профиль одного спелла. Урон и дальность задай по своему текущему герою, уровню и талантам. При смене героя автоматизация блокируется до новой привязки.","Manual one-spell profile. Set damage/range for your current hero, level and talents. Hero changes block automation until rebound.");
         Help("Действует только при удержании бинда, закрытом меню и фокусе Dota. Нужны подтверждённые баффы, видимость, мана и готовый спелл. Не гарантирует убийство; каналы и снаряды не моделируются.","Requires hold binding, closed menu and Dota focus. Verified buffs, visibility, mana and ready spell are required. No kill guarantee; channels and projectiles are not modeled.");break;}
+    case 24:case 25:{
+        Help("Только для вашей приватной демо-проверки. Адреса НЕ найдены автоматически. Пока client.dll pointer paths не указаны и не проверены, записи блокируются. Это не обход sv_cheats или античита.","Private demo testing only. Addresses are NOT auto-discovered. Writes remain blocked until client.dll pointer paths are supplied and verified. No sv_cheats or anti-cheat bypass.");
+        Row("Цепочки проверены в текущей приватной демо","Paths verified in current private demo",&visualsettings::demoConfirmed);
+        Help("Формат: RVA, offset, offset (HEX). Без offset: прямой client.dll+RVA. Каждый offset: dereference pointer, затем +offset. Не переносить адреса из старого гайда.","Format: RVA, offset, offset (HEX). No offset: direct client.dll+RVA. Each offset: dereference pointer, then add offset. Do not reuse old guide addresses.");
+        if(fn.details==24){Row("Включить zoom (адреса обязательны)","Enable zoom (paths required)",&visualsettings::zoom);ImGui::TextUnformatted("dota_camera_distance / float");ImGui::SetNextItemWidth(-1);ImGui::InputText("##cameraPath",visualsettings::cameraPath,160);ImGui::TextUnformatted("r_farz / float");ImGui::SetNextItemWidth(-1);ImGui::InputText("##farzPath",visualsettings::farzPath,160);ImGui::TextUnformatted("fog_enable / byte");ImGui::SetNextItemWidth(-1);ImGui::InputText("##fogPath",visualsettings::fogPath,160);LotusSlider("Camera distance",&visualsettings::distance,800,2400,"%.0f");ImGui::TextWrapped("%s",visualsettings::camera.status);Help("Применение: camera distance; r_farz=2*distance; fog_enable=0. Выключение восстанавливает значения, только если адрес/контекст и последнее записанное значение совпадают.","Applies camera distance; r_farz=2*distance; fog_enable=0. Disable restores only if addresses/context and last written values still match.");}
+        else{Row("Включить погоду (адрес обязателен)","Enable weather (path required)",&visualsettings::weather);ImGui::TextUnformatted("cl_weather / int32");ImGui::SetNextItemWidth(-1);ImGui::InputText("##weatherPath",visualsettings::weatherPath,160);ImGui::SliderInt("Weather ID (0..9)",&visualsettings::weatherId,0,9);ImGui::TextWrapped("%s",visualsettings::climate.status);}
+        Help("Нельзя считать адрес правильным только по диапазону значения. Требуется проверить эффект и повторное разрешение после перезапуска клиента. Linux/mock тесты не доказывают работу этих ConVar в вашей Dota.","Value-range checks do not prove correct addresses. Verify effects and re-resolution after a client restart. Linux/mock tests do not validate these ConVars in your Dota.");break;}
     case 23:{static std::array<int,4> picks={-1,-1,-1,-1};draftadvisor::DrawUI(language!=0,picks);break;}
     case 22:{
-        Help("Huskar — экспериментальный Armlet по порогу HP. Не универсальный прокаст и не предсказатель входящего урона.","Huskar — experimental HP-threshold Armlet. Not a combo script or incoming-hit predictor.");
+        Help("Armlet для своего героя — экспериментальный цикл по порогу HP. Не универсальный прокаст и не предсказатель входящего урона.","Own-hero experimental HP-threshold Armlet. Not a combo script or incoming-hit predictor.");
         int slot=cfg::armletSlot+1;ImGui::SetNextItemWidth(180);if(ImGui::SliderInt(T("Слот Armlet (1..6)","Armlet slot (1..6)"),&slot,1,6)){cfg::armletSlot=slot-1;cfg::armletConfirmed=false;armlet::Reset();}
         static const char* keys[]={"Не задана / unset","Q","W","E","R","D","F","Z","X","C","V","B","N","1","2","3","4","5","6"};static const int codes[]={0,'Q','W','E','R','D','F','Z','X','C','V','B','N','1','2','3','4','5','6'};
         int selectedKey=0;for(int i=0;i<IM_ARRAYSIZE(codes);++i)if(codes[i]==cfg::armletKey)selectedKey=i;
         ImGui::SetNextItemWidth(180);if(ImGui::Combo(T("Клавиша предмета в Dota","Native item key"),&selectedKey,keys,IM_ARRAYSIZE(keys))){cfg::armletKey=codes[selectedKey];cfg::armletConfirmed=false;armlet::Reset();}
         ImGui::SetNextItemWidth(-1);LotusSlider(T("Переключать при HP <=","Toggle when HP <="),&cfg::armletThreshold,50,550,"%.0f HP");
         Row("Клавиша проверена в демо; риск понятен","Key tested in demo; risk understood",&cfg::armletConfirmed);
-        Help("Клавиша сверху — необязательный бинд включения помощника (toggle или hold). Можно включить переключателем меню. Клавиша предмета — настоящая привязка выбранного слота в Dota. Автоматика работает только на своём Huskar, выбранном единственным юнитом, при закрытом меню и фокусе Dota.","The optional top binding activates the helper (toggle or hold); the menu switch also works. Native item key must match this inventory slot in Dota. Own Huskar must be the only selected unit, with menu closed and Dota focused.");
-        Help("Настройка: 1) свой Huskar в демо; 2) Armlet в активном слоте 1–6; 3) указать настоящую клавишу этого слота и проверить её вручную; 4) включить подтверждение и модуль; 5) выбрать только Huskar, закрыть меню, вернуть фокус Dota. Отдельный бинд модуля необязателен. Порог HP должен быть ниже текущего HP для режима ожидания.","Setup: own Huskar in demo; Armlet in active slot 1–6; correct native slot key, manually tested; confirm and enable; select only Huskar, close menu, focus Dota. Activation binding is optional. Start above the HP threshold.");
+        Help("Клавиша сверху — необязательный бинд включения помощника (toggle или hold). Можно включить переключателем меню. Клавиша предмета — настоящая привязка выбранного слота в Dota. Автоматика работает только на своём герое с Armlet, выбранном единственным юнитом, при закрытом меню и фокусе Dota.","The optional top binding activates the helper (toggle or hold); the menu switch also works. Native item key must match this inventory slot in Dota. Own Huskar must be the only selected unit, with menu closed and Dota focused.");
+        Help("Настройка: 1) свой герой с Armlet в демо; 2) Armlet в активном слоте 1–6; 3) указать настоящую клавишу этого слота и проверить её вручную; 4) включить подтверждение и модуль; 5) выбрать только собственного героя, закрыть меню, вернуть фокус Dota. Отдельный бинд модуля необязателен. Порог HP должен быть ниже текущего HP для режима ожидания.","Setup: own hero with Armlet in demo; Armlet in active slot 1–6; correct native slot key, manually tested; confirm and enable; select only your hero, close menu, focus Dota. Activation binding is optional. Start above the HP threshold.");
         Help("При низком HP: если Armlet выключен — включить; если включён — выключить, дождаться подтверждённого OFF и затем включить. Не чаще 2 секунд, с подтверждением ON и активного модификатора. Неизвестные данные блокируют ввод. Распознанный риск DoT запрещает новый OFF, но не отменяет ON после уже запрошенного OFF. Урон и время тиков не рассчитываются.","Low HP: turn ON if OFF; if ON, request OFF, observe actual OFF and then request ON. Two-second minimum spacing and confirmed ON plus active modifier. Unknown data blocks input. Recognized DoT risk blocks a new OFF, but not ON completion after an OFF request. Damage and tick timing are not calculated.");
-        Help("Входящие атаки, снаряды и все DoT НЕ предсказываются. Возможна смерть. При сбое или потере фокуса цикл останавливается: Armlet может остаться выключенным — проверь вручную. Модуль владеет input lane на своём Huskar или при незавершённом цикле; на другом герое его базовый прокаст не блокируется.","Incoming attacks/projectiles and every DoT are NOT predicted. Death is possible. Failure/focus loss stops the cycle: Armlet may remain OFF; check manually. Armlet owns the input lane on own Huskar or an unfinished cycle; another hero basic combo is not blocked by enabling this module.");
-        if(!diagnostics::snapshot.frameOk)Help("БЛОК: локальный игрок не определён. Контроллер ищется отдельно; чужой Huskar не выбирается автоматически.","BLOCKED: local player unresolved. Reference search runs separately; no arbitrary Huskar selection.");
+        Help("Входящие атаки, снаряды и все DoT НЕ предсказываются. Возможна смерть. При сбое или потере фокуса цикл останавливается: Armlet может остаться выключенным — проверь вручную. Модуль забирает ввод при HP ниже порога с Armlet в выбранном слоте или при незавершённом цикле. Само включение модуля при высоком HP не блокирует прокаст.","Incoming attacks/projectiles and every DoT are NOT predicted. Death is possible. Failure/focus loss stops the cycle: Armlet may remain OFF; check manually. Armlet owns input below threshold with the configured item, or during a pending cycle. Enabling it at high HP does not block combos.");
+        if(!diagnostics::snapshot.frameOk)Help("БЛОК: локальный игрок не определён. Контроллер ищется отдельно; чужой герой не выбирается автоматически.","BLOCKED: local player unresolved. Reference search runs separately; no arbitrary Huskar selection.");
         if(!cfg::armletConfirmed)Help("БЛОК: подтверждение проверенной клавиши выключено.","BLOCKED: native-key confirmation is OFF.");
         if(ImGui::Button(T("Копировать диагностику Armlet","Copy Armlet diagnostics"))){
             char report[32768];const auto& d=diagnostics::snapshot;const auto& cp=game::g_controllerProbe;
-            snprintf(report,sizeof(report),"ESP19 Armlet\ncurrent=%s\nlastClosedMenu=%s\nenabled=%d confirmed=%d nativeKey=%d slot=%d threshold=%g activationKey=%d menuOpen=%d\nlocalFrame=%d observedOnly=%d controller=%llX source=%d refsStage=%d refsSlots=%u refsHits=%d\n",armlet::Status(),armlet::LastClosedStatus(),cfg::armletAuto,cfg::armletConfirmed,cfg::armletKey,cfg::armletSlot+1,cfg::armletThreshold,binds::items[11].vk,cfg::menuOpen,d.frameOk,d.observedOnly,(unsigned long long)game::g_sys.localCtrl,cp.source.load(),cp.controllerRefStage.load(),cp.controllerRefSlots.load(),cp.controllerRefHits.load());
+            snprintf(report,sizeof(report),"ESP22 Armlet\ncurrent=%s\nlastClosedMenu=%s\nenabled=%d confirmed=%d nativeKey=%d slot=%d threshold=%g activationKey=%d menuOpen=%d\nlocalFrame=%d observedOnly=%d controller=%llX source=%d refsStage=%d refsSlots=%u refsHits=%d\n",armlet::Status(),armlet::LastClosedStatus(),cfg::armletAuto,cfg::armletConfirmed,cfg::armletKey,cfg::armletSlot+1,cfg::armletThreshold,binds::items[11].vk,cfg::menuOpen,d.frameOk,d.observedOnly,(unsigned long long)game::g_sys.localCtrl,cp.source.load(),cp.controllerRefStage.load(),cp.controllerRefSlots.load(),cp.controllerRefHits.load());
             uint32_t assigned=0;int player=-1,owner=-1,heroPlayer=-1;uint8_t localFlag=2;
             bool assignedRead=mem::Read(game::g_sys.localCtrl+off::Ctrl::m_hAssignedHero,assigned);
             bool playerRead=mem::Read(game::g_sys.localCtrl+off::Ctrl::m_nPlayerID,player);
@@ -634,9 +610,19 @@ void DrawMenuWindow(){
         ImGui::SetNextItemWidth(-1);LotusSlider(T("Предупредить за","Reminder lead"),&cfg::notifyLead,3,30,"%.0f s");
         Help("Спавн — изменение времени в сущности спавнера. Обнаружение — руна стала доступна клиенту. Напоминание не подтверждает появление.","Spawn means the client spawner time changed. Discovery means a rune became available to the client. A reminder does not confirm a spawn.");
         Help("Только прочитанные сущности. Без восстановления тумана войны. При включении и смене матча старые события не повторяются.","Read entities only. No fog-of-war recovery. Old events are suppressed on enable and match changes.");break;
-    }EndCard();ImGui::EndChild();
-    if(s_openReq>=0){cfg::rebindIdx=s_openReq;s_capture=true;s_openReq=-1;ImGui::OpenPopup("rebind");}
-    if(cfg::rebindIdx>=0){ImGui::SetNextWindowPos(ImVec2(std::max(16.f,std::min(p.x+sz.x-260,screen.x-260)),std::max(16.f,std::min(p.y+168,screen.y-210))),ImGuiCond_Appearing);if(ImGui::BeginPopup("rebind")){RebindPopup(cfg::rebindIdx);ImGui::EndPopup();}else{cfg::rebindIdx=-1;s_capture=false;}}
-    ImGui::SetCursorScreenPos(ImVec2(p.x+detailX,p.y+sz.y-ImGui::GetFontSize()-18));ImGui::TextDisabled("%s",T("ЛКМ — вкл/выкл · ПКМ — настройки","LMB — toggle · RMB — settings"));
-    ImGui::SetWindowFontScale(1);ImGui::End();
+    }EndCard();
+ Menu::SetEnabled(cfg::hudItems,cfg::hudAbilities,cfg::showEffects,cfg::hudHpNumber);
+ ImGui::EndChild();ImGui::PopFont();
+ // Preserve all original FDA key-capture controls in the new parent window.
+ if(s_openReq>=0){cfg::rebindIdx=s_openReq;s_capture=true;s_openReq=-1;ImGui::OpenPopup("rebind");}
+ if(cfg::rebindIdx>=0){if(ImGui::BeginPopup("rebind")){RebindPopup(cfg::rebindIdx);ImGui::EndPopup();}else{cfg::rebindIdx=-1;s_capture=false;}}
+}
+void DrawMenuWindow(){
+ using namespace clientui;InitHelpers();
+ if(!initialized){initialized=true;profile=ConfigPath()[0]?(int)GetPrivateProfileIntW(L"client",L"active",0,ConfigPath()):0;profile=std::clamp(profile,0,2);Load();Menu::SetEnabled(cfg::hudItems,cfg::hudAbilities,cfg::showEffects,cfg::hudHpNumber);}
+ // External cfg binds may have changed flags before this frame; do not overwrite them.
+ static bool lastI=cfg::hudItems,lastS=cfg::hudAbilities,lastM=cfg::showEffects,lastB=cfg::hudHpNumber;
+ if(lastI!=cfg::hudItems||lastS!=cfg::hudAbilities||lastM!=cfg::showEffects||lastB!=cfg::hudHpNumber)Menu::SetEnabled(cfg::hudItems,cfg::hudAbilities,cfg::showEffects,cfg::hudHpNumber);
+ Menu::Host(cfg::menuOpen,HostPage,HostDown,HostReload);Menu::Frame();cfg::menuOpen=Menu::Visible();int vk=HostVK(Menu::MenuKey());if(vk)cfg::menuKey=vk;
+ auto o=Menu::GetOverlay();lastI=cfg::hudItems=o.items.enabled;lastS=cfg::hudAbilities=o.skills.enabled;lastM=cfg::showEffects=o.modifiers.enabled;lastB=cfg::hudHpNumber=o.bars;
 }

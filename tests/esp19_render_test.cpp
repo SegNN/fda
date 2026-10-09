@@ -2,6 +2,7 @@
 #include "fog_memory.h"
 #include "local_visibility.h"
 #include "compact_top.h"
+#include "world_clip.h"
 #include "combo_profiles.h"
 #include <cassert>
 #include <fstream>
@@ -19,11 +20,11 @@ static ID3D11ShaderResourceView* Texture(const char* category,const char* name){
 #include "production_fog.inc"
 #include "production_top.inc"
 }
-static FrameUnit Unit(int n){FrameUnit u;u.entityHandle=0x8001+n;u.kind=UnitKind::Hero;u.team=n<5?2:3;u.playerId=n;u.hp=5659-100*n;u.maxHp=6000;u.mana=500;u.maxMana=900;u.alive=u.clockRead=u.stateRead=u.inventoryRead=u.buffsRead=true;u.sampleTime=100;u.npcVisibilityRead=u.npcVisible=true;u.teamVisibilityRead=true;u.teamVisibilityMask=0;
+static FrameUnit Unit(int n){FrameUnit u;u.entityHandle=0x8001+n;u.kind=UnitKind::Hero;u.team=n<5?2:3;u.playerId=n;u.hp=5659-100*n;u.maxHp=6000;u.mana=500;u.maxMana=900;u.manaRead=true;u.alive=u.clockRead=u.stateRead=u.inventoryRead=u.buffsRead=true;u.sampleTime=100;u.npcVisibilityRead=u.npcVisible=true;u.teamVisibilityRead=true;u.teamVisibilityMask=0;
  if(n==0){strcpy(u.name,"npc_dota_hero_huskar");const char* a[]={"huskar_inner_fire","huskar_burning_spear","huskar_berserkers_blood","huskar_life_break"};u.abilN=4;for(int j=0;j<4;++j){strcpy(u.abil[j].icon,a[j]);u.abil[j].level=u.abil[j].maxLevel=j==3?3:4;u.abil[j].cooldownRead=true;u.abil[j].cd=j==0?30:0;}}
  else {const auto& p=combos::profiles[n-1];strcpy(u.name,p.hero);u.abilN=p.count;for(int j=0;j<p.count;++j){strcpy(u.abil[j].icon,p.steps[j].ability);u.abil[j].level=u.abil[j].maxLevel=j==p.count-1&&p.steps[j].defaultKey=='R'?3:4;u.abil[j].cooldownRead=true;u.abil[j].cd=j==0?9:0;}}
  const char* items[]={"armlet","black_king_bar","overwhelming_blink","heart","tango","ultimate_scepter"};u.itemN=6;for(int j=0;j<6;++j){auto& item=u.items[j];item.slot=j;strcpy(item.icon,items[j]);item.cooldownRead=true;item.cd=j==1?42:0;item.charges=j==4?3:-1;}return u;}
-int main(int argc,char** argv){int width=argc>1?std::stoi(argv[1]):1920;bool hidden=argc>2;int height=width==1920?1080:720;view::W=width;view::H=height;ImGui::CreateContext();auto& io=ImGui::GetIO();io.DisplaySize={float(width),float(height)};io.DeltaTime=1.f/60;io.IniFilename=nullptr;
+int main(int argc,char** argv){cfg::menuOpen=false;int width=argc>1?std::stoi(argv[1]):1920;bool hidden=argc>2;int height=width==1920?1080:720;view::W=width;view::H=height;ImGui::CreateContext();auto& io=ImGui::GetIO();io.DisplaySize={float(width),float(height)};io.DeltaTime=1.f/60;io.IniFilename=nullptr;
  auto* font=io.Fonts->AddFontFromFileTTF("assets/fonts/ui-semibold.otf",15);if(!font)font=io.Fonts->AddFontDefault();unsigned char* px;int fw,fh;io.Fonts->GetTexDataAsRGBA32(&px,&fw,&fh);io.Fonts->SetTexID((ImTextureID)1);
  std::string stem="build/esp19-"+std::to_string(width)+(hidden?"-hidden":"");std::ofstream atlas(stem+"-font.rgba",std::ios::binary);atlas.write((char*)px,fw*fh*4);atlas.close();
  ImGui::NewFrame();auto* dl=ImGui::GetBackgroundDrawList();dl->AddRectFilled({0,0},{float(width),float(height)},IM_COL32(12,18,25,255));

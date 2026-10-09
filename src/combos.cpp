@@ -7,12 +7,13 @@
 #include <utility>
 #include <initializer_list>
 namespace combos {
-static combocore::Machine machine;static int active=-1;static const char* status="OFF";static HWND aimWindow=nullptr;static uintptr_t matchRules=0;
+static combocore::Machine machine;static int active=-1;static const char* status="OFF";static HWND aimWindow=nullptr;static char lastOutcome[512]="No sequence completed or failed yet.";static uintptr_t matchRules=0;static double waitCastingSince=-1;
 void InitializeSettings(){static bool once=false;if(once)return;once=true;for(int i=0;i<count;++i)for(int j=0;j<profiles[i].count;++j)settings[i].keys[j]=profiles[i].steps[j].defaultKey;}
 const char* Status(){return status;}
-void Reset(){machine.Reset();active=-1;aimWindow=nullptr;matchRules=0;status="Release / idle";}
+const char* LastOutcome(){return lastOutcome;}
+void Reset(){machine.Reset();active=-1;aimWindow=nullptr;matchRules=0;waitCastingSince=-1;status="Release / idle";}
 void Cancel(const char* why){machine.Stop(why);status=why;}
-static bool Key(int key){return (key>='A'&&key<='Z')||(key>='0'&&key<='9');}
+static bool Key(int key){return (key>='A'&&key<='Z')||(key>='0'&&key<='9')||key==VK_SPACE;}
 static bool Selected(uint32_t handle){uintptr_t ctrl=game::g_sys.localCtrl;
  for(auto layout:{std::pair<int,int>{0,8},{16,0}}){int n=0,n2=0,value=-1,again=-1;uintptr_t ptr=0,p2=0;
   if(mem::Read(ctrl+0x9c8+layout.first,n)&&n==1&&mem::Read(ctrl+0x9c8+layout.second,ptr)&&mem::ValidPtr(ptr)&&mem::Read(ptr,value)&&
@@ -30,7 +31,7 @@ bool Run(const Frame& f){InitializeSettings();
  bool held=Key(config.holdKey)&&(GetAsyncKeyState(config.holdKey)&0x8000);
  if(!held){Reset();status="Hold binding to start one sequence";return false;}
  if(active>=0&&active!=chosen){Cancel("Module/hero changed; release binding");return true;}active=chosen;
- auto block=[&](const char* why){Cancel(why);return true;};
+ auto block=[&](const char* why){snprintf(lastOutcome,sizeof(lastOutcome),"%s | step %d/%d | %s",profile.label,machine.Step()+1,profile.count,why);Cancel(why);return true;};
  if(!config.confirmed)return block("Confirm quickcast keys after testing in demo");
  if(f.localTeam!=2&&f.localTeam!=3)return block("Invalid local team");
  if(matchRules&&matchRules!=f.rules)return block("Match changed; release binding");matchRules=f.rules;
@@ -43,7 +44,7 @@ bool Run(const Frame& f){InitializeSettings();
  uint8_t paused=2;uint32_t assigned=0;
  if(!mem::Read(f.rules+0x38,paused)||paused!=0||!mem::Read(game::g_sys.localCtrl+off::Ctrl::m_hAssignedHero,assigned)||assigned!=f.localHandle||game::EntityByHandle(f.localHandle)!=f.localHero||!Selected(f.localHandle))return block("Pause/owner/selection guard");
  if(!self||self->illusion||!self->buffsRead||!self->stateRead||(self->unitState&killcore::CannotCast))return block("Local state/modifiers unavailable or blocked");
- if(machine.State()==combocore::Phase::Done||machine.State()==combocore::Phase::Fault){status=machine.Status();return true;}
+ if(machine.State()==combocore::Phase::Done||machine.State()==combocore::Phase::Fault){status=machine.Status();snprintf(lastOutcome,sizeof(lastOutcome),"%s | step %d/%d | %s",profile.label,std::min(machine.Step()+1,profile.count),profile.count,status);return true;}
  const FrameUnit* target=nullptr;float best=100.f*100.f;POINT mouse{};if(!GetCursorPos(&mouse)||!ScreenToClient(hwnd,&mouse))return block("Cursor unavailable");
  for(const auto& u:f.units){if(u.kind!=UnitKind::Hero||!u.alive||u.team==f.localTeam||u.illusion||!u.entityHandle||!u.buffsRead||!u.stateRead||!u.invisRead||u.invis>.01f||
    !localvisibility::Get(f,u).visible||(u.unitState&killcore::CannotTarget)||killcore::Protected(u.buffs)||game::EntityByHandle(u.entityHandle)!=u.addr)continue;
@@ -55,8 +56,16 @@ bool Run(const Frame& f){InitializeSettings();
  for(int i=0;i<self->abilN;++i)if(!strcmp(self->abil[i].icon,plan.ability)){if(spell)return block("Ambiguous spell name");spell=&self->abil[i];}
  if(!spell||!spell->entityHandle||game::EntityByHandle(spell->entityHandle)!=spell->addr||!spell->cooldownRead||!spell->phaseRead)return block("Spell identity/cooldown/phase unreadable");
  if(machine.State()!=combocore::Phase::AwaitCast){
-  uint32_t casting=0;if(!mem::Read(game::g_sys.localCtrl+off::Ctrl::m_hActiveAbility,casting)||(casting&&casting!=0xffffffffu))return block("Active ability/channel guard");
-  for(int i=0;i<self->abilN;++i)if(!self->abil[i].phaseRead||self->abil[i].phase)return block("Another ability phase unreadable/casting; release binding");
+  uint32_t casting=0;if(!mem::Read(game::g_sys.localCtrl+off::Ctrl::m_hActiveAbility,casting))return block("Active ability unreadable");
+  bool busy=casting&&casting!=0xffffffffu;
+  for(int i=0;i<self->abilN;++i){if(!self->abil[i].phaseRead)return block("Ability phase unreadable; release binding");busy=busy||self->abil[i].phase;}
+  if(busy){
+   if(machine.Step()==0)return block("Active ability/channel guard");
+   double now=double(GetTickCount64())/1000.;if(waitCastingSince<0)waitCastingSince=now;
+   if(now-waitCastingSince>2.||now<waitCastingSince)return block("Previous cast still active after 2s; release binding");
+   status="Waiting previous cast animation; no extra input";return true;
+  }
+  waitCastingSince=-1;
  }
  int native=config.keys[step];if(GetAsyncKeyState(native)&0x8000)return block("User holds spell key");
  ImVec2 screen;RECT bounds{};POINT desired{};

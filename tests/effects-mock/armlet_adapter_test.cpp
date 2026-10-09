@@ -34,7 +34,7 @@ int main(){
  f.units[0].buffsRead=false;assert(!armlet::Tick(f));f.units[0].buffsRead=true;
  mem::Put(list,2);assert(!armlet::Tick(f));mem::Put(list,1);
  mem::Put(game::g_sys.localCtrl+0x9C8,2);assert(!armlet::Tick(f));mem::Put(game::g_sys.localCtrl+0x9C8,1);
- strcpy(f.units[0].name,"npc_dota_hero_lina");assert(!armlet::Tick(f));strcpy(f.units[0].name,"npc_dota_hero_huskar");
+ strcpy(f.units[0].name,"npc_dota_hero_lina");f.units[0].hp=1000;assert(!armlet::Tick(f)&&strstr(armlet::Status(),"HP above threshold"));f.units[0].hp=300;strcpy(f.units[0].name,"npc_dota_hero_huskar");
  f.units[0].items[0].slot=6;assert(!armlet::Tick(f));f.units[0].items[0].slot=0;
  winmock::foreground=nullptr;assert(!armlet::Tick(f));winmock::foreground=(HWND)1;
  mem::Put(self.addr+0x12B8,killcore::Bit(4));assert(!armlet::Tick(f));mem::Put(self.addr+0x12B8,uint64_t(0));
@@ -74,6 +74,16 @@ int main(){
  f.localAlive=true;f.units[0].hp=900;f.now=3.2f;armlet::Tick(f);assert(armlet::machine.State()==armletcore::Phase::Idle);assert(strstr(armlet::CycleDiagnostics(),"faultContext:")==nullptr&&strstr(armlet::TraceDiagnostics(),"historicalOnly_faultContext:"));
  mem::Put(self.addr+0x12B8,uint64_t(0x200000106));f.now=3.3f;armlet::Tick(f);assert(strstr(armlet::Status(),"Unit-state mask")&&strstr(armlet::TraceDiagnostics(),"blockedMask=0x200000100"));mem::Put(self.addr+0x12B8,uint64_t(0));
  cfg::armletAuto=false;
- cfg::armletAuto=true;armlet::Reset();assert(armlet::OwnsLane(f));strcpy(f.units[0].name,"npc_dota_hero_lina");assert(!armlet::OwnsLane(f));strcpy(f.units[0].name,"npc_dota_hero_huskar");cfg::armletAuto=false;assert(!armlet::OwnsLane(f));
+ cfg::armletAuto=cfg::armletConfirmed=true;armlet::Reset();f.units[0].hp=200;
+ assert(armlet::OwnsLane(f));strcpy(f.units[0].name,"npc_dota_hero_lina");assert(armlet::OwnsLane(f));
+ int linaBefore=winmock::keyInputs;f.now=6;mem::Put(item.addr+0x62D,uint8_t(1));f.units[0].buffs={effect};assert(armlet::Tick(f)&&winmock::keyInputs==linaBefore+2);
+ mem::Put(item.addr+0x62D,uint8_t(0));f.now=6.02f;assert(armlet::Tick(f)&&winmock::keyInputs==linaBefore+4);
+ armlet::Reset();f.units[0].hp=1000;assert(!armlet::OwnsLane(f));f.units[0].hp=200;
+ f.units[0].items[0].slot=6;assert(!armlet::OwnsLane(f));f.units[0].items[0].slot=0;f.units[0].illusion=true;assert(!armlet::OwnsLane(f));f.units[0].illusion=false;
+ cfg::armletAuto=false;assert(!armlet::OwnsLane(f));
+ std::cout<<"PASS ESP21 own Lina Armlet OFF/ON and lane guards: high HP/missing item/illusion do not claim combo lane.\n";
+ cfg::armletAuto=cfg::armletConfirmed=true;armlet::Reset();f.now=9;f.units[0].hp=200;mem::Put(item.addr+0x62D,uint8_t(1));f.units[0].buffs={effect};
+ mem::tornParity=game::g_sys.localCtrl+off::Ctrl::m_hAssignedHero;mem::parityReads=0;int identityBefore=winmock::keyInputs;
+ assert(!armlet::Tick(f)&&winmock::keyInputs==identityBefore);assert(strstr(armlet::CycleDiagnostics(),"Owner/selection/identity changed before input"));mem::tornParity=0;mem::parityReads=0;armlet::Reset();cfg::armletAuto=false;
  std::cout<<"PASS ARM18 production Armlet with MOCK memory/Windows: Viper DoT after OFF does not cancel ON; initially OFF under Viper may turn ON; new OFF blocked; first fault preserved; Huskar, selection, slot, focus/menu, mute/channel/DoT/unknown guards; OFF observation; no late toggle; no mouse actions\n";
 }

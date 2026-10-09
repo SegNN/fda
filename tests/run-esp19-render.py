@@ -3,7 +3,7 @@ import tempfile,subprocess,shutil
 r=Path(__file__).resolve().parent.parent;(r/'build').mkdir(exist_ok=True)
 with tempfile.TemporaryDirectory(prefix='esp19-render-') as name:
  p=Path(name)
- for f in ['common.h','game.h','offsets.h','buff_reader.h','hero_info.h','fog_memory.h','local_visibility.h','compact_top.h','combo_profiles.h','ability_max_levels.h']:shutil.copy(r/'src'/f,p/f)
+ for f in ['umbrella_style.h','common.h','game.h','offsets.h','buff_reader.h','hero_info.h','fog_memory.h','local_visibility.h','compact_top.h','world_clip.h','combo_profiles.h','ability_max_levels.h']:shutil.copy(r/'src'/f,p/f)
  for f in (r/'tests/effects-mock').iterdir():
   if f.is_file():shutil.copy(f,p/f.name)
  s=(r/'src/hud.cpp').read_text()

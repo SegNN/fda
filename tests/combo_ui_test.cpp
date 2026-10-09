@@ -2,8 +2,9 @@
 #include "armlet.h"
 #include <cassert>
 #include <iostream>
-namespace combos {void InitializeSettings(){for(int i=0;i<count;++i)for(int j=0;j<profiles[i].count;++j)if(!settings[i].keys[j])settings[i].keys[j]=profiles[i].steps[j].defaultKey;}const char* Status(){return "Synthetic UI test / no live Dota";}void Reset(){}}
+namespace combos {void InitializeSettings(){for(int i=0;i<count;++i)for(int j=0;j<profiles[i].count;++j)if(!settings[i].keys[j])settings[i].keys[j]=profiles[i].steps[j].defaultKey;}const char* Status(){return "Synthetic UI test / no live Dota";}const char* LastOutcome(){return "No live outcome / synthetic test";}void Reset(){}}
 namespace armlet {void Reset(){}}
+namespace Menu {std::string ExportSettings(){return "";}bool ImportSettings(const std::string&){return false;}}
 namespace clientui {static int profile=0,language=0,accent=0;static float fontScale=1;static const wchar_t* profileNames[]={L"profile0",L"profile1",L"profile2"};
 #include "production_config.inc"
 }

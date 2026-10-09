@@ -1067,8 +1067,9 @@ static bool FillUnit(const StaticUnit& u, FrameUnit& fu, const Frame& f) {
     fu.clockRead=mem::Read(u.addr+off::BaseEntity::m_flSimulationTime,fu.sampleTime)&&std::isfinite(fu.sampleTime)&&fu.sampleTime>0.f&&fu.sampleTime<86400.f;
     if(!fu.clockRead)fu.clockRead=mem::Read(u.addr+off::BaseEntity::m_flAnimTime,fu.sampleTime)&&std::isfinite(fu.sampleTime)&&fu.sampleTime>0.f&&fu.sampleTime<86400.f;
     fu.level = mem::ReadOr<int>(u.addr + off::NPC::m_iCurrentLevel, 0);
-    fu.mana = mem::ReadOr<float>(u.addr + off::NPC::m_flMana, 0.f);
-    fu.maxMana = mem::ReadOr<float>(u.addr + off::NPC::m_flMaxMana, 0.f);
+    fu.manaRead=mem::Read(u.addr+off::NPC::m_flMana,fu.mana)&&mem::Read(u.addr+off::NPC::m_flMaxMana,fu.maxMana)&&
+        std::isfinite(fu.mana)&&std::isfinite(fu.maxMana)&&fu.mana>=0&&fu.maxMana>=0&&fu.mana<=100000&&fu.maxMana<=100000;
+    if(!fu.manaRead)fu.mana=fu.maxMana=0.f;
 
     int hbo = mem::ReadOr<int>(u.addr + off::NPC::m_iHealthBarOffset, 0);
     fu.hbOffset = (hbo > 0 && hbo < 1500) ? (float)hbo : 200.f;
@@ -1280,34 +1281,8 @@ void BuildFrame(Frame& f, uintptr_t ctrl) {
         if (FillUnit(g_frameSnapshot[i], fu, f)) f.units.push_back(fu);
     }
 
-    {
-        int readyVotes = 0, fullVotes = 0;
-        for (auto& u : f.units) {
-            if (u.kind != UnitKind::Hero) continue;
-            for (int i = 0; i < u.abilN; ++i) {
-                float cd = u.abil[i].cd, len = u.abil[i].cdLen;
-                if (len < 0.5f) continue;
-                if (cd < 0.02f) ++readyVotes;
-                if (fabsf(cd - len) < 1e-3f) ++fullVotes;
-            }
-        }
-        if (fullVotes > readyVotes) {
-            for (auto& u : f.units) {
-                if (u.kind != UnitKind::Hero) continue;
-                for (int i = 0; i < u.abilN; ++i) {
-                    if (!u.abil[i].cooldownRead) continue;
-                    float& cd = u.abil[i].cd;
-                    cd = u.abil[i].cdLen - cd;
-                    if (cd < 0.f) cd = 0.f;
-                }
-                for (int i = 0; i < u.itemN; ++i) {
-                    auto& item = u.items[i];
-                    if (item.cooldownRead && item.cdLen > 0.f && item.cd <= item.cdLen)
-                        item.cd = item.cdLen - item.cd;
-                }
-            }
-        }
-    }
+    // ESP20: m_fCooldown is read as remaining seconds per ability/item.
+    // Never invert all cooldowns based on other heroes' ready/full vote counts.
 
     bool seen = false;
     for (auto& u : f.units) {

@@ -8,6 +8,7 @@
 #include "combos.h"
 #include "observed_esp.h"
 #include "esp_projection.h"
+#include "world_clip.h"
 
 #include <cfloat>
 
@@ -20,6 +21,8 @@ void CancelPending();
 static float g_mat[16] = {};
 static int   g_mode = 0;
 static bool  g_matOk = false;
+static espprojection::StableCamera g_camera;
+static uintptr_t g_cameraClient=0;
 
 static bool Project(int mode, const Vec3& w, float& sx, float& sy, float& pw);
 
@@ -60,8 +63,11 @@ void Update() {
     if (!game::g_sys.ready) return;
 
     struct Mat4 { float m[16]; };
-    Mat4 tmp;
-    if (!mem::Read(game::g_sys.clientBase + off::dwViewMatrix, tmp)) return;
+    Mat4 tmp,repeat;
+    if (!mem::Read(game::g_sys.clientBase + off::dwViewMatrix, tmp)||
+        !mem::Read(game::g_sys.clientBase + off::dwViewMatrix,repeat)||
+        memcmp(tmp.m,repeat.m,sizeof(tmp.m))) return;
+    if(g_cameraClient!=game::g_sys.clientBase){g_camera.Reset();g_cameraClient=game::g_sys.clientBase;}
 
     double sum = 0.0;
     bool finite = true;
@@ -84,7 +90,8 @@ static bool Project(int mode,const Vec3& w,float& sx,float& sy,float& pw) {
 }
 static void ResolveMode(const Frame& f) {
     if(!g_matOk)return;
-    g_projectionChoice=espprojection::Resolve(g_mat,view::W,view::H,f,g_mode);
+    (void)f;g_projectionChoice=g_camera.Select(g_mat);
+    if(!g_camera.Locked()){g_matOk=false;return;}
     g_mode=g_projectionChoice.mode;
 }
 
@@ -740,6 +747,11 @@ void DrawOverlay(const Frame& f) {
     ImDrawList* dl = ImGui::GetBackgroundDrawList();
     if (!dl) return;
     hud::BeginWorldFrame(f);
+    if(cfg::menuOpen)return;
+    auto region=worldclip::Region(float(view::W),float(view::H),cfg::hudTop,cfg::hudTopY);
+    if(!region.valid)return;
+    dl->PushClipRect({region.left,region.top},{region.right,region.bottom},true);
+    struct ClipPop {ImDrawList* list;~ClipPop(){list->PopClipRect();}} clipPop{dl};
     if(f.observedOnly) {
         ResolveMode(f);
         auto project=[](const Vec3& world,ImVec2& screen){return view::W2S(world,screen);};
@@ -841,7 +853,7 @@ void RunAutomation(const Frame& f) {
         return;
     }
 
-    // Armlet owns the lane for own Huskar or an unfinished cycle; no queued farm/dodge/KS input.
+    // Armlet owns the lane for a low-HP own hero with Armlet or an unfinished cycle; no queued farm/dodge/KS input.
     if(armlet::OwnsLane(f)){input::CancelPending();combos::Cancel("Armlet owns input lane; release binding");armlet::Tick(f);return;}
     armlet::Tick(f); // cancel a disabled unfinished cycle; never send late recovery input
     if(combos::Run(f)){input::CancelPending();return;}

@@ -50,6 +50,18 @@ int main(){
  reported.units={visible};float invertedM[16];memcpy(invertedM,matrix,sizeof(matrix));for(int i=4;i<8;++i)invertedM[i]=-invertedM[i];
  choice=espprojection::Resolve(invertedM,1280,720,reported);assert(choice.mode==1&&choice.flippedVotes==1);
  Vec3 invalid{NAN,0,0};assert(!espprojection::Project(matrix,0,invalid,1280,720,fx,fy,fw));
+ espprojection::StableCamera camera;auto stable=camera.Select(matrix);assert(camera.Locked()&&stable.mode==0);
+ float pan[16];memcpy(pan,matrix,sizeof(pan));pan[3]=pan[7]=pan[11]=0;
+ assert(camera.Select(pan).mode==0); // Translation through origin must not transpose.
+ for(int n=0;n<10;++n){pan[3]=n*400.f;pan[7]=-n*550.f;pan[11]=n*25.f;assert(camera.Select(pan).mode==0);}
+ espprojection::StableCamera tc;assert(tc.Select(transpose).mode==2&&tc.Locked());
+ espprojection::StableCamera ic;assert(ic.Select(invertedM).mode==1&&ic.Locked());
+ float sx0,sy0,sw0,sx1,sy1,sw1;Vec3 fixed{100,200,128};
+ assert(espprojection::Project(matrix,stable.mode,fixed,1280,720,sx0,sy0,sw0));
+ memcpy(pan,matrix,sizeof(pan));pan[3]+=100;pan[7]+=50;
+ assert(espprojection::Project(pan,camera.Select(pan).mode,fixed,1280,720,sx1,sy1,sw1));
+ assert(std::fabs((sx1-sx0)-100.f/sw0*640.f)<.01f&&std::fabs((sy1-sy0)+50.f/sw0*360.f)<.01f);
+ std::cout<<"PASS ESP20 stable camera: pan through origin, no hero-dependent Y/layout change, transpose/inverted initialization, fixed world position follows current matrix.\n";
  std::cout<<"PASS ESP3 exact reported-matrix regression: off-camera zero origin cannot flip Y, on-camera drawing, transpose, no votes, inverted camera and NaN guards.\n";
  before=dl->VtxBuffer.Size;int callsBefore=heroCalls;
  stats=render(frame,project,true,true,true,false);assert(stats.drawn==1&&heroCalls==callsBefore+1&&dl->VtxBuffer.Size==before);

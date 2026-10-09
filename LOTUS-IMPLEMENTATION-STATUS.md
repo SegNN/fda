@@ -67,3 +67,23 @@ World/top/automation use one visibility decision; zero model mask no longer prov
 Frozen last-seen world ring; no hidden live-coordinate tracking.
 Compact horizontal player-slot cards at top, horizontal rows above world HP bars, top-band exclusion.
 Windows/live testing still missing. README-ESP19.txt is current; earlier entries are historical.
+
+
+## ESP20 current source follow-up
+Top cards now HP/mana + skill squares/cooldown only, 68px high. No items/level dots/footer.
+Global cooldown inversion removed; per-unit mana read status retained.
+Camera convention latched from lens structure, not hero votes while panning; double matrix read.
+World overlay clipped away from native top/bottom HUD; menu/foreground suppression.
+Frozen last-seen WORLD marker reprojected with current camera.
+Present 2D overlay still does not have native scene depth occlusion. Delayed visibility
+cannot be diagnosed from the supplied screenshot; startup diagnostics are required.
+Nine basic COMBO18 profiles and ARM18 core retained. Windows/live offsets remain unverified.
+
+
+## ESP21 current source
+Own assigned hero Armlet (not Huskar-only); low-HP/item-confirmed lane arbitration;
+late owner/selection/item identity guards. Nine basics, Space activation, last outcome,
+previous-cast animation wait. User Umbrella source-inspired shell/toggle/shadow adaptation,
+not complete standalone clone; actual FDA controls retained. Zoom/weather typed configurable
+client pointer paths, defaults OFF, no live addresses, explicit demo-attestation required.
+No verified live ConVar functionality, Windows build or depth occlusion.

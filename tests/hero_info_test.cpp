@@ -57,5 +57,16 @@ int main(){
  buffreader::Buff illusion;strcpy(illusion.name,"modifier_illusion");u.buffsRead=true;u.buffs={illusion};assert(heroinfo::Illusion(u));
  u.buffs.clear();u.illusionRead=true;u.illusion=false;style.hp=style.abilities=style.items=style.effects=style.statuses=style.illusions=false;layout.occupied.clear();before=dl->VtxBuffer.Size;
  heroinfo::Draw(u,dl,ImGui::GetFont(),{600,350},{600,180},1280,720,10,style,tracker,layout,texture);assert(dl->VtxBuffer.Size==before); // no forced bar/box/label
+ // ESP22 source-port controls: actual layer anchors, size/minification/opacity.
+ u.hp=582;u.maxHp=1000;u.alive=true;u.inventoryRead=true;u.itemN=1;u.abilN=1;u.clockRead=true;u.sampleTime=101;u.buffsRead=true;u.buffs={flask};
+ heroinfo::Style layer;layer.layers=true;layer.hp=layer.statuses=layer.illusions=false;layer.skillSize=42;layer.itemSize=20;layer.modSize=36;layer.skillAlign=0;layer.itemAlign=3;layer.modAlign=1;layer.minified=true;
+ layout.occupied.clear();auto layerStats=heroinfo::Draw(u,dl,ImGui::GetFont(),{600,430},{600,350},1280,720,11,layer,tracker,layout,texture);
+ assert(layerStats.abilities==1&&layerStats.items==1&&layerStats.effects==1&&layout.occupied.size()==3);
+ assert(layout.occupied[0].w==42&&layout.occupied[0].y<350);assert(layout.occupied[1].w==20&&layout.occupied[1].x>600);assert(layout.occupied[2].y>430);
+ layer.skillAlpha=layer.itemAlpha=layer.modAlpha=0;before=dl->VtxBuffer.Size;layout.occupied.clear();heroinfo::Draw(u,dl,ImGui::GetFont(),{600,430},{600,350},1280,720,12,layer,tracker,layout,texture);
+ for(int i=before;i<dl->VtxBuffer.Size;++i)assert((dl->VtxBuffer[i].col>>24)==0);
+ layer.abilities=layer.items=layer.effects=false;layer.customBar=1;u.manaRead=false;before=dl->VtxBuffer.Size;heroinfo::Draw(u,dl,ImGui::GetFont(),{600,430},{600,350},1280,720,13,layer,tracker,layout,texture);assert(dl->VtxBuffer.Size==before);
+ u.manaRead=true;u.mana=200;u.maxMana=400;heroinfo::Draw(u,dl,ImGui::GetFont(),{600,430},{600,350},1280,720,14,layer,tracker,layout,texture);assert(dl->VtxBuffer.Size>before);
+ std::cout<<"PASS ESP22 actual layer align/size/minified/alpha and verified mana bar geometry.\n";
  ImGui::EndFrame();ImGui::DestroyContext();std::cout<<"PASS HUD8 actual HeroInfo ImGui geometry: native HP text/status/illusion/items/ability levels/Flask, stable hero-local layout, observed-7s invis ring, unknown/dead/full-serial guards and all-off mode. Not a GPU/live-game test.\n";
 }

@@ -1,3 +1,4 @@
+#include "umbrella/menu.h"
 #include "hud.h"
 #include "hook.h"
 #include "top_anchor.h"
@@ -7,6 +8,8 @@
 #include "fog_memory.h"
 #include "local_visibility.h"
 #include "compact_top.h"
+#include "world_clip.h"
+#include "umbrella_style.h"
 #include "imgui.h"
 #include <wincodec.h>
 #include <string>
@@ -126,7 +129,8 @@ static void Time(float seconds,char* out,size_t cap) {
     int n=(int)ceilf(seconds);snprintf(out,cap,"%d:%02d",n/60,n%60);
 }
 static void Panel(ImDrawList* dl,ImVec2 p,ImVec2 size) {
-    dl->AddRectFilled(p,ImVec2(p.x+size.x,p.y+size.y),IM_COL32(13,15,18,225),5.f);
+    umbrellastyle::Halo(dl,p,{p.x+size.x,p.y+size.y},IM_COL32(150,103,239,255),5,.5f);
+    dl->AddRectFilled(p,ImVec2(p.x+size.x,p.y+size.y),IM_COL32(10,13,21,238),5.f);
     dl->AddRect(p,ImVec2(p.x+size.x,p.y+size.y),IM_COL32(55,58,65,210),5.f);
 }
 static void Bar(ImDrawList* dl,ImVec2 p,float w,float h,float fraction,ImU32 color,const char* number,float size) {
@@ -200,9 +204,10 @@ void BeginWorldFrame(const Frame& f) {
     g_fogMarkers=g_fogMemory.End();
 }
 void DrawFogMarkers() {
+    if(cfg::menuOpen)return;
     auto* dl=ImGui::GetBackgroundDrawList();
     for(const auto& marker:g_fogMarkers){ImVec2 c;Vec3 p{marker.pos.x,marker.pos.y,marker.pos.z};
-        if(!view::W2S(p,c)||c.x<24||c.y<24||c.x>view::W-24||c.y>view::H-43)continue;
+        if(!view::W2S(p,c)||!worldclip::Region(float(view::W),float(view::H),cfg::hudTop,cfg::hudTopY).Contains(c.x,c.y,23,43))continue;
         constexpr float r=20,pi=3.14159265f;float fraction=std::clamp(marker.remaining/10.f,0.f,1.f);
         dl->AddCircleFilled(c,r,IM_COL32(13,19,27,225),48);
         ImTextureID avatar=(ImTextureID)(uintptr_t)Texture("heroes",marker.portrait.c_str());
@@ -217,7 +222,7 @@ void DrawFogMarkers() {
     }
 }
 void DrawWorldHero(const Frame& f,const FrameUnit& u) {
-    if(!u.alive||!WorldHeroVisible(f,u))return;
+    if(cfg::menuOpen||!u.alive||!WorldHeroVisible(f,u))return;
     ImVec2 foot,top;Vec3 raised{u.pos.x,u.pos.y,u.pos.z+u.hbOffset};
     if(!view::W2S(u.pos,foot)||!view::W2S(raised,top))return;
     int frame=ImGui::GetFrameCount();if(frame!=g_worldLayoutFrame){g_worldLayoutFrame=frame;g_worldLayout.occupied.clear();}
@@ -228,6 +233,17 @@ void DrawWorldHero(const Frame& f,const FrameUnit& u) {
     if(!displayTeam&&mem::ValidPtr(game::g_sys.localCtrl)){uint8_t team=0;if(mem::Read(game::g_sys.localCtrl+off::BaseEntity::m_iTeamNum,team)&&(team==2||team==3))displayTeam=team;}
     bool red=displayTeam?u.team!=displayTeam:u.team==3;
     style.above=true;if(cfg::hudTop){auto box=compacttop::Place(float(view::W),float(view::H),2,0,cfg::hudTopY);if(box.valid)style.minOverlayY=box.y+box.h+12;}style.hpFont=theme::FontHp();style.pixels=cfg::hudSkillPixels;style.hpX=cfg::nativeHpOffsetX;style.hpY=heroinfo::HpOffset(cfg::nativeHpOffsetY,cfg::nativeHpRedOffsetY,red);
+    auto overlay=Menu::GetOverlay();int relation=u.entityHandle==f.localHandle?4:(red?1:2);
+    auto allowed=[&](const Menu::Layer& l){return l.enabled&&(l.showOn&relation)&&l.size>0;};
+    style.layers=true;style.abilities=cfg::hudAbilities&&allowed(overlay.skills);style.items=cfg::hudItems&&allowed(overlay.items);style.effects=cfg::showEffects&&allowed(overlay.modifiers);
+    style.hp=overlay.bars&&cfg::hudHpNumber;style.customBar=overlay.bars?overlay.bar:-1;
+    style.skillAlign=overlay.skills.align;style.itemAlign=overlay.items.align;style.modAlign=overlay.modifiers.align;
+    style.skillSize=overlay.skills.size;style.itemSize=overlay.items.size;style.modSize=overlay.modifiers.size;
+    style.minified=overlay.skills.minified;style.accent=overlay.accent;
+    auto mouse=ImGui::GetIO().MousePos;float dx=mouse.x-top.x,dy=mouse.y-top.y;bool hover=dx*dx+dy*dy<=overlay.hoverRadius*overlay.hoverRadius;
+    auto alpha=[&](const Menu::Layer& l){return (hover?l.hoverOpacity:l.opacity)/100.f;};
+    style.skillAlpha=alpha(overlay.skills);style.itemAlpha=alpha(overlay.items);style.modAlpha=alpha(overlay.modifiers);
+    style.skillTheme=overlay.skills.themeColors;style.itemTheme=overlay.items.themeColors;style.modTheme=overlay.modifiers.themeColors;
     heroinfo::Draw(u,ImGui::GetBackgroundDrawList(),theme::FontSmall(),foot,top,view::W,view::H,ImGui::GetTime(),style,g_invisTracker,g_worldLayout,
         [](const char* category,const char* name)->ImTextureID{return (ImTextureID)(uintptr_t)Texture(category,name);});
 }
@@ -243,7 +259,7 @@ static void Drag(float& x,float& y,float w,float h) {
     x=Clamp(x,0,std::max(0.f,io.DisplaySize.x-w));y=Clamp(y,0,std::max(0.f,io.DisplaySize.y-h));
 }
 static void Top(const Frame& f,ImDrawList* dl) {
-    if(!cfg::hudTop||!f.ok||f.observedOnly)return;
+    if(!cfg::hudTop||cfg::menuOpen||!f.ok||f.observedOnly)return;
     g_topRoster.Begin(f.now,f.rules,f.localHandle);
     for(const auto& u:f.units)if(u.kind==UnitKind::Hero&&!u.illusion&&(u.team==2||u.team==3))g_topRoster.Observe(u.team,u.playerId,u.entityHandle,u.name);
     for(const auto& e:g_topRoster.Entries()){
@@ -251,25 +267,23 @@ static void Top(const Frame& f,ImDrawList* dl) {
         const FrameUnit* unit=nullptr;for(const auto& u:f.units)if(u.entityHandle==e.handle&&u.team==e.team&&u.kind==UnitKind::Hero){unit=&u;break;}
         auto vision=unit?localvisibility::Get(f,*unit):localvisibility::State{};
         bool current=unit&&vision.known&&vision.visible;
-        float x=box.x,y=box.y,w=box.w,size=box.icon;Panel(dl,{x,y},{w,box.h});
+        float x=box.x,y=box.y,w=box.w,size=box.icon;
+        dl->PushClipRect({x,y},{x+w,y+box.h},true);
+        Panel(dl,{x,y},{w,box.h});
         std::string portrait=fogmemory::PortraitKey(e.name.c_str());auto* avatar=Texture("heroes",portrait.c_str());
-        if(cfg::hudPortraits&&avatar)dl->AddImage(ImTextureRef((void*)avatar),{x+4,y+4},{x+32,y+32});
-        else Text(dl,{x+5,y+9},"?",IM_COL32(160,170,186,255),14);
-        float barX=x+36,barW=w-40;char hp[24]="?",mana[24]="?";
-        if(current){snprintf(hp,sizeof(hp),"%d",unit->hp);snprintf(mana,sizeof(mana),"%d",int(unit->mana));}
-        Bar(dl,{barX,y+4},barW,15,current&&unit->maxHp>0?float(unit->hp)/unit->maxHp:0,e.team==f.localTeam?IM_COL32(65,174,99,255):IM_COL32(215,71,83,255),cfg::hudHpNumber?hp:"",14);
-        Bar(dl,{barX,y+21},barW,11,current&&unit->maxMana>0?unit->mana/unit->maxMana:0,IM_COL32(61,119,195,255),cfg::hudManaNumber?mana:"",11);
-        if(!current){const char* label=!unit?"NO SNAPSHOT":vision.known?"FOG":"VISION ?";Text(dl,{x+w*.5f,y+53},label,IM_COL32(181,190,205,255),w>130?14:12,true);continue;}
-        if(!unit->alive){Text(dl,{x+w*.5f,y+54},"DEAD",IM_COL32(226,139,143,255),14,true);continue;}
-        int overflowSpells=0,overflowItems=0;
-        if(cfg::hudTopAbilities){int count=std::min(unit->abilN,box.capacity);overflowSpells=std::max(0,unit->abilN-count);
-            for(int i=0;i<count;++i){const auto& a=unit->abil[i];Icon(dl,"abilities",a.icon,{x+4+i*(size+2),y+38},size,a.level,a.cd,a.cooldownRead,-1,a.maxLevel);}}
-        else {char level[16];snprintf(level,sizeof(level),"LV %d",unit->level);Text(dl,{x+5,y+41},level,IM_COL32_WHITE,14);}
-        if(cfg::hudItems&&unit->inventoryRead){int at=0;for(int slot=0;slot<6;++slot)for(int i=0;i<unit->itemN;++i)if(unit->items[i].slot==slot){const auto& item=unit->items[i];if(at<box.capacity)Icon(dl,"items",item.icon,{x+4+at*(size+2),y+size+49},size,-1,item.cd,item.cooldownRead,item.charges>0?item.charges:-1);else ++overflowItems;++at;}}
-        char footer[64]="";
-        if(unit->aegisVisible){char timer[24];AegisTime(*unit,timer,sizeof(timer));snprintf(footer,sizeof(footer),"AEGIS %s",timer);}
-        else if(overflowSpells||overflowItems)snprintf(footer,sizeof(footer),"S+%d  I+%d",overflowSpells,overflowItems);
-        if(footer[0])Text(dl,{x+w*.5f,y+box.h-15},footer,IM_COL32(222,186,117,255),12,true);
+        if(cfg::hudPortraits&&avatar)dl->AddImage(ImTextureRef((void*)avatar),{x+4,y+4},{x+30,y+30});
+        float barX=x+34,barW=w-38;char hp[24]="?",mana[24]="?";
+        if(current){snprintf(hp,sizeof(hp),"%d",unit->hp);if(unit->manaRead&&unit->maxMana>0)snprintf(mana,sizeof(mana),"%d",int(unit->mana));else if(unit->manaRead&&unit->maxMana==0&&unit->mana==0)snprintf(mana,sizeof(mana),"--");}
+        Bar(dl,{barX,y+4},barW,14,current&&unit->maxHp>0?float(unit->hp)/unit->maxHp:0,e.team==f.localTeam?IM_COL32(65,174,99,255):IM_COL32(215,71,83,255),hp,13);
+        Bar(dl,{barX,y+20},barW,10,current&&unit->maxMana>0?unit->mana/unit->maxMana:0,IM_COL32(61,119,195,255),mana,10);
+        if(!current||!unit->alive){const char* label=!current?(!unit?"--":vision.known?"FOG":"?"):"DEAD";Text(dl,{x+w*.5f,y+41},label,IM_COL32(181,190,205,255),12,true);dl->PopClipRect();continue;}
+        // Skills only: no items, charges, level dots, Aegis/footer or empty second row.
+        if(cfg::hudTopAbilities&&unit->abilN>0){
+            int count=std::min(unit->abilN,6);float skillSize=std::min(size,(w-8-2*(count-1))/count);
+            float rowX=x+(w-(skillSize*count+2*(count-1)))*.5f;
+            for(int i=0;i<count;++i){const auto& a=unit->abil[i];Icon(dl,"abilities",a.icon,{rowX+i*(skillSize+2),y+36},skillSize,a.level,a.cd,a.cooldownRead,-1,0);}
+        }
+        dl->PopClipRect();
     }
 }
 
@@ -315,7 +329,7 @@ void Draw(const Frame& f) {
         for(int i=0;i<unit.abilN;++i)if(unit.abil[i].icon[0])++readProbe.mappedAbilities;
     }
     auto* dl=ImGui::GetBackgroundDrawList();Watermark(dl);
-    if(!f.ok)return;
+    if(!f.ok||cfg::menuOpen)return;
     Top(f,dl);Roshan(f,dl);Bounty(f,dl);
 }
 }

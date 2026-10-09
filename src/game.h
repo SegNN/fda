@@ -75,6 +75,7 @@ struct FrameUnit {
     int   team = 0;
     int   hp = 0, maxHp = 0;
     float mana = 0.f, maxMana = 0.f;
+    bool manaRead=false;
     Vec3  pos{};
     float hbOffset = 200.f;
 

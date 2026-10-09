@@ -1,0 +1,28 @@
+{
+  "repo": "LWSS/McDota",
+  "sha": "5d577e41a3ce31202f40c0afac5426a0ac7f59c9",
+  "stars": 167,
+  "archived": false,
+  "license": {
+    "key": "gpl-3.0",
+    "name": "GNU General Public License v3.0",
+    "spdx_id": "GPL-3.0",
+    "url": "https://api.github.com/licenses/gpl-3.0",
+    "node_id": "MDc6TGljZW5zZTk="
+  },
+  "paths": [
+    "LICENSE.txt",
+    "README.md",
+    "src/GUI/Callbacks.cpp",
+    "src/GUI/Callbacks.h",
+    "src/GUI/Gui.cpp",
+    "src/GUI/Gui.h",
+    "src/GUI/Main.xml",
+    "src/SDK/CDotaCamera.h",
+    "src/SDK/Convar.h",
+    "src/SDK/ICvar.h",
+    "src/SDK/IVGuiPaintSurface.h",
+    "src/Utils/subhook/LICENSE.txt",
+    "src/Utils/subhook/README.md"
+  ]
+}

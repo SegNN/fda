@@ -1,4 +1,6 @@
-FDA ESP19 — MERGED COMBO18 (9 basic profiles) + ARM18 fixes + candidate NPC visibility reader + compact top HUD.
-Read README-ESP19.txt FIRST. Extract ENTIRE source project to a NEW folder -> build.bat.
-No prebuilt DLL. Windows/live Dota and candidate visibility offsets/mapping unverified.
-Do not extract into installed game folders. Historical README/QA files are not current status.
+CURRENT: ESP22 full original GUI source port.
+Read README-ESP22.txt, QA-ESP22.txt and GUI22-SOURCE-REVIEW.json first.
+Extract the WHOLE project and build with build.bat on Windows/MSVC x64.
+No prebuilt or live-tested DLL. Older numbered readmes are history, not current QA.
+The complete original standalone GUI reference is under
+references/umbrella-menu-original-full/source. Its EXE was not executed or shipped.

@@ -68,12 +68,12 @@ const char* StatusRu(){
  struct Message{const char* en;const char* ru;};
  for(auto m:{Message{"OFF","Выключено."},
  Message{"Confirm native key and risk after testing in demo.","Не включено подтверждение клавиши. Сначала проверьте её вручную в демо, затем подтвердите в меню."},
- Message{"Local player unresolved; no automatic Huskar selection.","Локальный игрок не определён (localFrame=0). Автонажатия заблокированы; нужен полный HUD6-отчёт диагностики."},
+ Message{"Local player unresolved; no automatic hero selection.","Локальный игрок не определён (localFrame=0). Автонажатия заблокированы; нужен полный HUD6-отчёт диагностики."},
  Message{"Close the menu to run Armlet.","Закройте меню программы: с открытым меню автонажатия запрещены."},
  Message{"Dota must have focus.","Окно Dota должно быть активным."},
- Message{"Select only your Huskar; selection unavailable otherwise.","Выберите только своего Huskar. Группа юнитов или неподтверждённое выделение блокируют цикл."},
+ Message{"Select only your own hero; selection unavailable otherwise.","Выберите только своего героя. Группа юнитов или неподтверждённое выделение блокируют цикл."},
  Message{"Inventory / modifier list unverified.","Инвентарь или полный список модификаторов не подтверждены. Видимые иконки ESP этого не подтверждают."},
- Message{"Only your own Huskar.","Работает только на вашем Huskar, не на чужом герое или иллюзии."},
+ Message{"Own hero unavailable or illusion.","Нужен собственный управляемый герой, не чужой герой или иллюзия."},
  Message{"Armlet not in the configured active inventory slot.","Armlet не найден в выбранном активном слоте 1–6. Проверьте слот в меню."},
  Message{"Damage timing unknown; new OFF blocked, ON completion allowed.","Время входящего урона неизвестно: новый OFF запрещён, завершение ON не отменяется из-за DoT."},
  Message{"HP above threshold; no toggle requested.","HP выше порога: переключение не запрашивалось."},
@@ -93,10 +93,13 @@ const char* StatusRu(){
 bool Pending(){return machine.Pending();}
 bool OwnsLane(const Frame& f){
  if(machine.Pending())return true;
- if(!cfg::armletAuto||!f.ok||f.observedOnly||!f.localHandle)return false;
- for(const auto& u:f.units)if(u.kind==UnitKind::Hero&&u.addr==f.localHero&&u.entityHandle==f.localHandle&&!u.illusion&&!strcmp(u.name,"npc_dota_hero_huskar"))return true;
- return false;
+ if(!cfg::armletAuto||!cfg::armletConfirmed||!f.ok||f.observedOnly||!f.localAlive||!f.localHandle||!std::isfinite(cfg::armletThreshold))return false;
+ for(const auto& u:f.units)if(u.kind==UnitKind::Hero&&u.addr==f.localHero&&u.entityHandle==f.localHandle&&!u.illusion&&u.inventoryRead&&u.hp>0&&u.hp<=cfg::armletThreshold){
+  for(int i=0;i<u.itemN;++i)if(u.items[i].slot==cfg::armletSlot&&!strcmp(u.items[i].icon,"armlet"))return true;
+ }
+ return false; // Enabled alone / high HP / missing Armlet must not starve combo input.
 }
+
 void Reset(){++resetRequests;machine.Reset();firstFault[0]=0;status="Reset. Verify native Armlet key, slot and state manually.";}
 static bool Block(const char* why){machine.Cancel(why);status=machine.State()==armletcore::Phase::Fault?"Cycle stopped. Armlet may be OFF; check manually and reset.":why;return false;}
 static char selectionReport[1536]="selection: not sampled at the selection gate.";
@@ -130,18 +133,18 @@ bool Tick(const Frame& f){
  if(!cfg::armletConfirmed)return Block("Confirm native key and risk after testing in demo.");
  int key=cfg::armletKey,bind=binds::items[11].vk;
  if(!((key>='A'&&key<='Z')||(key>='0'&&key<='9'))||bind<0||bind>=256||(bind>0&&(key==bind||bind==cfg::menuKey||bind==cfg::unloadKey))||key==cfg::menuKey||key==cfg::unloadKey)return Block("Native item key required; optional activation binding must not collide.");
- if(!f.ok||f.observedOnly||!f.localHandle)return Block("Local player unresolved; no automatic Huskar selection.");
+ if(!f.ok||f.observedOnly||!f.localHandle)return Block("Local player unresolved; no automatic hero selection.");
  if(cfg::menuOpen)return Block("Close the menu to run Armlet.");
  if(!f.localAlive||!std::isfinite(f.now))return Block("Local hero dead / clock unavailable.");
  uint8_t paused=2;if(!mem::ValidPtr(f.rules)||!mem::Read(f.rules+0x38,paused)||paused!=0)return Block("Pause state unknown / game paused.");
  HWND hwnd=GetForegroundWindow();DWORD pid=0;if(!hwnd||!IsWindowVisible(hwnd)||!GetWindowThreadProcessId(hwnd,&pid)||pid!=GetCurrentProcessId())return Block("Dota must have focus.");
  for(int vk:{VK_SHIFT,VK_CONTROL,VK_MENU,key})if(GetAsyncKeyState(vk)&0x8000)return Block("User key/modifier held.");
  const FrameUnit* self=nullptr;for(const auto& u:f.units)if(u.addr==f.localHero&&u.kind==UnitKind::Hero&&u.entityHandle==f.localHandle)self=&u;
- if(!self||strcmp(self->name,"npc_dota_hero_huskar")||self->illusion)return Block("Only your own Huskar.");
+ if(!self||self->illusion)return Block("Own hero unavailable or illusion.");
  if(contextHero&&(contextHero!=f.localHandle||contextRules!=f.rules)){contextHero=f.localHandle;contextRules=f.rules;machine.Reset();firstFault[0]=0;cfg::armletConfirmed=false;return Block("Hero / match changed. Confirm native setup again.");}
  contextHero=f.localHandle;contextRules=f.rules;
  uint32_t assigned=0;if(!mem::Read(game::g_sys.localCtrl+off::Ctrl::m_hAssignedHero,assigned)||assigned!=f.localHandle)return Block("Assigned hero handle changed / unavailable.");
- if(!Selected(f.localHandle))return Block("Select only your Huskar; selection unavailable otherwise.");
+ if(!Selected(f.localHandle))return Block("Select only your own hero; selection unavailable otherwise.");
  if(!self->inventoryRead||!self->buffsRead)return Block("Inventory / modifier list unverified.");
  bool effectOn=false;for(const auto& buff:self->buffs)if(!strcmp(buff.name,"modifier_item_armlet_unholy_strength"))effectOn=true;
  tickEffect=effectOn?1:0;
@@ -184,6 +187,11 @@ bool Tick(const Frame& f){
  }
  if(action==armletcore::Action::None)return machine.Pending();
  if(GetForegroundWindow()!=hwnd||cfg::menuOpen||!cfg::armletAuto){machine.Failed("Focus/menu/enable changed before input");return Block("Focus changed");}
+ uint32_t liveAssigned=0;uintptr_t liveIdentity=0;uint32_t liveItemHandle=0;
+ if(game::EntityByHandle(f.localHandle)!=f.localHero||!mem::Read(game::g_sys.localCtrl+off::Ctrl::m_hAssignedHero,liveAssigned)||liveAssigned!=f.localHandle||!Selected(f.localHandle)||
+    !mem::Read(item->addr+off::instEntity,liveIdentity)||!mem::ValidPtr(liveIdentity)||!mem::Read(liveIdentity+off::idHandleFld,liveItemHandle)||liveItemHandle!=item->instanceHandle){
+  machine.Failed("Owner/selection/identity changed before input");return Block("Owner/selection/identity changed before input");
+ }
  INPUT inputs[2]{};inputs[0].type=inputs[1].type=INPUT_KEYBOARD;inputs[0].ki.wVk=inputs[1].ki.wVk=(WORD)key;inputs[1].ki.dwFlags=KEYEVENTF_KEYUP;
  tickAction=action==armletcore::Action::TurnOff?1:2;lastInputAction=tickAction;lastInputAt=f.now;++inputCalls;if(tickAction==1)++requestedOff;else ++requestedOn;
  UINT sent=SendInput(2,inputs,sizeof(INPUT));lastSent=int(sent);if(sent==2)++deliveredPairs;else ++deliveryFailures;if(sent==1)SendInput(1,&inputs[1],sizeof(INPUT));if(sent!=2){machine.Failed("SendInput did not deliver both key events");status="Cycle stopped. Armlet may be OFF; check manually and reset.";}

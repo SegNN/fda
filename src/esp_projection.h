@@ -33,4 +33,26 @@ inline Choice Resolve(const float* m,int width,int height,const Frame& frame,int
     // No votes/tie: conventional unflipped Y, not stale orientation or an arbitrary hidden hero.
     return c;
 }
+class StableCamera {
+ bool locked=false;int mode=0;
+public:
+ void Reset(){locked=false;mode=0;}
+ Choice Select(const float* m){
+  Choice c;if(!m)return c;
+  if(!locked){
+   float rowW=std::sqrt(m[12]*m[12]+m[13]*m[13]+m[14]*m[14]);
+   float colW=std::sqrt(m[3]*m[3]+m[7]*m[7]+m[11]*m[11]);
+   // Dota's supplied matrices are row-major. Permit an unambiguous transpose
+   // at initialization only; translation near the origin must not swap layouts.
+   mode=(colW>.1f&&colW<3.f&&rowW>4.f)?2:0;
+   float upZ=(mode&2)?m[9]:m[6];
+   if(!std::isfinite(upZ)||std::fabs(upZ)<.001f)return c;
+   if(upZ<0)mode|=1;
+   locked=true;
+  }
+  c.mode=mode;return c;
+ }
+ bool Locked()const{return locked;}
+};
+
 }

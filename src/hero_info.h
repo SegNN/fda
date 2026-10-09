@@ -1,6 +1,7 @@
 #pragma once
 #include "game.h"
 #include "imgui.h"
+#include "umbrella_style.h"
 #include <unordered_map>
 #include <algorithm>
 #include <cmath>
@@ -34,7 +35,11 @@ public:
  void Reset(){states.clear();}
 };
 inline float HpOffset(float common,float redOffset,bool red){return common+(red?redOffset:0.f);}
-struct Style {bool hp=true,abilities=true,items=true,statuses=true,illusions=true,effects=true,timedOnly=true,above=false;float pixels=30,hpX=0,hpY=0,minOverlayY=0;ImFont* hpFont=nullptr;};
+struct Style {
+ bool layers=false,minified=false;int itemAlign=3,skillAlign=0,modAlign=0,customBar=-1;
+ float itemSize=29,skillSize=29,modSize=29,itemAlpha=1,skillAlpha=1,modAlpha=1;
+ unsigned accent=0;bool itemTheme=false,skillTheme=false,modTheme=false;
+bool hp=true,abilities=true,items=true,statuses=true,illusions=true,effects=true,timedOnly=true,above=false;float pixels=30,hpX=0,hpY=0,minOverlayY=0;ImFont* hpFont=nullptr;};
 struct Stats {int items=0,abilities=0,effects=0,statuses=0;bool invis=false,illusion=false;float invisRemaining=0;};
 inline int Charges(const ItemInfo& item){return item.charges>0?item.charges:-1;}
 inline bool Bit(uint64_t v,int b){return (v&(uint64_t(1)<<b))!=0;}
@@ -74,6 +79,7 @@ void Icon(ImDrawList* dl,ImFont* font,Texture texture,const char* cat,const char
  if(level==0)dl->AddRectFilled(p,ImVec2(p.x+size,p.y+size),IM_COL32(0,0,0,175));
  if(level!=0&&known&&cd>.05f){dl->AddRectFilled(p,ImVec2(p.x+size,p.y+size),IM_COL32(0,0,0,160));char n[12];snprintf(n,sizeof(n),"%d",(int)ceilf(cd));Text(dl,font,16,ImVec2(p.x+size*.5f,p.y+size*.25f),IM_COL32_WHITE,n,true);}
  if(level!=0&&!known){Text(dl,font,14,ImVec2(p.x+size-5,p.y),IM_COL32_WHITE,"?",true);}
+ if(level!=0&&known&&cd<=.05f)umbrellastyle::Halo(dl,p,{p.x+size,p.y+size},IM_COL32(121,93,224,255),3,.45f);
  dl->AddRect(p,ImVec2(p.x+size,p.y+size),edge,3,0,1);
  // Native-panel style: only max-level segments, never numeric ability levels.
  if(level>=0&&maxLevel>0&&maxLevel<=10){float gap=2,segment=(size-gap*(maxLevel-1))/maxLevel;
@@ -163,7 +169,15 @@ Stats Draw(const FrameUnit& u,ImDrawList* dl,ImFont* font,ImVec2 foot,ImVec2 top
  bool invis=(u.stateRead&&Bit(u.unitState,7))||(u.invisRead&&u.invis>.4f);
  auto observation=tracker.Observe(u.entityHandle,u.stateRead||u.invisRead,invis,u.alive,now);
  stats.invis=observation.active;stats.invisRemaining=observation.remaining;stats.illusion=Illusion(u);
- if(style.hp){char hp[24];snprintf(hp,sizeof(hp),"%d",u.hp);
+ if(style.customBar>=0){
+  bool mana=style.customBar==1;bool valid=!mana||(u.manaRead&&u.maxMana>0);
+  if(valid){float value=mana?u.mana:float(u.hp),maximum=mana?u.maxMana:float(u.maxHp);
+   ImVec2 a(top.x-48,top.y-34),b(top.x+48,top.y-27);dl->AddRectFilled(a,b,IM_COL32(15,16,18,225),2);
+   dl->AddRectFilled(a,{a.x+96*std::clamp(value/maximum,0.f,1.f),b.y},mana?IM_COL32(65,136,218,255):IM_COL32(67,184,111,255),2);
+   char n[24];snprintf(n,sizeof(n),"%.0f",value);Text(dl,font,11,{top.x,top.y-48},IM_COL32_WHITE,n,true);
+  }
+ }
+ if(style.hp && style.customBar<0){char hp[24];snprintf(hp,sizeof(hp),"%d",u.hp);
   ImFont* hpFont=style.hpFont?style.hpFont:(font?font:ImGui::GetFont());
   // Ink bounds rather than line-box height: different fonts no longer shift the digits vertically.
   const float size=14;ImVec2 center(std::round(top.x+3+style.hpX),std::round(top.y-24+style.hpY));
@@ -185,30 +199,48 @@ Stats Draw(const FrameUnit& u,ImDrawList* dl,ImFont* font,ImVec2 foot,ImVec2 top
  // Public MODIFIER_STATE bit indices; positive, verified state only. No false statuses from items.
  if(style.statuses&&u.stateRead){for(auto s:{std::pair<int,const char*>{5,"STUN"},{6,"HEX"},{3,"SILENCE"},{4,"MUTE"},{0,"ROOT"},{1,"DISARM"}})if(Bit(u.unitState,s.first))tags.emplace_back(s.second,IM_COL32(242,153,135,255));}
  char extraTags[16]={};if(tags.size()>3){snprintf(extraTags,sizeof(extraTags),"+%d",(int)tags.size()-3);tags.resize(3);tags.emplace_back(extraTags,IM_COL32(160,181,198,255));}
- float pixels=std::clamp(style.pixels,28.f,60.f);float totalHeight=0;
+ float pixels=std::clamp(style.layers?style.skillSize:style.pixels,16.f,72.f);float totalHeight=0;
  if(style.abilities&&u.abilN>0)totalHeight+=pixels+16;
  if(style.items&&u.inventoryRead){int n=0;bool charges=false;for(int i=0;i<u.itemN&&i<27;++i)if(u.items[i].slot>=0&&u.items[i].slot<=5&&u.items[i].icon[0]){++n;charges|=Charges(u.items[i])>0;}if(n)totalHeight+=std::min(pixels,34.f)+(charges?18.f:0.f)+8;}
  if(style.effects&&(u.buffsRead||u.buffsVisualRead)){auto groups=GroupEffects(u,style.timedOnly);int n=0;for(const auto& g:groups)if(EffectTexture(texture,g.representative))++n;if(n)totalHeight+=50;}
  if(!tags.empty())totalHeight+=28;
  // Never paint world rows through the compact fixed top HUD. Keep native HP text / observed invis marker.
- if(style.above&&top.y-54-totalHeight<style.minOverlayY)return stats;
+ if(!style.layers&&style.above&&top.y-54-totalHeight<style.minOverlayY)return stats;
  float anchorX=style.above?top.x:foot.x;float next=style.above?top.y-54-totalHeight:foot.y+12.f;Rect rect;
+ auto place=[&](int align,int section,float width,float height,Rect& out){
+  if(!style.layers)return layout.Place(anchorX-width*.5f,next,width,height,W,H,out);
+  float x=top.x-width*.5f,y=top.y-54-height;
+  // Each layer reserves its own lane. World anchors never depend on camera history.
+  if(align==0)y-=section*90.f;
+  if(align==1)y=foot.y+12+section*90.f;
+  if(align==2){x=top.x-70-width;y=top.y+section*90.f;}
+  if(align==3){x=top.x+70;y=top.y+section*90.f;}
+  if(y<style.minOverlayY)return false;
+  return layout.Place(x,y,width,height,W,H,out);
+ };
+ auto finish=[&](int begin,float alpha,bool theme){for(int i=begin;i<dl->VtxBuffer.Size;++i){auto& c=dl->VtxBuffer[i].col;
+  // Preserve semantic status/cooldown colours; theme only the neutral icon outline.
+  if(theme&&(c&0xffffffu)==(IM_COL32(110,135,157,240)&0xffffffu))c=(c&0xff000000u)|(style.accent&0xffffffu);
+  c=(c&0xffffffu)|(unsigned(((c>>24)&255u)*std::clamp(alpha,0.f,1.f))<<24);
+ }};
+
  if(!tags.empty()){float width=0;for(auto t:tags)width+=std::max(54.f,(font?font:ImGui::GetFont())->CalcTextSizeA(13,10000,0,t.first).x+16)+4;
   if(layout.Place(anchorX-width*.5f,style.above?next:foot.y-70.f,width-4,22,W,H,rect)){float x=rect.x;for(auto t:tags){float w=std::max(54.f,(font?font:ImGui::GetFont())->CalcTextSizeA(13,10000,0,t.first).x+16);Badge(dl,font,ImVec2(x,rect.y),t.first,t.second,w);x+=w+4;++stats.statuses;}if(style.above)next=rect.y+28;}}
- if(style.abilities&&u.abilN>0){int n=std::min(u.abilN,6);float width=n*(pixels+4)-4;
-  if(layout.Place(anchorX-width*.5f,next,width,pixels+10,W,H,rect)){for(int i=0;i<n;++i){const auto& a=u.abil[i];Icon(dl,font,texture,"abilities",a.icon,ImVec2(rect.x+i*(pixels+4),rect.y),pixels,a.level,a.maxLevel,a.cd,a.cooldownRead,-1);++stats.abilities;}next=rect.y+pixels+16;}}
- if(style.items&&u.inventoryRead){std::vector<const ItemInfo*> items;for(int i=0;i<u.itemN&&i<27;++i)if(u.items[i].slot>=0&&u.items[i].slot<=5&&u.items[i].icon[0])items.push_back(&u.items[i]);
-  if(!items.empty()){bool charges=false;for(auto item:items)if(Charges(*item)>0)charges=true;float footer=charges?18.f:0.f;float size=std::min(pixels,34.f),width=items.size()*(size+4)-4;
-   if(layout.Place(anchorX-width*.5f,next,width,size+footer,W,H,rect)){for(size_t i=0;i<items.size();++i){const auto& item=*items[i];Icon(dl,font,texture,"items",item.icon,ImVec2(rect.x+i*(size+4),rect.y),size,-1,0,item.cd,item.cooldownRead,Charges(item));++stats.items;}next=rect.y+size+footer+8;}}}
+ if(style.abilities&&u.abilN>0){int begin=dl->VtxBuffer.Size;int n=std::min(u.abilN,6);float width=n*(pixels+4)-4;
+  if(place(style.skillAlign,0,width,pixels+10,rect)){for(int i=0;i<n;++i){const auto& a=u.abil[i];Icon(dl,font,texture,"abilities",a.icon,ImVec2(rect.x+i*(pixels+4),rect.y),pixels,a.level,style.minified?0:a.maxLevel,a.cd,a.cooldownRead,-1);++stats.abilities;}next=rect.y+pixels+16;}if(style.layers)finish(begin,style.skillAlpha,style.skillTheme);}
+ if(style.items&&u.inventoryRead){int begin=dl->VtxBuffer.Size;std::vector<const ItemInfo*> items;for(int i=0;i<u.itemN&&i<27;++i)if(u.items[i].slot>=0&&u.items[i].slot<=5&&u.items[i].icon[0])items.push_back(&u.items[i]);
+  if(!items.empty()){bool charges=false;for(auto item:items)if(Charges(*item)>0)charges=true;float footer=charges?18.f:0.f;float size=style.layers?std::clamp(style.itemSize,16.f,72.f):std::min(pixels,34.f),width=items.size()*(size+4)-4;
+   if(place(style.itemAlign,1,width,size+footer,rect)){for(size_t i=0;i<items.size();++i){const auto& item=*items[i];Icon(dl,font,texture,"items",item.icon,ImVec2(rect.x+i*(size+4),rect.y),size,-1,0,item.cd,item.cooldownRead,Charges(item));++stats.items;}next=rect.y+size+footer+8;}}if(style.layers)finish(begin,style.itemAlpha,style.itemTheme);}
  if(style.effects&&(u.buffsRead||u.buffsVisualRead)){
-  auto groups=GroupEffects(u,style.timedOnly);
+  int begin=dl->VtxBuffer.Size;auto groups=GroupEffects(u,style.timedOnly);
   groups.erase(std::remove_if(groups.begin(),groups.end(),[&](const EffectGroup& group){return !EffectTexture(texture,group.representative);}),groups.end());
-  int shown=std::min((int)groups.size(),8);const float diameter=30,gap=10;
+  int shown=std::min((int)groups.size(),8);const float diameter=style.layers?std::clamp(style.modSize,16.f,72.f):30,gap=10;
   float width=shown*(diameter+gap)-gap;
-  if(shown&&layout.Place(anchorX-width*.5f,next,width,diameter+20,W,H,rect)){
+  if(shown&&place(style.modAlign,2,width,diameter+20,rect)){
    for(int i=0;i<shown;++i){auto& group=groups[i];ImVec2 center(rect.x+i*(diameter+gap)+diameter*.5f,rect.y+diameter*.5f);
     EffectCircle(dl,font,texture,group.representative,group.remaining,center,diameter*.5f,group.applications);++stats.effects;}
   }
+  if(style.layers)finish(begin,style.modAlpha,style.modTheme);
  }
  return stats;
 }

@@ -11,5 +11,6 @@ bool Run(const Frame& frame);
 void Cancel(const char* reason);
 void Reset();
 const char* Status();
+const char* LastOutcome();
 void DrawSettings(int profile,bool english);
 }

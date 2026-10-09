@@ -50,7 +50,7 @@ namespace cfg {
     inline bool hudVisibleByEnemy = false; // experimental read-only client visibility mask
     inline bool farmHarass = false;
     inline bool lastHitEnabled = true;
-    inline float hudTopY = 76.f;
+    inline float hudTopY = 54.f;
     inline float hudTopSlot = 72.f;
     inline float hudTopGap = 184.f;
     inline float hudWatermarkX = -1.f, hudWatermarkY = 12.f;
